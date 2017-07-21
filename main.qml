@@ -35,24 +35,83 @@ ApplicationWindow {
         onEntered: {
             if (!drag.hasUrls)
                 return;
-            console.log(drag.urls[0])
+            var sub, av
+            for (var i = 0; i < drag.urls.length; ++i) {
+                var s = drag.urls[i].toString()
+                if (s.endsWith(".srt")
+                        || s.endsWith(".ass")
+                        || s.endsWith(".ssa")
+                        || s.endsWith(".sub")
+                        || s.endsWith(".idx") //vob
+                        || s.endsWith(".mpl2")
+                        || s.endsWith(".smi")
+                        || s.endsWith(".sami")
+                        || s.endsWith(".sup")
+                        || s.endsWith(".txt"))
+                    sub = drag.urls[i]
+                else
+                    av = drag.urls[i]
+            }
+            if (sub) {
+                subtitle.autoLoad = false
+                subtitle.file = sub
+            } else {
+                subtitle.file = ""
+            }
+            if (av) {
+                console.log("av source detected" + av)
+                changeSource(av)
+                pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
+            }
+
+           // console.log(drag.urls[0])
           //  fileName = drag.urls[0]
-            changeSource(drag.urls[0])
-            pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
+          //  changeSource(drag.urls[0])
+          //  pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
         }
     }
 
     FileDialog {
         id: fileDialog
-        title: "Please choose a media file"
+        title: "Please choose a media file"        
         onAccepted: {
-            console.log("You chose: " + fileDialog.fileUrls)
-            changeSource(fileDialog.fileUrls[0])
-            pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
+            var sub, av
+            for (var i = 0; i < fileUrls.length; ++i) {
+                var s = fileUrls[i].toString()
+                if (s.endsWith(".srt")
+                        || s.endsWith(".ass")
+                        || s.endsWith(".ssa")
+                        || s.endsWith(".sub")
+                        || s.endsWith(".idx") //vob
+                        || s.endsWith(".mpl2")
+                        || s.endsWith(".smi")
+                        || s.endsWith(".sami")
+                        || s.endsWith(".sup")
+                        || s.endsWith(".txt"))
+                    sub = fileUrls[i]
+                else
+                    av = fileUrls[i]
+            }
+            if (sub) {
+                subtitle.autoLoad = false
+                subtitle.file = sub
+            } else {
+                subtitle.file = ""
+            }
+            if (av) {
+                console.log("av source detected" + av)
+                changeSource(av)
+                pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
+            }
+
+         //   console.log("You chose: " + fileDialog.fileUrls)
+           // changeSource(fileDialog.fileUrls[0])
+          //  pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
+
         }
         onRejected: {
             console.log("Canceled")
-        }
+        }        
     }
 
     MouseArea {
@@ -117,10 +176,43 @@ ApplicationWindow {
         }
     }
 
-    Video {
-        id: kioo
+    VideoOutput2 {
+        id: vidOut
+        opengl: true
+        fillMode: VideoOutput.PreserveAspectFit
         anchors.fill: parent
+        source: kioo
+        orientation: 0
+        //filters: [negate, hflip]
+
+        SubtitleItem {
+            id: subtitleItem
+            fillMode: vidOut.fillMode
+            rotation: -vidOut.orientation
+            source: subtitle
+            anchors.fill: parent
+        }
+        Label {
+            id: subtitleLabel
+            rotation: -vidOut.orientation
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignBottom
+          //  font: PlayerConfig.subtitleFont
+            style: Text.Normal //PlayerConfig.subtitleOutline ? Text.Outline : Text.Normal
+           // styleColor: "white" // PlayerConfig.subtitleOutlineColor
+            color: "white"//PlayerConfig.subtitleColor
+            font.pointSize: Math.max(root.width, root.height) / 40
+
+            anchors.fill: parent
+            anchors.bottomMargin: 20 //PlayerConfig.subtitleBottomMargin
+        }
+    }
+
+    MediaPlayer {
+        id: kioo
+        //anchors.fill: parent
         source: fileName
+
         onPositionChanged: {
             slider.setProgress(position/duration)
         }
@@ -129,9 +221,38 @@ ApplicationWindow {
                 osd.info("Playing")
             else if(kioo.playbackState == MediaPlayer.PausedState)
                 osd.info("Paused")
-            console.log("The audio tracks are:"+kioo.metaData.channelCount)
+            console.log("The audio tracks are:"+kioo.audioTrack)
         }
 
+    }
+
+    Subtitle {
+        id: subtitle
+        player: kioo
+        enabled: true //PlayerConfig.subtitleEnabled
+        autoLoad: true //PlayerConfig.subtitleAutoLoad
+       // engines: "FFmpeg" //PlayerConfig.subtitleEngines
+        delay: 0 //PlayerConfig.subtitleDelay
+       // fontFile: //PlayerConfig.assFontFile
+       // fontFileForced: // PlayerConfig.assFontFileForced
+       // fontsDir: //PlayerConfig.assFontsDir
+
+        onContentChanged: { //already enabled
+            if (!canRender || !subtitleItem.visible)
+                subtitleLabel.text = text
+        }
+        onLoaded: {
+            osd.info(qsTr("Subtitle") + ": " + path.substring(path.lastIndexOf("/") + 1))
+        }
+
+        onEngineChanged: { // assume a engine canRender is only used as a renderer
+            subtitleItem.visible = canRender
+            subtitleLabel.visible = !canRender
+        }
+        onEnabledChanged: {
+            subtitleItem.visible = enabled
+            subtitleLabel.visible = enabled
+        }
     }
 
     footer: ToolBar {
@@ -198,6 +319,10 @@ ApplicationWindow {
                 onOpenPlaylist: {
                     drawer.visible == true ? drawer.close() : drawer.open()
                 }
+                onOpenSettings: {
+                    sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
+                }
+
                 onSkipNext: {
                     console.log(pModel.count+"  "+pList.currentIndex)
                     if(pModel.count > 1) {
@@ -588,6 +713,7 @@ ApplicationWindow {
                 font.pixelSize: 25
                 font.bold: true
                 color: "white"
+                opacity: 0.8
             }
         }
         ScrollIndicator.vertical: ScrollIndicator { }

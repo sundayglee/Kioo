@@ -16,6 +16,7 @@ RowLayout {
     signal skipNext
     signal skipPrevious
     signal openPlaylist
+    signal openSettings
     signal volumeChanged
 
     function setVolume(value) {
@@ -34,6 +35,9 @@ RowLayout {
             contentItem: Image {
                 source: "/icon/menu.svg"
                 opacity: 0.8
+            }
+            onClicked: {
+                openSettings()
             }
         }
         
