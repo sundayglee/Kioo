@@ -1,6 +1,6 @@
-QT += qml quick
+QT += qml quick av
 
-CONFIG += c++11
+CONFIG += c++11 static
 
 SOURCES += main.cpp
 

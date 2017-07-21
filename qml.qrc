@@ -2,5 +2,32 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>icon/fast_forward.svg</file>
+        <file>icon/fast_rewind.svg</file>
+        <file>icon/pause.svg</file>
+        <file>icon/play.svg</file>
+        <file>icon/play_black.svg</file>
+        <file>icon/skip_next.svg</file>
+        <file>icon/skip_previous.svg</file>
+        <file>icon/stop.svg</file>
+        <file>icon/eject.svg</file>
+        <file>icon/fullscreen.svg</file>
+        <file>icon/fullscreen_exit.svg</file>
+        <file>icon/menu.svg</file>
+        <file>icon/perm_media.svg</file>
+        <file>icon/playlist_play.svg</file>
+        <file>icon/repeat.svg</file>
+        <file>icon/repeat_one.svg</file>
+        <file>icon/shuffle.svg</file>
+        <file>icon/video_library.svg</file>
+        <file>MyControls.qml</file>
+        <file>CustomSlider.qml</file>
+        <file>Utils.js</file>
+        <file>icon/close.svg</file>
+        <file>icon/minimize.svg</file>
+        <file>icon/maximize.svg</file>
+        <file>icon/down.svg</file>
+        <file>icon/up.svg</file>
+        <file>CustomCombo.qml</file>
     </qresource>
 </RCC>
