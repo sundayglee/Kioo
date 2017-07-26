@@ -6,6 +6,7 @@ import QtAV 1.5
 import "Utils.js" as Utils
 import QtQuick.Dialogs 1.2
 import QtQuick.LocalStorage 2.0
+import Qt.labs.settings 1.0
 
 ApplicationWindow {
     id: root
@@ -17,7 +18,7 @@ ApplicationWindow {
    // visibility: Window.FullScreen
    // flags: Qt.Window | Qt.FramelessWindowHint
 
-    property string fileName: "C:/Qt/sample.avi" // "file:///home/sglee/Downloads/114090.mp4"
+    property string fileName: "" // "file:///home/sglee/Downloads/114090.mp4"
     property var db
 
     signal requestFullScreen
@@ -29,84 +30,66 @@ ApplicationWindow {
         kioo.play()
     }
 
+    Settings {
+        id: appOption
+
+        property alias alSubtitleEnable : subtitleEnable.checked
+        property alias alVideoEnable : videoEnable.checked
+        property alias alAudioEnable : audioEnable.checked
+        property alias alRememberPlaylist : enableHistory.checked
+
+    }
+
     DropArea {
         anchors.fill: parent
         enabled: true
         onEntered: {
             if (!drag.hasUrls)
                 return;
-            var sub, av
+            var subs
             for (var i = 0; i < drag.urls.length; ++i) {
                 var s = drag.urls[i].toString()
-                if (s.endsWith(".srt")
-                        || s.endsWith(".ass")
-                        || s.endsWith(".ssa")
-                        || s.endsWith(".sub")
-                        || s.endsWith(".idx") //vob
-                        || s.endsWith(".mpl2")
-                        || s.endsWith(".smi")
-                        || s.endsWith(".sami")
-                        || s.endsWith(".sup")
-                        || s.endsWith(".txt"))
-                    sub = drag.urls[i]
-                else
-                    av = drag.urls[i]
+                if (s.endsWith(".srt") || s.endsWith(".ass") || s.endsWith(".ssa") || s.endsWith(".sub")
+                        || s.endsWith(".idx") || s.endsWith(".mpl2") || s.endsWith(".smi") || s.endsWith(".sami")
+                        || s.endsWith(".sup") || s.endsWith(".txt")) sub = drag.urls[i]
+                else {
+                    pModel.append({ fTitle: Utils.fileName(drag.urls[i]), fLink: drag.urls[i]})
+                    changeSource(drag.urls[0])
+                }
             }
-            if (sub) {
+            if (subs) {
                 subtitle.autoLoad = false
-                subtitle.file = sub
+                subtitle.file = subs
             } else {
                 subtitle.file = ""
             }
-            if (av) {
-                console.log("av source detected" + av)
-                changeSource(av)
-                pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
-            }
-
-           // console.log(drag.urls[0])
-          //  fileName = drag.urls[0]
-          //  changeSource(drag.urls[0])
-          //  pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
         }
     }
 
     FileDialog {
         id: fileDialog
-        title: "Please choose a media file"        
+        title: "Please choose a media file"
+        selectMultiple: true
+
         onAccepted: {
-            var sub, av
+            var subs
             for (var i = 0; i < fileUrls.length; ++i) {
                 var s = fileUrls[i].toString()
-                if (s.endsWith(".srt")
-                        || s.endsWith(".ass")
-                        || s.endsWith(".ssa")
-                        || s.endsWith(".sub")
-                        || s.endsWith(".idx") //vob
-                        || s.endsWith(".mpl2")
-                        || s.endsWith(".smi")
-                        || s.endsWith(".sami")
-                        || s.endsWith(".sup")
-                        || s.endsWith(".txt"))
-                    sub = fileUrls[i]
-                else
-                    av = fileUrls[i]
+                if (s.endsWith(".srt") || s.endsWith(".ass") || s.endsWith(".ssa") || s.endsWith(".sub")
+                        || s.endsWith(".idx") || s.endsWith(".mpl2") || s.endsWith(".smi") || s.endsWith(".sami")
+                        || s.endsWith(".sup") || s.endsWith(".txt"))
+                    subs = fileUrls[i]
+                else {
+                    pModel.append({ fTitle: Utils.fileName(fileUrls[i]), fLink: fileUrls[i] })
+                    changeSource(fileUrls[0])
+                }
             }
-            if (sub) {
+            if (subs) {
                 subtitle.autoLoad = false
-                subtitle.file = sub
+                subtitle.file = subs
             } else {
                 subtitle.file = ""
             }
-            if (av) {
-                console.log("av source detected" + av)
-                changeSource(av)
-                pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
-            }
-
-         //   console.log("You chose: " + fileDialog.fileUrls)
-           // changeSource(fileDialog.fileUrls[0])
-          //  pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName})
 
         }
         onRejected: {
@@ -136,6 +119,21 @@ ApplicationWindow {
                 mouse1.cursorShape = Qt.ArrowCursor
             }
         }
+        onDoubleClicked: {
+            root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
+        }
+
+        onClicked: {
+            kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+        }
+
+        onWheel: {
+            console.log(wheel.angleDelta.y)
+            if(wheel.angleDelta.y > 0)
+                kioo.volume = Math.min(2, kioo.volume+0.05)
+            else if(wheel.angleDelta.y < 0)
+                kioo.volume = Math.max(0, kioo.volume-0.05)
+        }
     }    
 
     Timer {
@@ -159,7 +157,7 @@ ApplicationWindow {
 
     header: ToolBar {
         id: topbar
-        height: 26
+        height: 24
         visible: root.visibility == Window.FullScreen ? true : false
 
         RowLayout {
@@ -179,6 +177,7 @@ ApplicationWindow {
     VideoOutput2 {
         id: vidOut
         opengl: true
+        visible: appOption.alVideoEnable
         fillMode: VideoOutput.PreserveAspectFit
         anchors.fill: parent
         source: kioo
@@ -201,7 +200,8 @@ ApplicationWindow {
             style: Text.Normal //PlayerConfig.subtitleOutline ? Text.Outline : Text.Normal
            // styleColor: "white" // PlayerConfig.subtitleOutlineColor
             color: "white"//PlayerConfig.subtitleColor
-            font.pointSize: Math.max(root.width, root.height) / 40
+            opacity: 0.8
+            font.pointSize: Math.max(root.width, root.height) / 30
 
             anchors.fill: parent
             anchors.bottomMargin: 20 //PlayerConfig.subtitleBottomMargin
@@ -210,26 +210,37 @@ ApplicationWindow {
 
     MediaPlayer {
         id: kioo
-        //anchors.fill: parent
         source: fileName
+        muted: !appOption.alAudioEnable
 
         onPositionChanged: {
             slider.setProgress(position/duration)
         }
         onPlaybackStateChanged: {
             if(kioo.playbackState == MediaPlayer.PlayingState)
-                osd.info("Playing")
+                osd_left.info("Play")
             else if(kioo.playbackState == MediaPlayer.PausedState)
-                osd.info("Paused")
-            console.log("The audio tracks are:"+kioo.audioTrack)
+                osd_left.info("Pause")
         }
-
+        onVolumeChanged: {
+            controls.volumeValue = kioo.volume
+        }
+        onStatusChanged: {
+            if(kioo.status == 7) {
+                if(pModel.count > 1) {
+                    if((pList.currentIndex+1) == pModel.count)
+                        pList.currentIndex = 0
+                    else
+                        pList.currentIndex += 1
+                }
+            }
+        }
     }
 
     Subtitle {
         id: subtitle
         player: kioo
-        enabled: true //PlayerConfig.subtitleEnabled
+        enabled: appOption.alSubtitleEnable
         autoLoad: true //PlayerConfig.subtitleAutoLoad
        // engines: "FFmpeg" //PlayerConfig.subtitleEngines
         delay: 0 //PlayerConfig.subtitleDelay
@@ -240,9 +251,6 @@ ApplicationWindow {
         onContentChanged: { //already enabled
             if (!canRender || !subtitleItem.visible)
                 subtitleLabel.text = text
-        }
-        onLoaded: {
-            osd.info(qsTr("Subtitle") + ": " + path.substring(path.lastIndexOf("/") + 1))
         }
 
         onEngineChanged: { // assume a engine canRender is only used as a renderer
@@ -257,7 +265,8 @@ ApplicationWindow {
 
     footer: ToolBar {
         id: bottombar
-
+        anchors.bottom: root
+        height: 60
         Keys.forwardTo: canvas
 
         ColumnLayout{
@@ -275,34 +284,44 @@ ApplicationWindow {
                     bottomMargin: 0
                 }
                 onPressedChanged: {
-                   kioo.seek(slider.value*kioo.duration)
+                    kioo.seek(slider.value*kioo.duration)
                 }
             }
 
            RowLayout {
                spacing: 0
+               Layout.alignment: Qt.AlignCenter
                Layout.topMargin: -8
-               Layout.preferredWidth: root.width
+               Layout.bottomMargin: -8
                Label {
                    text: Utils.milliSecToString(kioo.position)
                    color: "white"
+                  // font.pixelSize: 22
                    opacity: 0.8
-                   Layout.alignment: Qt.AlignLeft
+                   Layout.alignment: Qt.AlignHCenter
+               }
+               Label {
+                   text: " / "
+                   color: "white"
+                  // font.pixelSize: 22
+                   opacity: 0.8
+                   Layout.alignment: Qt.AlignHCenter
                }
                Label {
                    text: Utils.milliSecToString(kioo.duration)
                    color: "white"
                    opacity: 0.8
-                   Layout.alignment: Qt.AlignRight
+                   Layout.alignment: Qt.AlignHCenter
                }
            }
 
-            MyControls {
+            CustomControls {
                 id: controls
-                Layout.topMargin: -8
+                Layout.topMargin: 0
                 Layout.preferredWidth: root.width
                 playState: kioo.playbackState == MediaPlayer.PlayingState ? "playing" : "paused"
                 winState: root.visibility == Window.FullScreen ? "fullscreen" : "windowed"
+                volumeValue: kioo.volume
 
                 onTogglePlayback: {
                     kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
@@ -340,6 +359,9 @@ ApplicationWindow {
                         else
                             pList.currentIndex -= 1
                     }
+                }
+                onVolumeChanged: {
+                    kioo.volume = vValue
                 }
             }
         }
@@ -384,11 +406,11 @@ ApplicationWindow {
                 break
             case Qt.Key_Right:
                 kioo.fastSeek = event.isAutoRepeat
-                kioo.seek(kioo.position + 10000)
+                kioo.seek(kioo.position + 5000)
                 break
             case Qt.Key_Left:
                 kioo.fastSeek = event.isAutoRepeat
-                kioo.seek(kioo.position - 10000)
+                kioo.seek(kioo.position - 5000)
                 break
             case Qt.Key_R:
                 kioo.orientation += 90
@@ -428,7 +450,6 @@ ApplicationWindow {
             case Qt.Key_Q:
                 Qt.quit()
                 break
-
             }
         }
     }
@@ -438,11 +459,12 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignHCenter
         color: "white"
-        font.pixelSize: 30
+        font.pixelSize: 25
         opacity: 0.8
         anchors.top: root.top
         width: root.width
         height: root.height / 2
+        elide: Text.ElideRight
 
         onTextChanged: {
             osd_timer.stop()
@@ -473,7 +495,8 @@ ApplicationWindow {
         opacity: 0.8
         anchors.top: root.top
         width: root.width
-        height: root.height / 2
+        height: root.height
+        elide: Text.ElideRight
 
         onTextChanged: {
             osd_timer_left.stop()
@@ -483,7 +506,7 @@ ApplicationWindow {
         Timer {
             id: osd_timer_left
             interval: 2000
-            onTriggered: osd.visible = false
+            onTriggered: osd_left.visible = false
         }
         function error(value) {
             color = "brown"
@@ -536,6 +559,10 @@ ApplicationWindow {
             onCurrentIndexChanged: {
                // console.log("Value of the current index is"+pList.get(pList.currentIndex).fLink)
                 changeSource(pModel.get(pList.currentIndex).fLink)
+            }
+
+            onVisibleChanged: {
+
             }
 
             delegate: ItemDelegate {
@@ -645,24 +672,55 @@ ApplicationWindow {
         }
 
         ColumnLayout {
+            spacing: 20
+
             Label {
-                leftPadding: 2
-                text: "Audio"
-                font.pixelSize: 25
-                font.bold: true
+                text: "Options"
+                font.pixelSize: 30
                 color: "white"
-                opacity: 0.8
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: "#795548"
+                }
+
+                opacity: 0.9
+                padding: 4
+               // horizontalAlignment: Qt.AlignHCenter
+                Layout.preferredWidth: sDrawer.width
             }
 
             Label {
+                Layout.topMargin: -16
                 leftPadding: 2
-                text: "Audio Device"
-                font.pixelSize: 16
+                text: "Audio"
+                font.pixelSize: 25
                 color: "white"
                 opacity: 0.8
             }
 
             RowLayout {
+                Layout.topMargin: -16
+                Layout.leftMargin: 4
+
+                Label {
+                    Layout.alignment: Qt.AlignLeft
+                    Layout.preferredWidth: sDrawer.width/2
+                    text: "Enable Audio "
+                    font.pixelSize: 16
+                    color: "white"
+                    opacity: 0.8
+                }
+
+                Switch {
+                    id: audioEnable
+                    checked: true
+                }
+            }
+
+            RowLayout {
+                Layout.topMargin: -16
+                Layout.leftMargin: 4
+
                 Label {
                     text: "Audio Track"
                     font.pixelSize: 16
@@ -672,6 +730,7 @@ ApplicationWindow {
 
                 CustomCombo {
                     Layout.leftMargin: sDrawer.width/3.5
+                    Layout.preferredHeight: 30
                     textRole: "text"
                     model: ListModel {
                         id: aTrackModel
@@ -698,34 +757,125 @@ ApplicationWindow {
                 }
             }
 
-            Label {
-                leftPadding: 2
-                text: "Video"
-                font.pixelSize: 25
-                font.bold: true
-                color: "white"
-                opacity: 0.8
+
+            ColumnLayout {
+                width: parent.width
+                Label {
+                    leftPadding: 2
+                    text: "Video"
+                    font.pixelSize: 25
+                    color: "white"
+                    opacity: 0.8
+                }
+
+                RowLayout {
+                    Layout.topMargin: -16
+                    Layout.leftMargin: 4
+
+                    Label {
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.preferredWidth: sDrawer.width/2
+                        text: "Enable Video "
+                        font.pixelSize: 16
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    Switch {
+                        id: videoEnable
+                        checked: true
+                    }
+                }
             }
 
+            ColumnLayout {
+                Label {
+                    leftPadding: 2
+                    bottomPadding: 2
+                    text: "Subtitle"
+                    font.pixelSize: 25
+                    color: "white"
+                    opacity: 0.8
+                }
+
+                RowLayout {
+                    Layout.topMargin: -16
+                    Layout.leftMargin: 4
+
+                    Label {
+                        text: "Enable Subtitles "
+                        Layout.preferredWidth: sDrawer.width/2
+                        font.pixelSize: 16
+                        color: "white"
+                        opacity: 0.8
+                    }
+                    Switch {
+                        id: subtitleEnable
+                        checked: true
+                    }
+                }
+            }
+
+            ColumnLayout {
+                Label {
+                    leftPadding: 2
+                    text: "Playlist"
+                    font.pixelSize: 25
+                    color: "white"
+                    opacity: 0.8
+                }
+
+                RowLayout {
+                    Layout.topMargin: -16
+                    Layout.leftMargin: 4
+
+                    Label {
+                        text: "Enable History  "
+                        Layout.preferredWidth: sDrawer.width/2
+                        font.pixelSize: 16
+                        color: "white"
+                        opacity: 0.8
+                    }
+                    Switch {
+                        id: enableHistory
+                        checked: true
+                    }
+                }
+            }
             Label {
-                leftPadding: 2
-                text: "Subtitle"
-                font.pixelSize: 25
-                font.bold: true
+                anchors.bottom: parent.Bottom
+                padding: 2
+                leftPadding: 4
+                text: "Kioo Media Player [v. 1.0(ALPHA)] - 2017"
                 color: "white"
                 opacity: 0.8
             }
         }
+
         ScrollIndicator.vertical: ScrollIndicator { }
     }
 
     Component.onCompleted: {
-        pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
+       // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
         initDatabase()
-        readData()
+
+        if(enableHistory.checked)
+            readData()
+
+        var opt = kioo.videoCodecOptions
+     //   if (value) {
+     //       opt["copyMode"] = "ZeroCopy"
+     //   } else {
+     //       if (Qt.platform.os == "osx")
+    //            opt["copyMode"] = "LazyCopy"
+      //      else
+                opt["copyMode"] = "OptimizedCopy"
+      //  }
+        kioo.videoCodecOptions = opt
     }
     Component.onDestruction: {
-        storeData()
+        if(enableHistory.checked)
+            storeData()
     }
 
     function initDatabase() {
@@ -736,8 +886,7 @@ ApplicationWindow {
         });
     }
 
-    function storeData() {
-        print('...attempting to store some data.....')
+    function storeData() {        
         if(!db) { return; }
         db.transaction( function(tx) {
             var result = tx.executeSql('SELECT * from data where name = "playlist"');

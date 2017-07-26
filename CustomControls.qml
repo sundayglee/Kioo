@@ -7,7 +7,7 @@ import QtQuick.Window 2.0
 RowLayout {
     property string playState : "playing"
     property string winState: "windowed"
-    property var volumeValue: 0.5
+    property var volumeValue: -1
 
     signal stop
     signal togglePlayback
@@ -17,21 +17,19 @@ RowLayout {
     signal skipPrevious
     signal openPlaylist
     signal openSettings
-    signal volumeChanged
-
-    function setVolume(value) {
-        volumeSlider.value = value
-    }
+    signal volumeChanged(var vValue)
 
     anchors.right: parent.right
     anchors.left: parent.left
+    anchors.bottom: parent.bottom
+
     spacing: 0
 
     Row {
         Layout.alignment: Qt.AlignLeft
         ToolButton {
-            implicitHeight: 46
-            implicitWidth: 46
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem: Image {
                 source: "/icon/menu.svg"
                 opacity: 0.8
@@ -42,8 +40,8 @@ RowLayout {
         }
         
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/playlist_play.svg"
                 opacity: 0.8
@@ -59,8 +57,8 @@ RowLayout {
     Row {
         Layout.alignment: Qt.AlignLeft
         ToolButton {
-            implicitHeight: 44
-            implicitWidth: 44
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/video_library.svg"
                 opacity: 0.8
@@ -74,8 +72,8 @@ RowLayout {
     Row {
         Layout.alignment: Qt.AlignCenter
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/skip_previous.svg"
                 opacity: 0.8
@@ -86,8 +84,8 @@ RowLayout {
         }
 
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: playState == "playing" ? "/icon/pause.svg" : "/icon/play.svg"
                 opacity: 0.8
@@ -98,8 +96,8 @@ RowLayout {
         }
 
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/stop.svg"
                 opacity: 0.8
@@ -110,8 +108,8 @@ RowLayout {
         }
 
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/skip_next.svg"
                 opacity: 0.8
@@ -122,8 +120,8 @@ RowLayout {
         }
 
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem: Image {
                 source: "/icon/repeat.svg"
                 opacity: 0.8
@@ -131,8 +129,8 @@ RowLayout {
         }
 
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/shuffle.svg"
                 opacity: 0.8
@@ -150,8 +148,8 @@ RowLayout {
         Layout.alignment: Qt.AlignRight
 
         ToolButton {
-            implicitHeight: 48
-            implicitWidth: 48
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem: Image {
                 source: winState == "windowed" ?   "/icon/fullscreen.svg" : "/icon/fullscreen_exit.svg"
                 opacity: 0.8
@@ -164,14 +162,11 @@ RowLayout {
         Slider {
             id: volumeSlider
             implicitWidth: 80
-
             value: volumeValue
 
             onValueChanged: {
-                console.log("volume value is: "+value)
-                volumeChanged()
+                volumeChanged(volumeSlider.value)
             }
-
         }
     }
 }

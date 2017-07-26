@@ -6,7 +6,7 @@ import QtQuick.Window 2.0
 
 Slider {
     id: control
-    topPadding: -2
+    topPadding: -4
     leftPadding: 0
     rightPadding: 0
 
@@ -18,10 +18,9 @@ Slider {
         x: control.leftPadding
         y: control.topPadding + control.availableHeight / 2 - height / 2
         implicitWidth: 200
-        implicitHeight: 8
+        implicitHeight: 6
         width: control.availableWidth
         height: implicitHeight
-        radius: 2
         color: "white"
         opacity: 0.8
         

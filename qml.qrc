@@ -20,7 +20,7 @@
         <file>icon/repeat_one.svg</file>
         <file>icon/shuffle.svg</file>
         <file>icon/video_library.svg</file>
-        <file>MyControls.qml</file>
+        <file>CustomControls.qml</file>
         <file>CustomSlider.qml</file>
         <file>Utils.js</file>
         <file>icon/close.svg</file>
