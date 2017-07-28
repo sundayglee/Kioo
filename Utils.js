@@ -14,7 +14,7 @@ function milliSecToString(msec) {
 }
 
 function clean() {
-    var path = kioo.source;
+   // var path = kioo.source;
     path=path.replace(/^(file:\/{3})|(qrc:\/{2})|(http:\/{2})/,"");
     cleanPath = decodeURIComponent(path);
     console.log(cleanPath);

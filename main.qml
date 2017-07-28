@@ -18,7 +18,7 @@ ApplicationWindow {
    // visibility: Window.FullScreen
    // flags: Qt.Window | Qt.FramelessWindowHint
 
-    property string fileName: "" // "file:///home/sglee/Downloads/114090.mp4"
+    property var fileName: ""
     property var db
 
     signal requestFullScreen
@@ -37,7 +37,6 @@ ApplicationWindow {
         property alias alVideoEnable : videoEnable.checked
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
-
     }
 
     DropArea {
@@ -119,6 +118,7 @@ ApplicationWindow {
                 mouse1.cursorShape = Qt.ArrowCursor
             }
         }
+
         onDoubleClicked: {
             root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
         }
@@ -212,6 +212,8 @@ ApplicationWindow {
         id: kioo
         source: fileName
         muted: !appOption.alAudioEnable
+        objectName: "kioo"
+        autoPlay: true
 
         onPositionChanged: {
             slider.setProgress(position/duration)
