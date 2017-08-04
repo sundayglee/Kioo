@@ -6,12 +6,18 @@
 #include <QDebug>
 #include <QObject>
 #include <QFile>
+#include <windows.h>
 #include "mirror.h"
+
+#include "PythonQt.h"
+#include "PythonQt_QtAll.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
+
+    SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_CONTINUOUS);
 
     QString file;
 
@@ -29,18 +35,26 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
-    QObject *object = engine.rootObjects()[0];
+ //   QObject *object = engine.rootObjects()[0];
 
-    QObject *kioo = object->findChild<QObject*>("kioo");
+//    QObject *kioo = object->findChild<QObject*>("kioo");
 
-    file = app.arguments().last();
+//    if (kioo && !file.isEmpty()) {
+//        if (!file.startsWith(QLatin1String("file:")) && QFile(file).exists())
+//            file.prepend(QLatin1String("file:")); //qml use url and will add qrc: if no scheme
+//        file.replace(QLatin1String("\\"), QLatin1String("/"));
+//        kioo->setProperty("source", file);
+//    }
 
-    if (kioo && !file.isEmpty()) {
-        if (!file.startsWith(QLatin1String("file:")) && QFile(file).exists())
-            file.prepend(QLatin1String("file:")); //qml use url and will add qrc: if no scheme
-        file.replace(QLatin1String("\\"), QLatin1String("/"));
-        kioo->setProperty("source", file);
-    }
+    // init PythonQt and Python
+    PythonQt::init();
+    // get the __main__ python module
+    PythonQtObjectPtr mainModule = PythonQt::self()->getMainModule();
+
+   // QVariant result = mainModule.evalScript("print 19*2+4", Py_eval_input);
+
+    QVariant str = mainModule.evalFile(":/test.py");
+    qDebug() << "The string is:"+str.toString();
 
     return app.exec();
 }

@@ -21,5 +21,31 @@ function clean() {
 }
 
 function fileName(path) {
+    path = path.toString()
     return path.substring(path.lastIndexOf("/") + 1)
+}
+
+function getFile(path) {
+    var k,subs
+
+    for (var i = 1; i < path.length; ++i) {
+        k = "file:"+path[i].toString(); //qml use url and will add qrc: if no scheme
+        k = k.replace(/\\/g, "/");
+
+        if (k.endsWith(".srt") || k.endsWith(".ass") || k.endsWith(".ssa") || k.endsWith(".sub")
+                || k.endsWith(".idx") || k.endsWith(".mpl2") || k.endsWith(".smi") || k.endsWith(".sami")
+                || k.endsWith(".sup") || k.endsWith(".txt"))
+            subs = k
+        else {
+            pModel.append({ fTitle: Utils.fileName(k), fLink: k})
+            if(i==1)
+                changeSource(k)
+        }
+    }
+    if (subs) {
+        subtitle.autoLoad = false
+        subtitle.file = subs
+    } else {
+        subtitle.file = ""
+    }
 }

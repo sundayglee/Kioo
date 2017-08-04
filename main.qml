@@ -20,6 +20,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db
+    property  var version: "Kioo Media Player [v1.2(ALPHA)] - 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -50,13 +51,15 @@ ApplicationWindow {
                 var s = drag.urls[i].toString()
                 if (s.endsWith(".srt") || s.endsWith(".ass") || s.endsWith(".ssa") || s.endsWith(".sub")
                         || s.endsWith(".idx") || s.endsWith(".mpl2") || s.endsWith(".smi") || s.endsWith(".sami")
-                        || s.endsWith(".sup") || s.endsWith(".txt")) sub = drag.urls[i]
+                        || s.endsWith(".sup") || s.endsWith(".txt"))
+                    subs = drag.urls[i]
                 else {
                     pModel.append({ fTitle: Utils.fileName(drag.urls[i]), fLink: drag.urls[i]})
                     changeSource(drag.urls[0])
                 }
             }
             if (subs) {
+                console.log("the subs are:"+subs)
                 subtitle.autoLoad = false
                 subtitle.file = subs
             } else {
@@ -125,7 +128,12 @@ ApplicationWindow {
 
         onClicked: {
             kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+           // Utils.getFile(Qt.application.arguments)
         }
+
+//        onRightChanged: {
+//            sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
+//        }
 
         onWheel: {
             console.log(wheel.angleDelta.y)
@@ -228,6 +236,11 @@ ApplicationWindow {
             controls.volumeValue = kioo.volume
         }
         onStatusChanged: {
+            if(kioo.status == 3) {
+                fileName = kioo.source
+                root.title = Utils.fileName(fileName)
+               // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
+            }
             if(kioo.status == 7) {
                 if(pModel.count > 1) {
                     if((pList.currentIndex+1) == pModel.count)
@@ -267,7 +280,6 @@ ApplicationWindow {
 
     footer: ToolBar {
         id: bottombar
-        anchors.bottom: root
         height: 60
         Keys.forwardTo: canvas
 
@@ -371,7 +383,7 @@ ApplicationWindow {
 
     Item {
         id: canvas
-        anchors.fill: root
+        anchors.fill: parent
         focus: true
 
         Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Space)
@@ -845,10 +857,11 @@ ApplicationWindow {
                 }
             }
             Label {
+                id: myVersion
                 anchors.bottom: parent.Bottom
                 padding: 2
                 leftPadding: 4
-                text: "Kioo Media Player [v. 1.0(ALPHA)] - 2017"
+                text: version
                 color: "white"
                 opacity: 0.8
             }
@@ -874,6 +887,7 @@ ApplicationWindow {
                 opt["copyMode"] = "OptimizedCopy"
       //  }
         kioo.videoCodecOptions = opt
+        Utils.getFile(Qt.application.arguments);
     }
     Component.onDestruction: {
         if(enableHistory.checked)
@@ -897,7 +911,7 @@ ApplicationWindow {
             var obj = {};
 
             print('the data is sssssssssss'+ pModel.rowCount())
-            for(var i = 1; i < pModel.rowCount(); i++){
+            for(var i = 0; i < pModel.rowCount(); i++){
                 ldata.push({
                        "fileName" : pModel.get(i).fTitle,
                        "fileUrl" : pModel.get(i).fLink
