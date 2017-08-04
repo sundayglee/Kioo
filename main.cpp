@@ -9,9 +9,6 @@
 #include <windows.h>
 #include "mirror.h"
 
-#include "PythonQt.h"
-#include "PythonQt_QtAll.h"
-
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -25,7 +22,6 @@ int main(int argc, char *argv[])
 //    qDebug() << urlHandler.getArgs(args[1]);
     Mirror mrr;
 
-
     app.setOrganizationName("Kioo Media");
     app.setOrganizationDomain("kioomedia.com");
     app.setApplicationName("Kioo Media Player");
@@ -35,6 +31,7 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
+
  //   QObject *object = engine.rootObjects()[0];
 
 //    QObject *kioo = object->findChild<QObject*>("kioo");
@@ -45,16 +42,6 @@ int main(int argc, char *argv[])
 //        file.replace(QLatin1String("\\"), QLatin1String("/"));
 //        kioo->setProperty("source", file);
 //    }
-
-    // init PythonQt and Python
-    PythonQt::init();
-    // get the __main__ python module
-    PythonQtObjectPtr mainModule = PythonQt::self()->getMainModule();
-
-   // QVariant result = mainModule.evalScript("print 19*2+4", Py_eval_input);
-
-    QVariant str = mainModule.evalFile(":/test.py");
-    qDebug() << "The string is:"+str.toString();
 
     return app.exec();
 }

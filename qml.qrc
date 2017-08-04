@@ -29,6 +29,5 @@
         <file>icon/down.svg</file>
         <file>icon/up.svg</file>
         <file>CustomCombo.qml</file>
-        <file>test.py</file>
     </qresource>
 </RCC>
