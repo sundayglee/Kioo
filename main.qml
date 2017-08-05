@@ -20,7 +20,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db
-    property  var version: "Kioo Media Player [v1.2(ALPHA)] - 2017"
+    property  var version: "Kioo Media Player v1.3 [ALPHA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -60,7 +60,7 @@ ApplicationWindow {
             }
             if (subs) {
                 console.log("the subs are:"+subs)
-                subtitle.autoLoad = false
+                subtitle.autoLoad = true
                 subtitle.file = subs
             } else {
                 subtitle.file = ""
@@ -87,7 +87,7 @@ ApplicationWindow {
                 }
             }
             if (subs) {
-                subtitle.autoLoad = false
+                subtitle.autoLoad = true
                 subtitle.file = subs
             } else {
                 subtitle.file = ""
@@ -684,99 +684,30 @@ ApplicationWindow {
                 color: "#a98274"
             }
         }
-
-        ColumnLayout {
-            spacing: 20
-
-            Label {
-                text: "Options"
-                font.pixelSize: 30
-                color: "white"
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "#795548"
-                }
-
-                opacity: 0.9
-                padding: 4
-               // horizontalAlignment: Qt.AlignHCenter
-                Layout.preferredWidth: sDrawer.width
-            }
-
-            Label {
-                Layout.topMargin: -16
-                leftPadding: 2
-                text: "Audio"
-                font.pixelSize: 25
-                color: "white"
-                opacity: 0.8
-            }
-
-            RowLayout {
-                Layout.topMargin: -16
-                Layout.leftMargin: 4
-
-                Label {
-                    Layout.alignment: Qt.AlignLeft
-                    Layout.preferredWidth: sDrawer.width/2
-                    text: "Enable Audio "
-                    font.pixelSize: 16
-                    color: "white"
-                    opacity: 0.8
-                }
-
-                Switch {
-                    id: audioEnable
-                    checked: true
-                }
-            }
-
-            RowLayout {
-                Layout.topMargin: -16
-                Layout.leftMargin: 4
-
-                Label {
-                    text: "Audio Track"
-                    font.pixelSize: 16
-                    color: "white"
-                    opacity: 0.8
-                }
-
-                CustomCombo {
-                    Layout.leftMargin: sDrawer.width/3.5
-                    Layout.preferredHeight: 30
-                    textRole: "text"
-                    model: ListModel {
-                        id: aTrackModel
-                        ListElement { text: "Stereo" }
-                        ListElement { text: "Mono"  }
-                        ListElement { text: "Left" }
-                        ListElement { text: "Right" }
-                    }
-
-                    onAccepted: {
-                        console.log("track changed")
-                    }
-                    onActivated: {
-                        console.log("item activited successfully"+currentIndex)
-                        if(currentIndex == 0)
-                            kioo.channelLayout = MediaPlayer.Stereo
-                        else if(currentIndex == 1)
-                            kioo.channelLayout = MediaPlayer.Mono
-                        else if(currentIndex == 2)
-                            kioo.channelLayout = MediaPlayer.Left
-                        else if(currentIndex == 3)
-                            kioo.channelLayout = MediaPlayer.Right
-                    }
-                }
-            }
-
-
+        ScrollView {
+            anchors.fill: parent
             ColumnLayout {
-                width: parent.width
+                spacing: 20
+
                 Label {
+                    text: "Options"
+                    font.pixelSize: 30
+                    color: "white"
+                    background: Rectangle {
+                        anchors.fill: parent
+                        color: "#795548"
+                    }
+
+                    opacity: 0.9
+                    padding: 4
+                   // horizontalAlignment: Qt.AlignHCenter
+                    Layout.preferredWidth: sDrawer.width
+                }
+
+                Label {
+                    Layout.topMargin: -16
                     leftPadding: 2
-                    text: "Video"
+                    text: "Audio"
                     font.pixelSize: 25
                     color: "white"
                     opacity: 0.8
@@ -789,27 +720,16 @@ ApplicationWindow {
                     Label {
                         Layout.alignment: Qt.AlignLeft
                         Layout.preferredWidth: sDrawer.width/2
-                        text: "Enable Video "
+                        text: "Enable Audio "
                         font.pixelSize: 16
                         color: "white"
                         opacity: 0.8
                     }
 
                     Switch {
-                        id: videoEnable
+                        id: audioEnable
                         checked: true
                     }
-                }
-            }
-
-            ColumnLayout {
-                Label {
-                    leftPadding: 2
-                    bottomPadding: 2
-                    text: "Subtitle"
-                    font.pixelSize: 25
-                    color: "white"
-                    opacity: 0.8
                 }
 
                 RowLayout {
@@ -817,57 +737,137 @@ ApplicationWindow {
                     Layout.leftMargin: 4
 
                     Label {
-                        text: "Enable Subtitles "
-                        Layout.preferredWidth: sDrawer.width/2
+                        text: "Audio Track"
                         font.pixelSize: 16
                         color: "white"
                         opacity: 0.8
                     }
-                    Switch {
-                        id: subtitleEnable
-                        checked: true
+
+                    CustomCombo {
+                        Layout.leftMargin: sDrawer.width/3.5
+                        Layout.preferredHeight: 30
+                        textRole: "text"
+                        model: ListModel {
+                            id: aTrackModel
+                            ListElement { text: "Stereo" }
+                            ListElement { text: "Mono"  }
+                            ListElement { text: "Left" }
+                            ListElement { text: "Right" }
+                        }
+
+                        onAccepted: {
+                            console.log("track changed")
+                        }
+                        onActivated: {
+                            console.log("item activited successfully"+currentIndex)
+                            if(currentIndex == 0)
+                                kioo.channelLayout = MediaPlayer.Stereo
+                            else if(currentIndex == 1)
+                                kioo.channelLayout = MediaPlayer.Mono
+                            else if(currentIndex == 2)
+                                kioo.channelLayout = MediaPlayer.Left
+                            else if(currentIndex == 3)
+                                kioo.channelLayout = MediaPlayer.Right
+                        }
                     }
                 }
-            }
 
-            ColumnLayout {
+
+                ColumnLayout {
+                    width: parent.width
+                    Label {
+                        leftPadding: 2
+                        text: "Video"
+                        font.pixelSize: 25
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+
+                        Label {
+                            Layout.alignment: Qt.AlignLeft
+                            Layout.preferredWidth: sDrawer.width/2
+                            text: "Enable Video "
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+
+                        Switch {
+                            id: videoEnable
+                            checked: true
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Label {
+                        leftPadding: 2
+                        bottomPadding: 2
+                        text: "Subtitle"
+                        font.pixelSize: 25
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+
+                        Label {
+                            text: "Enable Subtitles "
+                            Layout.preferredWidth: sDrawer.width/2
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+                        Switch {
+                            id: subtitleEnable
+                            checked: true
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Label {
+                        leftPadding: 2
+                        text: "Playlist"
+                        font.pixelSize: 25
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+
+                        Label {
+                            text: "Enable History  "
+                            Layout.preferredWidth: sDrawer.width/2
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+                        Switch {
+                            id: enableHistory
+                            checked: true
+                        }
+                    }
+                }
                 Label {
-                    leftPadding: 2
-                    text: "Playlist"
-                    font.pixelSize: 25
+                    id: myVersion
+                    anchors.bottom: parent.Bottom
+                    padding: 2
+                    leftPadding: 4
+                    text: version
                     color: "white"
                     opacity: 0.8
                 }
-
-                RowLayout {
-                    Layout.topMargin: -16
-                    Layout.leftMargin: 4
-
-                    Label {
-                        text: "Enable History  "
-                        Layout.preferredWidth: sDrawer.width/2
-                        font.pixelSize: 16
-                        color: "white"
-                        opacity: 0.8
-                    }
-                    Switch {
-                        id: enableHistory
-                        checked: true
-                    }
-                }
-            }
-            Label {
-                id: myVersion
-                anchors.bottom: parent.Bottom
-                padding: 2
-                leftPadding: 4
-                text: version
-                color: "white"
-                opacity: 0.8
             }
         }
-
-        ScrollIndicator.vertical: ScrollIndicator { }
     }
 
     Component.onCompleted: {
@@ -884,7 +884,7 @@ ApplicationWindow {
      //       if (Qt.platform.os == "osx")
     //            opt["copyMode"] = "LazyCopy"
       //      else
-                opt["copyMode"] = "OptimizedCopy"
+                opt["copyMode"] = "ZeroCopy"
       //  }
         kioo.videoCodecOptions = opt
         Utils.getFile(Qt.application.arguments);

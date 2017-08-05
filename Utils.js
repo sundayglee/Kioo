@@ -43,7 +43,7 @@ function getFile(path) {
         }
     }
     if (subs) {
-        subtitle.autoLoad = false
+        subtitle.autoLoad = true
         subtitle.file = subs
     } else {
         subtitle.file = ""

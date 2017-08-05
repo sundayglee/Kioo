@@ -31,19 +31,8 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-DISTFILES +=
+DISTFILES += \
+    changelog.log
 
 HEADERS += \
     mirror.h
-
-
-win32:PYTHON_VERSION=27
-unix:PYTHON_VERSION=2.7
-
-win32:INCLUDEPATH += C:/Python27/include
-INCLUDEPATH += C:/Qt/PythonQt3.2/src
-INCLUDEPATH += C:/Qt/PythonQt3.2/extensions/PythonQt_QtAll
-win32:LIBS += C:/Python27/libs/python$${PYTHON_VERSION}.lib
-win32:LIBS += C:/Python27/libs/libpython$${PYTHON_VERSION}.a
-win32::LIBS += C:/Qt/PythonQt3.2/lib/PythonQt.dll
-win32::LIBS += C:/Qt/PythonQt3.2/lib/PythonQt_QtAll.dll #was: .lib

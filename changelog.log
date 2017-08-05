@@ -1,0 +1,11 @@
+Kioo Media Player v1.3 [ALPHA] - 5th August, 2017
+-------------------------------------------------
+* Added ScrollView() to Options menu for easy navigation
+* Added prevent sleeping in windows
+* Changed videoCodecOptions to ZeroCopy
+
+
+Kioo Media Player v1.2 [ALPHA] - 30th July, 2017
+------------------------------------------------
+* Fixed sound issues
+* Added mouse scroll to increase volume

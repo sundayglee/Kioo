@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.3.1, 2017-08-03T18:13:47. -->
+<!-- Written by QtCreator 4.3.1, 2017-08-05T15:32:54. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -290,7 +290,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Godfrey Laswai/Documents/QT5/Kioo/Kioo.pro</value>
     <value type="bool" key="QmakeProjectManager.QmakeRunConfiguration.UseLibrarySearchPath">true</value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments">&quot;D:\New folder\sample.avi&quot; &quot;D:/New folder/sample.avi&quot;</value>
+    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments"></value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Kioo.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"></value>

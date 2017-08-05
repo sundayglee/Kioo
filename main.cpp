@@ -16,18 +16,15 @@ int main(int argc, char *argv[])
 
     SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_CONTINUOUS);
 
-    QString file;
-
 //    QStringList args = app.arguments();
 //    qDebug() << urlHandler.getArgs(args[1]);
-    Mirror mrr;
 
     app.setOrganizationName("Kioo Media");
     app.setOrganizationDomain("kioomedia.com");
     app.setApplicationName("Kioo Media Player");
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("mrr",&mrr);
+ //   engine.rootContext()->setContextProperty("mrr",&mrr);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
