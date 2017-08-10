@@ -52,7 +52,7 @@ ComboBox {
     contentItem: Text {
         leftPadding: 4
         rightPadding: control.indicator.width + control.spacing
-        
+
         text: control.displayText
         font: control.font
         color: "white"

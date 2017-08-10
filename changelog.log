@@ -1,3 +1,18 @@
+Bug(v1.4 Alpha)
+---
+Player crashes on multiple toggle subtitles
+
+
+Kioo Media Player v1.4 [ALPHA] - 9th August, 2017
+-------------------------------------------------
+* Added remember last index in the player
+* Attempt to fix crash on media end.
+* Added Track selection for Audio and changed previous
+  track selection name to channel
+* Added track selection for subtitles
+* Trying to fix flicking subtitles issue - Hopeful its fixed
+
+
 Kioo Media Player v1.3 [ALPHA] - 5th August, 2017
 -------------------------------------------------
 * Added ScrollView() to Options menu for easy navigation

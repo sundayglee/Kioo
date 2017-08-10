@@ -20,7 +20,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db
-    property  var version: "Kioo Media Player v1.3 [ALPHA] - August, 2017"
+    property  var version: "Kioo Media Player v1.4 [ALPHA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -38,6 +38,7 @@ ApplicationWindow {
         property alias alVideoEnable : videoEnable.checked
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
+        property alias lastPlayed: pList.currentIndex
     }
 
     DropArea {
@@ -257,7 +258,7 @@ ApplicationWindow {
         player: kioo
         enabled: appOption.alSubtitleEnable
         autoLoad: true //PlayerConfig.subtitleAutoLoad
-       // engines: "FFmpeg" //PlayerConfig.subtitleEngines
+        engines: "FFmpeg" //PlayerConfig.subtitleEngines
         delay: 0 //PlayerConfig.subtitleDelay
        // fontFile: //PlayerConfig.assFontFile
        // fontFileForced: // PlayerConfig.assFontFileForced
@@ -268,19 +269,19 @@ ApplicationWindow {
                 subtitleLabel.text = text
         }
 
-        onEngineChanged: { // assume a engine canRender is only used as a renderer
-            subtitleItem.visible = canRender
-            subtitleLabel.visible = !canRender
-        }
-        onEnabledChanged: {
-            subtitleItem.visible = enabled
-            subtitleLabel.visible = enabled
-        }
+    //    onEngineChanged: { // assume a engine canRender is only used as a renderer
+    //        subtitleItem.visible = canRender
+    //        subtitleLabel.visible = !canRender
+    //    }
+    //    onEnabledChanged: {
+    //        subtitleItem.visible = enabled
+    //        subtitleLabel.visible = enabled
+    //    }
     }
 
     footer: ToolBar {
         id: bottombar
-        height: 60
+        height: 70
         Keys.forwardTo: canvas
 
         ColumnLayout{
@@ -306,7 +307,6 @@ ApplicationWindow {
                spacing: 0
                Layout.alignment: Qt.AlignCenter
                Layout.topMargin: -8
-               Layout.bottomMargin: -8
                Label {
                    text: Utils.milliSecToString(kioo.position)
                    color: "white"
@@ -390,7 +390,6 @@ ApplicationWindow {
 
         Keys.onSpacePressed: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
         Keys.onPressed: {
-            console.log("a key was pressed")
             switch(event.key) {
             case Qt.Key_F:
                 root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
@@ -552,7 +551,7 @@ ApplicationWindow {
             id: pList
 
             focus: true
-            currentIndex: -1
+         //   currentIndex: pSet.lastPlayed
             anchors.fill: parent
             highlightFollowsCurrentItem: true
 
@@ -576,7 +575,7 @@ ApplicationWindow {
             }
 
             onVisibleChanged: {
-
+                currentIndex = appOption.lastPlayed
             }
 
             delegate: ItemDelegate {
@@ -667,6 +666,11 @@ ApplicationWindow {
                 id: pModel
               //  ListElement { title: ""; source: "" }
             }
+
+            Settings {
+                id: pSet
+                property alias lastPlayed: pList.currentIndex
+            }
             ScrollIndicator.vertical: ScrollIndicator { }
         }        
     }
@@ -737,27 +741,25 @@ ApplicationWindow {
                     Layout.leftMargin: 4
 
                     Label {
-                        text: "Audio Track"
+                        Layout.preferredWidth: sDrawer.width/2
+                        text: "Audio Channel"
                         font.pixelSize: 16
                         color: "white"
                         opacity: 0.8
                     }
 
                     CustomCombo {
-                        Layout.leftMargin: sDrawer.width/3.5
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.preferredWidth: sDrawer.width/2.5
                         Layout.preferredHeight: 30
                         textRole: "text"
                         model: ListModel {
-                            id: aTrackModel
                             ListElement { text: "Stereo" }
                             ListElement { text: "Mono"  }
                             ListElement { text: "Left" }
                             ListElement { text: "Right" }
                         }
 
-                        onAccepted: {
-                            console.log("track changed")
-                        }
                         onActivated: {
                             console.log("item activited successfully"+currentIndex)
                             if(currentIndex == 0)
@@ -768,6 +770,35 @@ ApplicationWindow {
                                 kioo.channelLayout = MediaPlayer.Left
                             else if(currentIndex == 3)
                                 kioo.channelLayout = MediaPlayer.Right
+                        }
+                    }
+                }
+
+                RowLayout {
+                    Layout.topMargin: -16
+                    Layout.leftMargin: 4
+
+                    Label {
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.preferredWidth: sDrawer.width/2
+                        text: "Audio Track"
+                        font.pixelSize: 16
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    CustomCombo {
+                        id: caudio
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.preferredWidth: sDrawer.width/2.5
+                        Layout.preferredHeight: 30
+                        currentIndex: 0
+                        model: ListModel {
+                            id: aTrackModel
+                        }
+
+                        onActivated: {
+                            kioo.audioTrack = currentIndex;
                         }
                     }
                 }
@@ -829,6 +860,35 @@ ApplicationWindow {
                             checked: true
                         }
                     }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+
+                        Label {
+                            Layout.preferredWidth: sDrawer.width/2
+                            text: "Subtitle Track"
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+
+                        CustomCombo {
+                            id: csub
+                            Layout.alignment: Qt.AlignLeft
+                            Layout.preferredWidth: sDrawer.width/2.5
+                            Layout.preferredHeight: 30
+                            currentIndex: 0
+                            model: ListModel {
+                                id: sTrackModel
+                            }
+
+                            onActivated: {
+                                kioo.internalSubtitleTrack = currentIndex;
+                            }
+                        }
+                    }
+
                 }
 
                 ColumnLayout {
@@ -857,16 +917,49 @@ ApplicationWindow {
                         }
                     }
                 }
-                Label {
-                    id: myVersion
-                    anchors.bottom: parent.Bottom
-                    padding: 2
-                    leftPadding: 4
-                    text: version
-                    color: "white"
-                    opacity: 0.8
+
+                ColumnLayout {
+                    Label {
+                        leftPadding: 2
+                        text: "About"
+                        font.pixelSize: 25
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: 0
+                        Layout.leftMargin: 0
+
+                        Label {
+                            id: myVersion
+                            anchors.bottom: parent.Bottom
+                            padding: 2
+                            leftPadding: 4
+                            text: version
+                            color: "white"
+                            opacity: 0.8
+                        }
+                    }
                 }
             }
+        }
+        onVisibleChanged: {
+            var ai = caudio.currentIndex
+            var si = csub.currentIndex
+            aTrackModel.clear();
+            sTrackModel.clear();
+            for(var i=0; i < kioo.internalAudioTracks.length; i++){
+                var a = "#"+kioo.internalAudioTracks[i].id +" "+kioo.internalAudioTracks[i].codec +" "+kioo.internalAudioTracks[i].language;
+                aTrackModel.append({title: a})
+            }
+            for(var i=0; i < kioo.internalSubtitleTracks.length; i++){
+                var a = "#"+kioo.internalSubtitleTracks[i].id +" "+kioo.internalSubtitleTracks[i].codec +" "+kioo.internalSubtitleTracks[i].language;
+                sTrackModel.append({title: a})
+                console.log("value triggered" + a);
+            }
+            caudio.currentIndex = ai;
+            csub.currentIndex = si;
         }
     }
 
@@ -892,6 +985,8 @@ ApplicationWindow {
     Component.onDestruction: {
         if(enableHistory.checked)
             storeData()
+        else
+            pModel.clear()
     }
 
     function initDatabase() {

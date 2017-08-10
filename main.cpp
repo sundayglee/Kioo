@@ -7,7 +7,6 @@
 #include <QObject>
 #include <QFile>
 #include <windows.h>
-#include "mirror.h"
 
 int main(int argc, char *argv[])
 {

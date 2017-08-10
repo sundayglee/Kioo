@@ -2,8 +2,7 @@ QT += qml quick av
 
 CONFIG += c++11 static
 
-SOURCES += main.cpp \
-    mirror.cpp
+SOURCES += main.cpp
 
 RESOURCES += qml.qrc
 
@@ -34,5 +33,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES += \
     changelog.log
 
-HEADERS += \
-    mirror.h
+HEADERS +=
