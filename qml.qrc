@@ -30,6 +30,5 @@
         <file>icon/up.svg</file>
         <file>CustomCombo.qml</file>
         <file>XmlRpc.qml</file>
-        <file>XmlRpcMap.qml</file>
     </qresource>
 </RCC>

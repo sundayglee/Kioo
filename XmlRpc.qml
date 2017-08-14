@@ -3,7 +3,7 @@ import QtQuick.XmlListModel 2.0
 
 XmlListModel {
     id: xmlroot
-    query: "/methodResponse/params/param/value/struct"
+    query: "/methodResponse/params/param/value/struct/member/value/array/data/value/struct"
     property string baseurl: "http://api.opensubtitles.org:80/xml-rpc"
     property string path: ""
     property string url: baseurl + path
@@ -11,6 +11,10 @@ XmlListModel {
     property string passwd: ""
     property string lang: "en"
     property bool   authenticate: user != "" && passwd != ""
+
+    XmlRole { name: "matchedby";        query: "member[1]/name/string()"; }
+    XmlRole { name: "subfile";          query: "member[7]/value/string/string()" }
+    XmlRole { name: "sublink";          query: "member[50]/value/string/string()" }
 
     function rpcRequest(request,handler) {
         var http = new XMLHttpRequest()

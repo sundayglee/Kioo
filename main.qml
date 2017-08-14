@@ -1117,7 +1117,7 @@ ApplicationWindow {
         }
     }
 
-    XmlRpcMap {
+    XmlRpc {
         id: rpc
 
         onCountChanged: {
@@ -1174,7 +1174,6 @@ ApplicationWindow {
             var ldata =[];
             var obj = {};
 
-            print('the data is sssssssssss'+ pModel.rowCount())
             for(var i = 0; i < pModel.rowCount(); i++){
                 ldata.push({
                        "fileName" : pModel.get(i).fTitle,
