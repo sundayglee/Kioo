@@ -9,7 +9,6 @@ import QtQuick.LocalStorage 2.0
 
 ComboBox {
     id: control
-    model: ["First", "Second", "Third"]
     
     delegate: ItemDelegate {
         width: control.width
@@ -77,16 +76,15 @@ ComboBox {
         width: control.width
         implicitHeight: contentItem.implicitHeight
         padding: 1
-        
+
         contentItem: ListView {
             clip: true
             implicitHeight: contentHeight
             model: control.popup.visible ? control.delegateModel : null
             currentIndex: control.highlightedIndex
-            
             ScrollIndicator.vertical: ScrollIndicator { }
         }
-        
+
         background: Rectangle {
            // border.color: "#21be2b"
             color: "#795548"

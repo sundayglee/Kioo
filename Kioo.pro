@@ -1,8 +1,9 @@
-QT += qml quick av
+QT +=  quick qml network xml xmlpatterns av
 
-CONFIG += c++11 static
+CONFIG += c++11
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    addon.cpp
 
 RESOURCES += qml.qrc
 
@@ -30,7 +31,11 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+LIBS += -lz
+
 DISTFILES += \
     changelog.log
 
-HEADERS +=
+HEADERS += \
+    addon.h
+

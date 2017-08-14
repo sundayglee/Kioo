@@ -1,4 +1,5 @@
 #include <QGuiApplication>
+#include <QCoreApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QIcon>
@@ -7,16 +8,19 @@
 #include <QObject>
 #include <QFile>
 #include <windows.h>
+#include <addon.h>
 
 int main(int argc, char *argv[])
-{
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+{    
     QGuiApplication app(argc, argv);
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_CONTINUOUS);
+    SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_CONTINUOUS);    
 
 //    QStringList args = app.arguments();
-//    qDebug() << urlHandler.getArgs(args[1]);
+//    qDebug() << urlHandler.getArgs(args[1])
+
+    AddOn addon;
 
     app.setOrganizationName("Kioo Media");
     app.setOrganizationDomain("kioomedia.com");
@@ -24,9 +28,14 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
  //   engine.rootContext()->setContextProperty("mrr",&mrr);
+    engine.rootContext()->setContextProperty("addon", &addon);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
+
+
+
+//    QObject *object = engine.rootObjects()[0];
 
  //   QObject *object = engine.rootObjects()[0];
 

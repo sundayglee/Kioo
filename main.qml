@@ -2,11 +2,13 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.0
+import QtQuick.Layouts 1.3
+import QtQuick.LocalStorage 2.0
+import QtQuick.XmlListModel 2.0
+import Qt.labs.settings 1.0
+import QtQuick.Dialogs 1.1
 import QtAV 1.5
 import "Utils.js" as Utils
-import QtQuick.Dialogs 1.2
-import QtQuick.LocalStorage 2.0
-import Qt.labs.settings 1.0
 
 ApplicationWindow {
     id: root
@@ -20,7 +22,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db
-    property  var version: "Kioo Media Player v1.4 [ALPHA] - August, 2017"
+    property  var version: "Kioo Media Player v1.5 [ALPHA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -129,7 +131,6 @@ ApplicationWindow {
 
         onClicked: {
             kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-           // Utils.getFile(Qt.application.arguments)
         }
 
 //        onRightChanged: {
@@ -206,8 +207,8 @@ ApplicationWindow {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
           //  font: PlayerConfig.subtitleFont
-            style: Text.Normal //PlayerConfig.subtitleOutline ? Text.Outline : Text.Normal
-           // styleColor: "white" // PlayerConfig.subtitleOutlineColor
+            style: Text.Raised //PlayerConfig.subtitleOutline ? Text.Outline : Text.Normal
+            styleColor: "black" // PlayerConfig.subtitleOutlineColor
             color: "white"//PlayerConfig.subtitleColor
             opacity: 0.8
             font.pointSize: Math.max(root.width, root.height) / 30
@@ -273,10 +274,13 @@ ApplicationWindow {
     //        subtitleItem.visible = canRender
     //        subtitleLabel.visible = !canRender
     //    }
-    //    onEnabledChanged: {
-    //        subtitleItem.visible = enabled
-    //        subtitleLabel.visible = enabled
-    //    }
+        onEnabledChanged: {
+            subtitleItem.visible = enabled
+            subtitleLabel.visible = enabled
+        }
+        onLoaded: {
+            csub.currentIndex = 0;
+        }
     }
 
     footer: ToolBar {
@@ -490,11 +494,11 @@ ApplicationWindow {
             onTriggered: osd.visible = false
         }
         function error(value) {
-            styleColor = "red"
+            osd.color = "brown"
             text = value
         }
         function info(value) {
-            styleColor = "brown"
+            osd.color = "white"
             text = value
         }
     }
@@ -510,6 +514,7 @@ ApplicationWindow {
         width: root.width
         height: root.height
         elide: Text.ElideRight
+        padding: 2
 
         onTextChanged: {
             osd_timer_left.stop()
@@ -761,7 +766,7 @@ ApplicationWindow {
                         }
 
                         onActivated: {
-                            console.log("item activited successfully"+currentIndex)
+                           // console.log("item activited successfully"+currentIndex)
                             if(currentIndex == 0)
                                 kioo.channelLayout = MediaPlayer.Stereo
                             else if(currentIndex == 1)
@@ -859,7 +864,7 @@ ApplicationWindow {
                             id: subtitleEnable
                             checked: true
                         }
-                    }
+                    }                    
 
                     RowLayout {
                         Layout.topMargin: -16
@@ -878,13 +883,160 @@ ApplicationWindow {
                             Layout.alignment: Qt.AlignLeft
                             Layout.preferredWidth: sDrawer.width/2.5
                             Layout.preferredHeight: 30
-                            currentIndex: 0
+                            currentIndex: index
+                            textRole: "title"
+                            delegate: ItemDelegate {
+                                width: csub.width
+                                contentItem: Text {
+                                    text: title
+                                    color: "white"
+                                    opacity: 0.8
+                                    font: csub.font
+                                    elide: Text.ElideRight
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                highlighted: csub.highlightedIndex === index
+                            }
                             model: ListModel {
                                 id: sTrackModel
                             }
 
                             onActivated: {
                                 kioo.internalSubtitleTrack = currentIndex;
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: 0
+                        Layout.leftMargin: 2
+
+                        Label {
+                            Layout.preferredWidth: sDrawer.width/2
+                            text: "Search Opensubtitles:"
+                            font.pointSize: 12
+                            color: "white"
+                            opacity: 0.8
+                        }
+
+                        ToolButton {
+                            id: subSearchBtn
+                            Layout.preferredHeight: 30
+
+                             contentItem: Text {
+                                 text: qsTr("SEARCH")
+                                 font.pointSize: 10
+                                 color: "white"
+                                 opacity: 0.8
+                             }
+                             background: Rectangle {
+                                 anchors.fill: parent
+                                // color: "#795548"
+                                 opacity: enabled ? 1 : 0.3
+                                 color: Qt.darker("#795548", subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted) ? 1.5 : 1.0)
+                                 visible: subSearchBtn.down || (subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted))
+                             }
+
+                             onClicked: {
+                                 if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
+                                    addon.sourceUrl = kioo.source
+                                    rpc.search([subLangList.get(subLang.currentIndex).value,addon.sourceUrl,kioo.metaData.size]);
+                                 }
+                                 else {
+                                     osd.error("No Media Loaded");
+                                     console.log("No media is loaded");
+                                 }
+                             }
+                        }
+                        ToolButton {
+                            Layout.preferredHeight: 30
+                            id: subDownBtn
+
+                             contentItem: Text {
+                                 text: qsTr("DOWNLOAD")
+                                 font.pointSize: 10
+                                 color: "white"
+                                 opacity: 0.8
+                             }
+                             background: Rectangle {
+                                 anchors.fill: parent
+                                // color: "#795548"
+                                 opacity: enabled ? 1 : 0.3
+                                 color: Qt.darker("#795548", subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted) ? 1.5 : 1.0)
+                                 visible: subDownBtn.down || (subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted))
+                             }
+                             onClicked: {
+                                 addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
+                             }
+
+                             Connections {
+                                 target: addon
+                                 onSubFileChanged: {
+                                     subtitle.file = addon.subFile;
+                                     var file = subtitle.file;
+                                     sTrackModel.append({title: "External Sub", link: subtitle.file })
+                                     sDrawer.close();
+                                     osd.info("Subtitle Loaded");
+                                 }
+                             }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: 0
+                        Layout.leftMargin: 2
+
+                        CustomCombo {
+                            id: subLang
+                            Layout.preferredWidth: sDrawer.width/4
+                            Layout.preferredHeight: 30
+                            textRole: "name"
+
+                           // model: ["English","French","Spanish"]
+                            model: ListModel {
+                                id: subLangList
+                                ListElement {
+                                    name: "English"
+                                    value: "eng"
+                                }
+                                ListElement {
+                                    name: "French"
+                                    value: "fre"
+                                }
+                                ListElement {
+                                    name: "Spanish"
+                                    value: "spa"
+                                }
+                            }
+
+                            onAccepted: {
+                                if (find(editText) === -1)
+                                    model.append({text: editText})
+                            }
+                        }
+
+                        CustomCombo {
+                            id: subList
+                            Layout.preferredWidth: sDrawer.width/1.5
+                            Layout.preferredHeight: 30
+                            currentIndex: index
+                            textRole: "subfile"
+                            model: rpc
+                            delegate: ItemDelegate {
+                                width: subList.width
+                                contentItem: Text {
+                                    text: subfile
+                                    color: "white"
+                                    opacity: 0.8
+                                    font: subList.font
+                                    elide: Text.ElideRight
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                highlighted: subList.highlightedIndex === index
+                            }
+
+                            onActivated: {
+                                console.log("Current index is: "+index);
                             }
                         }
                     }
@@ -955,12 +1107,29 @@ ApplicationWindow {
             }
             for(var i=0; i < kioo.internalSubtitleTracks.length; i++){
                 var a = "#"+kioo.internalSubtitleTracks[i].id +" "+kioo.internalSubtitleTracks[i].codec +" "+kioo.internalSubtitleTracks[i].language;
-                sTrackModel.append({title: a})
+                sTrackModel.append({title: a, link: "internal"})
                 console.log("value triggered" + a);
             }
+            sTrackModel.append({title: "External Sub", link: subtitle.file })
             caudio.currentIndex = ai;
             csub.currentIndex = si;
+          //  subList.currentIndex = 0;
         }
+    }
+
+    XmlRpcMap {
+        id: rpc
+
+        onCountChanged: {
+            subList.currentIndex = 0;
+            addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
+        }
+
+//        onItemFound: {
+//            subList.currentIndex = 0;
+//            console.log("an item was found");
+//            console.log(name)
+//        }
     }
 
     Component.onCompleted: {

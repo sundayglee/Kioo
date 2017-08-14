@@ -1,3 +1,10 @@
+Kioo Media Player v1.5 [ALPHA] - 14th August, 2017
+-------------------------------------------------
+* Fixed subtitle toggle crash from previous
+* Added subtitle dowload feature("Still In BETA")
+* Multiple other bug fixes
+
+
 Bug(v1.4 Alpha)
 ---
 Player crashes on multiple toggle subtitles
