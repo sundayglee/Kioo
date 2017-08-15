@@ -1,28 +1,29 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
-import QtQuick.Window 2.0
+import QtQuick.Window 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.LocalStorage 2.0
 import QtQuick.XmlListModel 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.1
 import QtAV 1.5
+
 import "Utils.js" as Utils
 
 ApplicationWindow {
     id: root
     visible: true
-    width: 720
-    height: 480
+    width: Utils.scale(720)
+    height: Utils.scale(480)
     color: "black"
     title: Utils.fileName(fileName)
-   // visibility: Window.FullScreen
-   // flags: Qt.Window | Qt.FramelessWindowHint
+    // visibility: Window.FullScreen
+    // flags: Qt.Window | Qt.FramelessWindowHint
 
     property var fileName: ""
-    property var db
-    property  var version: "Kioo Media Player v1.5 [ALPHA] - August, 2017"
+    property var db : ""
+    property  var version: "Kioo Media Player v1.6 [ALPHA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -41,6 +42,8 @@ ApplicationWindow {
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
+        //property alias alRepeatOne: repeatOne
+        // property alias alRepeatAll: repeatAll
     }
 
     DropArea {
@@ -99,7 +102,7 @@ ApplicationWindow {
         }
         onRejected: {
             console.log("Canceled")
-        }        
+        }
     }
 
     MouseArea {
@@ -118,7 +121,7 @@ ApplicationWindow {
                 timer2.stop()
             }
             else if(!(topbar.visible && timer1.running)) {
-               // topbar.visible = true
+                // topbar.visible = true
                 topbar.visible = root.visibility == Window.FullScreen ? true : false
                 bottombar.visible = true
                 mouse1.cursorShape = Qt.ArrowCursor
@@ -131,11 +134,12 @@ ApplicationWindow {
 
         onClicked: {
             kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+            //console.log(Math.max(root.width, root.height) / 30)
         }
 
-//        onRightChanged: {
-//            sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
-//        }
+        //        onRightChanged: {
+        //            sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
+        //        }
 
         onWheel: {
             console.log(wheel.angleDelta.y)
@@ -144,13 +148,13 @@ ApplicationWindow {
             else if(wheel.angleDelta.y < 0)
                 kioo.volume = Math.max(0, kioo.volume-0.05)
         }
-    }    
+    }
 
     Timer {
         id: timer1
         interval: 6000
         onTriggered: {
-           // console.log("timer1 still runnign")
+            // console.log("timer1 still runnign")
             mouse1.cursorShape = Qt.BlankCursor
         }
     }
@@ -159,7 +163,7 @@ ApplicationWindow {
         id: timer2
         interval: 5000
         onTriggered: {
-          //  console.log("timer2 still running")
+            //  console.log("timer2 still running")
             topbar.visible = false
             bottombar.visible = false
         }
@@ -206,12 +210,12 @@ ApplicationWindow {
             rotation: -vidOut.orientation
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
-          //  font: PlayerConfig.subtitleFont
+            //  font: PlayerConfig.subtitleFont
             style: Text.Raised //PlayerConfig.subtitleOutline ? Text.Outline : Text.Normal
             styleColor: "black" // PlayerConfig.subtitleOutlineColor
             color: "white"//PlayerConfig.subtitleColor
             opacity: 0.8
-            font.pointSize: Math.max(root.width, root.height) / 30
+            font.pixelSize: Math.max(root.width, root.height) / 32
 
             anchors.fill: parent
             anchors.bottomMargin: 20 //PlayerConfig.subtitleBottomMargin
@@ -241,14 +245,21 @@ ApplicationWindow {
             if(kioo.status == 3) {
                 fileName = kioo.source
                 root.title = Utils.fileName(fileName)
-               // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
+                // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
             }
             if(kioo.status == 7) {
                 if(pModel.count > 1) {
-                    if((pList.currentIndex+1) == pModel.count)
-                        pList.currentIndex = 0
-                    else
-                        pList.currentIndex += 1
+                    if(controls.plstState === "three" ) {
+                        changeSource(pModel.get(Math.floor((Math.random()*pModel.count+1)-1)).fLink)
+                    } else if(controls.plstState === "two") {
+                        changeSource(pModel.get(pList.currentIndex).flink)
+                    }
+                    else {
+                        if((pList.currentIndex+1) == pModel.count)
+                            pList.currentIndex = 0
+                        else
+                            pList.currentIndex += 1
+                    }
                 }
             }
         }
@@ -261,19 +272,19 @@ ApplicationWindow {
         autoLoad: true //PlayerConfig.subtitleAutoLoad
         engines: "FFmpeg" //PlayerConfig.subtitleEngines
         delay: 0 //PlayerConfig.subtitleDelay
-       // fontFile: //PlayerConfig.assFontFile
-       // fontFileForced: // PlayerConfig.assFontFileForced
-       // fontsDir: //PlayerConfig.assFontsDir
+        // fontFile: //PlayerConfig.assFontFile
+        // fontFileForced: // PlayerConfig.assFontFileForced
+        // fontsDir: //PlayerConfig.assFontsDir
 
         onContentChanged: { //already enabled
             if (!canRender || !subtitleItem.visible)
                 subtitleLabel.text = text
         }
 
-    //    onEngineChanged: { // assume a engine canRender is only used as a renderer
-    //        subtitleItem.visible = canRender
-    //        subtitleLabel.visible = !canRender
-    //    }
+        //    onEngineChanged: { // assume a engine canRender is only used as a renderer
+        //        subtitleItem.visible = canRender
+        //        subtitleLabel.visible = !canRender
+        //    }
         onEnabledChanged: {
             subtitleItem.visible = enabled
             subtitleLabel.visible = enabled
@@ -307,31 +318,31 @@ ApplicationWindow {
                 }
             }
 
-           RowLayout {
-               spacing: 0
-               Layout.alignment: Qt.AlignCenter
-               Layout.topMargin: -8
-               Label {
-                   text: Utils.milliSecToString(kioo.position)
-                   color: "white"
-                  // font.pixelSize: 22
-                   opacity: 0.8
-                   Layout.alignment: Qt.AlignHCenter
-               }
-               Label {
-                   text: " / "
-                   color: "white"
-                  // font.pixelSize: 22
-                   opacity: 0.8
-                   Layout.alignment: Qt.AlignHCenter
-               }
-               Label {
-                   text: Utils.milliSecToString(kioo.duration)
-                   color: "white"
-                   opacity: 0.8
-                   Layout.alignment: Qt.AlignHCenter
-               }
-           }
+            RowLayout {
+                spacing: 0
+                Layout.alignment: Qt.AlignCenter
+                Layout.topMargin: -8
+                Label {
+                    text: Utils.milliSecToString(kioo.position)
+                    color: "white"
+                    // font.pixelSize: 22
+                    opacity: 0.8
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: " / "
+                    color: "white"
+                    // font.pixelSize: 22
+                    opacity: 0.8
+                    Layout.alignment: Qt.AlignHCenter
+                }
+                Label {
+                    text: Utils.milliSecToString(kioo.duration)
+                    color: "white"
+                    opacity: 0.8
+                    Layout.alignment: Qt.AlignHCenter
+                }
+            }
 
             CustomControls {
                 id: controls
@@ -340,6 +351,7 @@ ApplicationWindow {
                 playState: kioo.playbackState == MediaPlayer.PlayingState ? "playing" : "paused"
                 winState: root.visibility == Window.FullScreen ? "fullscreen" : "windowed"
                 volumeValue: kioo.volume
+                plstState: "one"
 
                 onTogglePlayback: {
                     kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
@@ -361,25 +373,49 @@ ApplicationWindow {
                 }
 
                 onSkipNext: {
-                    console.log(pModel.count+"  "+pList.currentIndex)
                     if(pModel.count > 1) {
-                        if((pList.currentIndex+1) == pModel.count)
-                            pList.currentIndex = 0
-                        else
-                            pList.currentIndex += 1
+                        if(controls.plstState === "three" ) {
+                            changeSource(pModel.get(Math.floor((Math.random()*pModel.count+1)-1)).fLink)
+                        } else if(controls.plstState === "two") {
+                            changeSource(pModel.get(pList.currentIndex).flink)
+                        }
+                        else {
+                            if((pList.currentIndex+1) == pModel.count)
+                                pList.currentIndex = 0
+                            else
+                                pList.currentIndex += 1
+                        }
                     }
                 }
                 onSkipPrevious: {
-                    console.log(pModel.count+"  "+pList.currentIndex)
                     if(pModel.count > 1) {
-                        if(pList.currentIndex <= 0)
-                            pList.currentIndex = pModel.count-1
-                        else
-                            pList.currentIndex -= 1
+                        if(controls.plstState === "three" ) {
+                            changeSource(pModel.get(Math.floor((Math.random()*pModel.count+1)-1)).fLink)
+                        } else if(controls.plstState === "two") {
+                            changeSource(pModel.get(pList.currentIndex).flink)
+                        }
+                        else {
+                            if(pList.currentIndex <= 0)
+                                pList.currentIndex = pModel.count-1
+                            else
+                                pList.currentIndex -= 1
+                        }
                     }
                 }
                 onVolumeChanged: {
                     kioo.volume = vValue
+                }
+                onPlstChanged: {
+                    console.log(plstState);
+                    if(plstState === "three"){
+                        plstState = "one"
+                    }
+                    else if(plstState === "one"){
+                        plstState = "two"
+                    }
+                    else if(plstState === "two"){
+                        plstState = "three"
+                    }
                 }
             }
         }
@@ -476,7 +512,7 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignHCenter
         color: "white"
-        font.pixelSize: 25
+        font.pixelSize: Math.max(root.width, root.height) / 30
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -508,7 +544,7 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignLeft
         color: "white"
-        font.pixelSize: 30
+        font.pixelSize: Math.max(root.width, root.height) / 30
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -556,26 +592,42 @@ ApplicationWindow {
             id: pList
 
             focus: true
-         //   currentIndex: pSet.lastPlayed
+            //   currentIndex: pSet.lastPlayed
             anchors.fill: parent
             highlightFollowsCurrentItem: true
 
-            header: Label {
-                text: "Playlist"
-                font.pixelSize: 30
-                color: "white"
-                background: Rectangle {
-                    anchors.fill: parent
-                    color: "#795548"
-                }
-
-                opacity: 0.9
-                padding: 4
-               // horizontalAlignment: Qt.AlignHCenter
+            header: Rectangle {
+                //anchors.fill: parent
+                color: "#795548"
+                height: 48
                 width: parent.width
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 0
+                    Label {
+                        Layout.alignment: Qt.AlignLeft
+                        text: "Playlist"
+                        font.pixelSize: 30
+                        color: "white"
+                        opacity: 0.9
+                        padding: 4
+                        // horizontalAlignment: Qt.AlignHCenter
+                        width: parent.width
+                    }
+
+                    Switch {
+                        id: clearPlaylist
+                        Layout.alignment: Qt.AlignRight
+                        onPressed: {
+                            pModel.clear();
+                            clearPlaylist.checked = true
+                        }
+                    }
+                }
             }
+
             onCurrentIndexChanged: {
-               // console.log("Value of the current index is"+pList.get(pList.currentIndex).fLink)
+                // console.log("Value of the current index is"+pList.get(pList.currentIndex).fLink)
                 changeSource(pModel.get(pList.currentIndex).fLink)
             }
 
@@ -669,7 +721,7 @@ ApplicationWindow {
 
             model: ListModel {
                 id: pModel
-              //  ListElement { title: ""; source: "" }
+                //  ListElement { title: ""; source: "" }
             }
 
             Settings {
@@ -677,7 +729,7 @@ ApplicationWindow {
                 property alias lastPlayed: pList.currentIndex
             }
             ScrollIndicator.vertical: ScrollIndicator { }
-        }        
+        }
     }
 
     Drawer {
@@ -709,7 +761,7 @@ ApplicationWindow {
 
                     opacity: 0.9
                     padding: 4
-                   // horizontalAlignment: Qt.AlignHCenter
+                    // horizontalAlignment: Qt.AlignHCenter
                     Layout.preferredWidth: sDrawer.width
                 }
 
@@ -766,7 +818,7 @@ ApplicationWindow {
                         }
 
                         onActivated: {
-                           // console.log("item activited successfully"+currentIndex)
+                            // console.log("item activited successfully"+currentIndex)
                             if(currentIndex == 0)
                                 kioo.channelLayout = MediaPlayer.Stereo
                             else if(currentIndex == 1)
@@ -864,7 +916,7 @@ ApplicationWindow {
                             id: subtitleEnable
                             checked: true
                         }
-                    }                    
+                    }
 
                     RowLayout {
                         Layout.topMargin: -16
@@ -923,62 +975,62 @@ ApplicationWindow {
                             id: subSearchBtn
                             Layout.preferredHeight: 30
 
-                             contentItem: Text {
-                                 text: qsTr("SEARCH")
-                                 font.pointSize: 10
-                                 color: "white"
-                                 opacity: 0.8
-                             }
-                             background: Rectangle {
-                                 anchors.fill: parent
+                            contentItem: Text {
+                                text: qsTr("SEARCH")
+                                font.pointSize: 10
+                                color: "white"
+                                opacity: 0.8
+                            }
+                            background: Rectangle {
+                                anchors.fill: parent
                                 // color: "#795548"
-                                 opacity: enabled ? 1 : 0.3
-                                 color: Qt.darker("#795548", subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted) ? 1.5 : 1.0)
-                                 visible: subSearchBtn.down || (subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted))
-                             }
+                                opacity: enabled ? 1 : 0.3
+                                color: Qt.darker("#795548", subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted) ? 1.5 : 1.0)
+                                visible: subSearchBtn.down || (subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted))
+                            }
 
-                             onClicked: {
-                                 if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
+                            onClicked: {
+                                if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
                                     addon.sourceUrl = kioo.source
                                     rpc.search([subLangList.get(subLang.currentIndex).value,addon.sourceUrl,kioo.metaData.size]);
-                                 }
-                                 else {
-                                     osd.error("No Media Loaded");
-                                     console.log("No media is loaded");
-                                 }
-                             }
+                                }
+                                else {
+                                    osd.error("No Media Loaded");
+                                    console.log("No media is loaded");
+                                }
+                            }
                         }
                         ToolButton {
                             Layout.preferredHeight: 30
                             id: subDownBtn
 
-                             contentItem: Text {
-                                 text: qsTr("DOWNLOAD")
-                                 font.pointSize: 10
-                                 color: "white"
-                                 opacity: 0.8
-                             }
-                             background: Rectangle {
-                                 anchors.fill: parent
+                            contentItem: Text {
+                                text: qsTr("DOWNLOAD")
+                                font.pointSize: 10
+                                color: "white"
+                                opacity: 0.8
+                            }
+                            background: Rectangle {
+                                anchors.fill: parent
                                 // color: "#795548"
-                                 opacity: enabled ? 1 : 0.3
-                                 color: Qt.darker("#795548", subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted) ? 1.5 : 1.0)
-                                 visible: subDownBtn.down || (subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted))
-                             }
-                             onClicked: {
-                                 addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
-                             }
+                                opacity: enabled ? 1 : 0.3
+                                color: Qt.darker("#795548", subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted) ? 1.5 : 1.0)
+                                visible: subDownBtn.down || (subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted))
+                            }
+                            onClicked: {
+                                addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
+                            }
 
-                             Connections {
-                                 target: addon
-                                 onSubFileChanged: {
-                                     subtitle.file = addon.subFile;
-                                     var file = subtitle.file;
-                                     sTrackModel.append({title: "External Sub", link: subtitle.file })
-                                     sDrawer.close();
-                                     osd.info("Subtitle Loaded");
-                                 }
-                             }
+                            Connections {
+                                target: addon
+                                onSubFileChanged: {
+                                    subtitle.file = addon.subFile;
+                                    var file = subtitle.file;
+                                    sTrackModel.append({title: "External Sub", link: subtitle.file })
+                                    sDrawer.close();
+                                    osd.info("Subtitle Loaded");
+                                }
+                            }
                         }
                     }
 
@@ -992,7 +1044,7 @@ ApplicationWindow {
                             Layout.preferredHeight: 30
                             textRole: "name"
 
-                           // model: ["English","French","Spanish"]
+                            // model: ["English","French","Spanish"]
                             model: ListModel {
                                 id: subLangList
                                 ListElement {
@@ -1113,7 +1165,7 @@ ApplicationWindow {
             sTrackModel.append({title: "External Sub", link: subtitle.file })
             caudio.currentIndex = ai;
             csub.currentIndex = si;
-          //  subList.currentIndex = 0;
+            //  subList.currentIndex = 0;
         }
     }
 
@@ -1125,29 +1177,33 @@ ApplicationWindow {
             addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
         }
 
-//        onItemFound: {
-//            subList.currentIndex = 0;
-//            console.log("an item was found");
-//            console.log(name)
-//        }
+        //        onItemFound: {
+        //            subList.currentIndex = 0;
+        //            console.log("an item was found");
+        //            console.log(name)
+        //        }
     }
 
     Component.onCompleted: {
-       // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
+        // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
         initDatabase()
 
         if(enableHistory.checked)
             readData()
+        else {
+            cleanData()
+            initDatabase()
+        }
 
         var opt = kioo.videoCodecOptions
-     //   if (value) {
-     //       opt["copyMode"] = "ZeroCopy"
-     //   } else {
-     //       if (Qt.platform.os == "osx")
-    //            opt["copyMode"] = "LazyCopy"
-      //      else
-                opt["copyMode"] = "ZeroCopy"
-      //  }
+        //   if (value) {
+        //       opt["copyMode"] = "ZeroCopy"
+        //   } else {
+        //       if (Qt.platform.os == "osx")
+        //            opt["copyMode"] = "LazyCopy"
+        //      else
+        opt["copyMode"] = "ZeroCopy"
+        //  }
         kioo.videoCodecOptions = opt
         Utils.getFile(Qt.application.arguments);
     }
@@ -1159,14 +1215,13 @@ ApplicationWindow {
     }
 
     function initDatabase() {
-        print('..initializing the database')
         db = LocalStorage.openDatabaseSync("Kioo", "1.0", "Kioo Media", 1000000);
         db.transaction( function(tx) {
             tx.executeSql('CREATE TABLE IF NOT EXISTS data(name TEXT, value TEXT)');
         });
     }
 
-    function storeData() {        
+    function storeData() {
         if(!db) { return; }
         db.transaction( function(tx) {
             var result = tx.executeSql('SELECT * from data where name = "playlist"');
@@ -1176,17 +1231,17 @@ ApplicationWindow {
 
             for(var i = 0; i < pModel.rowCount(); i++){
                 ldata.push({
-                       "fileName" : pModel.get(i).fTitle,
-                       "fileUrl" : pModel.get(i).fLink
-                   });
+                               "fileName" : pModel.get(i).fTitle,
+                               "fileUrl" : pModel.get(i).fLink
+                           });
             }
             obj.ldata = ldata;
 
             if(result.rows.length === 1) {// use update
-                print('... playlist exists, update it')
+                //  print('... playlist exists, update it')
                 result = tx.executeSql('UPDATE data set value=? where name="playlist"', [JSON.stringify(obj)]);
             } else { // use insert
-                print('... playlist does not exists, create it')
+                //  print('... playlist does not exists, create it')
                 result = tx.executeSql('INSERT INTO data VALUES (?,?)', ['playlist', JSON.stringify(obj)]);
             }
         });
@@ -1194,7 +1249,7 @@ ApplicationWindow {
     }
 
     function readData() {
-        print('readData()')
+        // print('readData()')
         if(!db) { return; }
         db.transaction( function(tx) {
             var result = tx.executeSql('select * from data where name="playlist"');
@@ -1206,10 +1261,17 @@ ApplicationWindow {
 
                 // apply to object
                 for(var i in obj.ldata){
-                    console.log(obj.ldata[0].fileUrl)
+                    //  console.log(obj.ldata[0].fileUrl)
                     pModel.append({ fTitle: obj.ldata[i].fileName, fLink: obj.ldata[i].fileUrl})
                 }
             }
+        });
+    }
+
+    function cleanData() {
+        db = LocalStorage.openDatabaseSync("Kioo", "1.0", "Kioo Media", 1000000);
+        db.transaction( function(tx) {
+            tx.executeSql('DROP TABLE IF EXISTS data');
         });
     }
 }

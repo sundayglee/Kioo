@@ -1,3 +1,12 @@
+Kioo Media Player v1.6 [ALPHA] - 15th August, 2017
+-------------------------------------------------
+* Added Repeat One, Repeat All and Shuffle logic to the player
+* Started fixing dpi changes in large screen
+* Added a clear playlist button
+* Entering BETA in next version
+
+
+
 Kioo Media Player v1.5 [ALPHA] - 14th August, 2017
 -------------------------------------------------
 * Fixed subtitle toggle crash from previous
@@ -5,7 +14,7 @@ Kioo Media Player v1.5 [ALPHA] - 14th August, 2017
 * Multiple other bug fixes
 
 
-Bug(v1.4 Alpha)
+Bug(v1.4 Alpha) - Fixed in v1.5 [ALPHA]
 ---
 Player crashes on multiple toggle subtitles
 

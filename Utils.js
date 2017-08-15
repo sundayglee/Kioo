@@ -49,3 +49,7 @@ function getFile(path) {
         subtitle.file = ""
     }
 }
+
+function scale(x) {
+    return x*screen.devicePixelRatio
+}

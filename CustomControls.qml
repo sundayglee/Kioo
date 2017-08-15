@@ -6,12 +6,15 @@ import QtQuick.Window 2.0
 
 RowLayout {
     property string playState : "playing"
+    property string plstState: "one"    // All -> one, One-> two, Shuffle -> three
     property string winState: "windowed"
     property var volumeValue: -1
 
     signal stop
     signal togglePlayback
     signal toggleFullScreen
+    signal plstChanged
+    signal shufflePlaylist
     signal fileOpen
     signal skipNext
     signal skipPrevious
@@ -110,6 +113,25 @@ RowLayout {
         ToolButton {
             implicitHeight: 40
             implicitWidth: 40
+            contentItem: Image {
+                source: {
+                    if(plstState === "one")
+                        "/icon/repeat.svg"
+                    else if(plstState ===  "two")
+                        "/icon/repeat_one.svg"
+                    else if(plstState === "three")
+                        "/icon/shuffle.svg"
+                }
+                opacity: 0.8
+            }
+            onClicked: {
+                plstChanged()
+            }
+        }
+
+        ToolButton {
+            implicitHeight: 40
+            implicitWidth: 40
             contentItem:  Image {
                 source: "/icon/skip_next.svg"
                 opacity: 0.8
@@ -119,23 +141,6 @@ RowLayout {
             }
         }
 
-        ToolButton {
-            implicitHeight: 40
-            implicitWidth: 40
-            contentItem: Image {
-                source: "/icon/repeat.svg"
-                opacity: 0.8
-            }
-        }
-
-        ToolButton {
-            implicitHeight: 40
-            implicitWidth: 40
-            contentItem:  Image {
-                source: "/icon/shuffle.svg"
-                opacity: 0.8
-            }
-        }
     }
 
     
