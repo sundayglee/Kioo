@@ -12,8 +12,9 @@
 
 int main(int argc, char *argv[])
 {    
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // Must be the first line
     QGuiApplication app(argc, argv);
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
 
 #if defined(Q_OS_ANDROID)
 

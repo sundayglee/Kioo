@@ -14,8 +14,8 @@ import "Utils.js" as Utils
 ApplicationWindow {
     id: root
     visible: true
-    width: Utils.scale(720)
-    height: Utils.scale(480)
+    width: 720
+    height: 480
     color: "black"
     title: Utils.fileName(fileName)
     // visibility: Window.FullScreen
@@ -23,7 +23,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo Media Player v1.6 [ALPHA] - August, 2017"
+    property  var version: "Kioo Media Player v1.7 [ALPHA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -215,10 +215,10 @@ ApplicationWindow {
             styleColor: "black" // PlayerConfig.subtitleOutlineColor
             color: "white"//PlayerConfig.subtitleColor
             opacity: 0.8
-            font.pixelSize: Math.max(root.width, root.height) / 32
+            font.pixelSize: Math.max(root.width, root.height) / 28
 
             anchors.fill: parent
-            anchors.bottomMargin: 20 //PlayerConfig.subtitleBottomMargin
+            anchors.bottomMargin: 24 //PlayerConfig.subtitleBottomMargin
         }
     }
 
@@ -518,6 +518,7 @@ ApplicationWindow {
         width: root.width
         height: root.height / 2
         elide: Text.ElideRight
+        padding: 4
 
         onTextChanged: {
             osd_timer.stop()
@@ -550,7 +551,7 @@ ApplicationWindow {
         width: root.width
         height: root.height
         elide: Text.ElideRight
-        padding: 2
+        padding: 4
 
         onTextChanged: {
             osd_timer_left.stop()

@@ -1,10 +1,14 @@
+Kioo Media Player v1.7 [BETA] - 15th August, 2017
+-------------------------------------------------
+* Fixed scaling issue in different DPI
+
+
 Kioo Media Player v1.6 [ALPHA] - 15th August, 2017
 -------------------------------------------------
 * Added Repeat One, Repeat All and Shuffle logic to the player
 * Started fixing dpi changes in large screen
 * Added a clear playlist button
 * Entering BETA in next version
-
 
 
 Kioo Media Player v1.5 [ALPHA] - 14th August, 2017
