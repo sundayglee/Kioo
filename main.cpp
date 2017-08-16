@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kioo Media Player");
 
     QQmlApplicationEngine engine;
- //   engine.rootContext()->setContextProperty("mrr",&mrr);
+    //   engine.rootContext()->setContextProperty("mrr",&mrr);
     engine.rootContext()->setContextProperty("addon", &addon);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
@@ -49,18 +49,18 @@ int main(int argc, char *argv[])
 
 
 
-//    QObject *object = engine.rootObjects()[0];
+    //    QObject *object = engine.rootObjects()[0];
 
- //   QObject *object = engine.rootObjects()[0];
+    //   QObject *object = engine.rootObjects()[0];
 
-//    QObject *kioo = object->findChild<QObject*>("kioo");
+    //    QObject *kioo = object->findChild<QObject*>("kioo");
 
-//    if (kioo && !file.isEmpty()) {
-//        if (!file.startsWith(QLatin1String("file:")) && QFile(file).exists())
-//            file.prepend(QLatin1String("file:")); //qml use url and will add qrc: if no scheme
-//        file.replace(QLatin1String("\\"), QLatin1String("/"));
-//        kioo->setProperty("source", file);
-//    }
+    //    if (kioo && !file.isEmpty()) {
+    //        if (!file.startsWith(QLatin1String("file:")) && QFile(file).exists())
+    //            file.prepend(QLatin1String("file:")); //qml use url and will add qrc: if no scheme
+    //        file.replace(QLatin1String("\\"), QLatin1String("/"));
+    //        kioo->setProperty("source", file);
+    //    }
 
     return app.exec();
 }

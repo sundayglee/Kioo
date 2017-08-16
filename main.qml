@@ -23,7 +23,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo Media Player v1.7 [ALPHA] - August, 2017"
+    property  var version: "Kioo Media Player v1.7 [BETA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -190,7 +190,7 @@ ApplicationWindow {
 
     VideoOutput2 {
         id: vidOut
-        opengl: true
+        //    opengl: true
         visible: appOption.alVideoEnable
         fillMode: VideoOutput.PreserveAspectFit
         anchors.fill: parent
@@ -250,7 +250,9 @@ ApplicationWindow {
             if(kioo.status == 7) {
                 if(pModel.count > 1) {
                     if(controls.plstState === "three" ) {
-                        changeSource(pModel.get(Math.floor((Math.random()*pModel.count+1)-1)).fLink)
+                        var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
+                        pList.currentIndex = curIndex;
+                        changeSource(pModel.get(curIndex).fLink)
                     } else if(controls.plstState === "two") {
                         changeSource(pModel.get(pList.currentIndex).flink)
                     }
@@ -375,7 +377,9 @@ ApplicationWindow {
                 onSkipNext: {
                     if(pModel.count > 1) {
                         if(controls.plstState === "three" ) {
-                            changeSource(pModel.get(Math.floor((Math.random()*pModel.count+1)-1)).fLink)
+                            var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
+                            pList.currentIndex = curIndex;
+                            changeSource(pModel.get(curIndex).fLink)
                         } else if(controls.plstState === "two") {
                             changeSource(pModel.get(pList.currentIndex).flink)
                         }
@@ -390,7 +394,9 @@ ApplicationWindow {
                 onSkipPrevious: {
                     if(pModel.count > 1) {
                         if(controls.plstState === "three" ) {
-                            changeSource(pModel.get(Math.floor((Math.random()*pModel.count+1)-1)).fLink)
+                            var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
+                            pList.currentIndex = curIndex;
+                            changeSource(pModel.get(curIndex).fLink)
                         } else if(controls.plstState === "two") {
                             changeSource(pModel.get(pList.currentIndex).flink)
                         }
@@ -629,11 +635,17 @@ ApplicationWindow {
 
             onCurrentIndexChanged: {
                 // console.log("Value of the current index is"+pList.get(pList.currentIndex).fLink)
-                changeSource(pModel.get(pList.currentIndex).fLink)
+                try {
+                    changeSource(pModel.get(pList.currentIndex).fLink);
+                   // console.log("current index: "+pList.currentIndex)
+                }
+                catch(err) {   }
+
             }
 
             onVisibleChanged: {
-                currentIndex = appOption.lastPlayed
+                if(kioo.playbackState != MediaPlayer.PlayingState || kioo.playbackRate != MediaPlayer.PausedState)
+                    currentIndex = appOption.lastPlayed
             }
 
             delegate: ItemDelegate {
@@ -1061,6 +1073,18 @@ ApplicationWindow {
                                     value: "spa"
                                 }
                             }
+                            delegate: ItemDelegate {
+                                width: subLang.width
+                                contentItem: Text {
+                                    text: name
+                                    color: "white"
+                                    opacity: 0.8
+                                    font: subLang.font
+                                    elide: Text.ElideRight
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                highlighted: subLang.highlightedIndex === index
+                            }
 
                             onAccepted: {
                                 if (find(editText) === -1)
@@ -1086,7 +1110,7 @@ ApplicationWindow {
                                     verticalAlignment: Text.AlignVCenter
                                 }
                                 highlighted: subList.highlightedIndex === index
-                            }
+                            }                            
 
                             onActivated: {
                                 console.log("Current index is: "+index);

@@ -69,7 +69,7 @@ RowLayout {
             onClicked: {
                 fileOpen()
             }
-        }        
+        }
     }
     
     Row {

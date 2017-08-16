@@ -35,6 +35,46 @@ void AddOn::downloadSub(const QString &url,const QString &fileName, const QStrin
     manager->get(request);
 }
 
+void AddOn::setSubFile(QString ufile) {
+    qDebug() << "Full path is: " +ufile;
+    QStringList list = ufile.split("|");
+    downloadSub(list[0],list[1],list[2]);
+}
+
+void AddOn::setSourceUrl(const QString &a) {
+    QString ab = a;
+    ab.replace("file:","");
+    if(ab.startsWith("///")) {
+        ab.replace("///","");
+    }
+    qDebug() << "The path is: "+ab;
+    QByteArray ba = ab.toLatin1();
+    const char *ch = ba.data();
+
+    ifstream f;
+    uint64_t myhash;
+
+    f.open(ch, ios::in|ios::binary|ios::ate);
+    if (!f.is_open()) {
+        cerr << "Error opening file" << endl;
+    }
+
+    myhash = compute_hash(f);
+    f.close();
+
+    theHash = QString::number( myhash, 16 );
+
+    emit sourceUrlChanged();
+}
+
+QString AddOn::sourceUrl() const {
+    return theHash;
+}
+
+QString AddOn::subFile() const {
+    return theSubFile;
+}
+
 void AddOn::onSubComplete(QNetworkReply *reply) {
     qDebug() << "...download complete";
     if (!m_file->isWritable()) {
@@ -233,5 +273,28 @@ bool AddOn::gzipCompress(QByteArray input, QByteArray &output, int level)
     }
     else
         return(true);
+}
+
+int AddOn::MAX(int x, int y)
+{
+    if((x) > (y))
+        return x;
+    else
+        return y;
+}
+
+uint64_t AddOn::compute_hash(ifstream &f)
+{
+    uint64_t hash, fsize;
+
+    f.seekg(0, ios::end);
+    fsize = f.tellg();
+    f.seekg(0, ios::beg);
+
+    hash = fsize;
+    for(uint64_t tmp = 0, i = 0; i < 65536/sizeof(tmp) && f.read((char*)&tmp, sizeof(tmp)); i++, hash += tmp);
+    f.seekg(MAX(0, (uint64_t)fsize - 65536), ios::beg);
+    for(uint64_t tmp = 0, i = 0; i < 65536/sizeof(tmp) && f.read((char*)&tmp, sizeof(tmp)); i++, hash += tmp);
+    return hash;
 }
 
