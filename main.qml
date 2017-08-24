@@ -23,7 +23,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo Media Player v1.7 [BETA] - August, 2017"
+    property  var version: "Kioo Media Player v1.8 [BETA] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -263,6 +263,9 @@ ApplicationWindow {
                             pList.currentIndex += 1
                     }
                 }
+                else {
+                    changeSource(pModel.get(pList.currentIndex).flink)
+                }
             }
         }
     }
@@ -308,6 +311,7 @@ ApplicationWindow {
             CustomSlider {
                 id: slider
                 Layout.preferredWidth: root.width
+                Keys.forwardTo: canvas
 
                 ToolTip {
                     parent: slider.handle
@@ -316,7 +320,11 @@ ApplicationWindow {
                     bottomMargin: 0
                 }
                 onPressedChanged: {
+                    focus = true
                     kioo.seek(slider.value*kioo.duration)
+                    osd_left.info("Seeking")
+                    osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
+                    focus = false
                 }
             }
 
@@ -354,6 +362,7 @@ ApplicationWindow {
                 winState: root.visibility == Window.FullScreen ? "fullscreen" : "windowed"
                 volumeValue: kioo.volume
                 plstState: "one"
+                Keys.forwardTo: canvas
 
                 onTogglePlayback: {
                     kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
@@ -363,6 +372,7 @@ ApplicationWindow {
                 }
                 onStop: {
                     kioo.stop()
+                    slider.value = 0;
                 }
                 onFileOpen: {
                     fileDialog.open()
@@ -390,6 +400,9 @@ ApplicationWindow {
                                 pList.currentIndex += 1
                         }
                     }
+                    else {
+                        changeSource(pModel.get(pList.currentIndex).flink)
+                    }
                 }
                 onSkipPrevious: {
                     if(pModel.count > 1) {
@@ -406,6 +419,9 @@ ApplicationWindow {
                             else
                                 pList.currentIndex -= 1
                         }
+                    }
+                    else {
+                        changeSource(pModel.get(pList.currentIndex).flink)
                     }
                 }
                 onVolumeChanged: {
@@ -429,13 +445,13 @@ ApplicationWindow {
 
     Item {
         id: canvas
-        anchors.fill: parent
+        anchors.fill: kioo
         focus: true
 
-        Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Space)
+      //  Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Space)
 
         Keys.onSpacePressed: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-        Keys.onPressed: {
+        Keys.onPressed: {            
             switch(event.key) {
             case Qt.Key_F:
                 root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
@@ -466,14 +482,18 @@ ApplicationWindow {
             case Qt.Key_Right:
                 kioo.fastSeek = event.isAutoRepeat
                 kioo.seek(kioo.position + 5000)
+                osd_left.info("Seeking")
+                osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
                 break
             case Qt.Key_Left:
                 kioo.fastSeek = event.isAutoRepeat
                 kioo.seek(kioo.position - 5000)
+                osd_left.info("Seeking")
+                osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
                 break
             case Qt.Key_R:
                 kioo.orientation += 90
-                drawer.open()
+               // drawer.open()
                 break;
             case Qt.Key_T:
                 videoOut.orientation -= 90
@@ -581,6 +601,40 @@ ApplicationWindow {
         }
     }
 
+    Label {
+        id: osd_right
+        horizontalAlignment: Text.AlignRight
+        color: "white"
+        font.pixelSize: Math.max(root.width, root.height) / 30
+        opacity: 0.8
+        anchors.top: root.top
+        width: root.width
+        height: root.height
+        elide: Text.ElideRight
+        padding: 4
+
+        onTextChanged: {
+            osd_timer_right.stop()
+            visible = true
+            osd_timer_right.start()
+        }
+        Timer {
+            id: osd_timer_right
+            interval: 2000
+            onTriggered: osd_right.visible = false
+        }
+        function error(value) {
+            color = "brown"
+            opacity = 0.8
+            text = value
+        }
+        function info(value) {
+            color = "white"
+            opacity = 0.8
+            text = value
+        }
+    }
+
     Drawer {
         id: drawer
         width: Math.max(root.width, root.height) / 3 * 2
@@ -598,7 +652,7 @@ ApplicationWindow {
         ListView {
             id: pList
 
-            focus: true
+           // focus: true
             //   currentIndex: pSet.lastPlayed
             anchors.fill: parent
             highlightFollowsCurrentItem: true
@@ -627,6 +681,8 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignRight
                         onPressed: {
                             pModel.clear();
+                            kioo.stop();
+                            kioo.source = "";
                             clearPlaylist.checked = true
                         }
                     }

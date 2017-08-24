@@ -38,7 +38,9 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = true
                 openSettings()
+                focus = false
             }
         }
         
@@ -50,7 +52,9 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = true
                 openPlaylist()
+                focus = false
             }
         }
     }
@@ -67,6 +71,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 fileOpen()
             }
         }
@@ -82,6 +87,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 skipPrevious()
             }
         }
@@ -94,6 +100,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 togglePlayback()
             }
         }
@@ -106,6 +113,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 stop()
             }
         }
@@ -125,6 +133,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 plstChanged()
             }
         }
@@ -137,6 +146,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 skipNext()
             }
         }
@@ -170,6 +180,7 @@ RowLayout {
             value: volumeValue
 
             onValueChanged: {
+                focus = false
                 volumeChanged(volumeSlider.value)
             }
         }

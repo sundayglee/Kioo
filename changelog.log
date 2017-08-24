@@ -1,7 +1,15 @@
+Kioo Media Player v1.8 [BETA] - 24th August, 2017
+-------------------------------------------------
+* Fixed an issue where on one item on playlist it would stop and not repeat itself
+* Prevent controls buttons from gaining focus on mouse click
+* On playlist clear, clear source, and stop playing media
+* Added OSD for seeking
+* Now all key shortcuts working as required
+
 Kioo Media Player v1.7 [BETA] - 15th August, 2017
 -------------------------------------------------
 * Fixed scaling issue in different DPI
-* More bugs fixed
+* More bugs fixes
 
 
 Kioo Media Player v1.6 [ALPHA] - 15th August, 2017

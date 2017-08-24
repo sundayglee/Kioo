@@ -15,8 +15,8 @@ Slider {
     }
     
     background: Rectangle {
-        x: control.leftPadding
-        y: control.topPadding + control.availableHeight / 2 - height / 2
+     //   x: control.leftPadding
+     //  y: control.topPadding + control.availableHeight / 2 - height / 2
         implicitWidth: 200
         implicitHeight: 6
         width: control.availableWidth
