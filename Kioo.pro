@@ -1,9 +1,10 @@
 QT +=  quick qml network xml xmlpatterns av
 
-CONFIG += c++11
+CONFIG += c++11 opengl dynamic
 
 SOURCES += main.cpp \
-    addon.cpp
+    addon.cpp \
+    ipcinterface.cpp
 
 RESOURCES += qml.qrc
 
@@ -37,5 +38,6 @@ DISTFILES += \
     changelog.log
 
 HEADERS += \
-    addon.h
+    addon.h \
+    ipcinterface.h
 

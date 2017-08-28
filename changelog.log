@@ -1,3 +1,15 @@
+Kioo Media Player v1.9 [RC] - 27th August, 2017
+-------------------------------------------------
+* Fixe a bug when on played.
+
+
+Kioo Media Player v1.9 [BETA] - 25th August, 2017
+-------------------------------------------------
+* Added capability of selecting multiple item and play
+* Added TaskBar thumbnail controls
+* Limit only single process per user
+* Volume range from 0.0 to 2.0
+
 Kioo Media Player v1.8 [BETA] - 24th August, 2017
 -------------------------------------------------
 * Fixed an issue where on one item on playlist it would stop and not repeat itself

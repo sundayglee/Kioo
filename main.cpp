@@ -9,6 +9,11 @@
 #include <QFile>
 #include <windows.h>
 #include <addon.h>
+#include <QLockFile>
+#include <QDir>
+#include <QString>
+
+#include "ipcinterface.h"
 
 int main(int argc, char *argv[])
 {    
@@ -35,6 +40,26 @@ int main(int argc, char *argv[])
 #endif
 
     AddOn addon;
+    IPCInterface ipcInterface;
+
+    QString tmpDir = QDir::tempPath();
+    QLockFile lockFile(tmpDir + "/KiooMediaPlayer");
+
+    if(!lockFile.tryLock(100)) {
+       // qDebug() << "Already running....";
+        ipcInterface.ipcPayload = "AlphaBetaKing";
+        QStringList cmdLine = QCoreApplication::arguments();
+
+        if(cmdLine[1].isEmpty()) {
+           // qDebug() << "Empty payload";
+            return -1;
+        }
+        ipcInterface.ipcPayload = cmdLine[1];
+        ipcInterface.ipcPayload.replace(QLatin1String("\\"), QLatin1String("/"));
+        ipcInterface.clientConnect();
+        while(!ipcInterface.dataSent) { }
+        return -1;
+    }
 
     app.setOrganizationName("Kioo Media");
     app.setOrganizationDomain("kioomedia.com");
@@ -43,10 +68,13 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     //   engine.rootContext()->setContextProperty("mrr",&mrr);
     engine.rootContext()->setContextProperty("addon", &addon);
+    engine.rootContext()->setContextProperty("ipcInterface", &ipcInterface);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
         return -1;
 
+//    addon.sendToShared("Valueeeeeee");
+//    qDebug() << "Received file is: " << addon.getFromShared();
 
 
     //    QObject *object = engine.rootObjects()[0];

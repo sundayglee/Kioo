@@ -50,6 +50,30 @@ function getFile(path) {
     }
 }
 
+function getSingleFile(path) {
+    var k,subs
+
+    k = "file:"+path.toString(); //qml use url and will add qrc: if no scheme
+    k = k.replace(/\\/g, "/");
+
+    if (k.endsWith(".srt") || k.endsWith(".ass") || k.endsWith(".ssa") || k.endsWith(".sub")
+            || k.endsWith(".idx") || k.endsWith(".mpl2") || k.endsWith(".smi") || k.endsWith(".sami")
+            || k.endsWith(".sup") || k.endsWith(".txt"))
+        subs = k
+    else {
+        pModel.append({ fTitle: Utils.fileName(k), fLink: k})
+        changeSource(k)
+    }
+
+    if (subs) {
+        subtitle.autoLoad = true
+        subtitle.file = subs
+    } else {
+        subtitle.file = ""
+    }
+}
+
+
 function scale(x) {
     return x*screen.devicePixelRatio
 }

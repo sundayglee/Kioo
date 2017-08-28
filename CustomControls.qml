@@ -177,11 +177,11 @@ RowLayout {
         Slider {
             id: volumeSlider
             implicitWidth: 80
-            value: volumeValue
+            value: volumeValue/2
 
             onValueChanged: {
                 focus = false
-                volumeChanged(volumeSlider.value)
+                volumeChanged(volumeSlider.value*2)
             }
         }
     }

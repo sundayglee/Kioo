@@ -8,6 +8,7 @@ import QtQuick.XmlListModel 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.1
 import QtAV 1.5
+import QtWinExtras 1.0
 
 import "Utils.js" as Utils
 
@@ -23,7 +24,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo Media Player v1.8 [BETA] - August, 2017"
+    property  var version: "Kioo Media Player v1.9 [RC] - August, 2017"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -32,6 +33,48 @@ ApplicationWindow {
         kioo.stop()
         fileName = url
         kioo.play()
+    }
+
+    function fnSkipNext() {
+        if(pModel.count > 1) {
+            if(controls.plstState === "three" ) {
+                var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
+                pList.currentIndex = curIndex;
+                changeSource(pModel.get(curIndex).fLink)
+            } else if(controls.plstState === "two") {
+                changeSource(pModel.get(pList.currentIndex).flink)
+            }
+            else {
+                if((pList.currentIndex+1) == pModel.count)
+                    pList.currentIndex = 0
+                else
+                    pList.currentIndex += 1
+            }
+        }
+        else {
+            changeSource(pModel.get(pList.currentIndex).flink)
+        }
+    }
+
+    function fnSkipPrevious() {
+        if(pModel.count > 1) {
+            if(controls.plstState === "three" ) {
+                var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
+                pList.currentIndex = curIndex;
+                changeSource(pModel.get(curIndex).fLink)
+            } else if(controls.plstState === "two") {
+                changeSource(pModel.get(pList.currentIndex).flink)
+            }
+            else {
+                if(pList.currentIndex <= 0)
+                    pList.currentIndex = pModel.count-1
+                else
+                    pList.currentIndex -= 1
+            }
+        }
+        else {
+            changeSource(pModel.get(pList.currentIndex).flink)
+        }
     }
 
     Settings {
@@ -44,6 +87,13 @@ ApplicationWindow {
         property alias lastPlayed: pList.currentIndex
         //property alias alRepeatOne: repeatOne
         // property alias alRepeatAll: repeatAll
+    }
+
+    Connections {
+        target: ipcInterface
+        onLinkReceived: {
+            Utils.getSingleFile(data);
+        }
     }
 
     DropArea {
@@ -65,7 +115,7 @@ ApplicationWindow {
                 }
             }
             if (subs) {
-                console.log("the subs are:"+subs)
+               // console.log("the subs are:"+subs)
                 subtitle.autoLoad = true
                 subtitle.file = subs
             } else {
@@ -101,7 +151,7 @@ ApplicationWindow {
 
         }
         onRejected: {
-            console.log("Canceled")
+           // console.log("Canceled")
         }
     }
 
@@ -142,7 +192,7 @@ ApplicationWindow {
         //        }
 
         onWheel: {
-            console.log(wheel.angleDelta.y)
+           // console.log(wheel.angleDelta.y)
             if(wheel.angleDelta.y > 0)
                 kioo.volume = Math.min(2, kioo.volume+0.05)
             else if(wheel.angleDelta.y < 0)
@@ -240,6 +290,7 @@ ApplicationWindow {
         }
         onVolumeChanged: {
             controls.volumeValue = kioo.volume
+            osd_right.info(kioo.volume.toPrecision(2));
         }
         onStatusChanged: {
             if(kioo.status == 3) {
@@ -385,50 +436,16 @@ ApplicationWindow {
                 }
 
                 onSkipNext: {
-                    if(pModel.count > 1) {
-                        if(controls.plstState === "three" ) {
-                            var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
-                            pList.currentIndex = curIndex;
-                            changeSource(pModel.get(curIndex).fLink)
-                        } else if(controls.plstState === "two") {
-                            changeSource(pModel.get(pList.currentIndex).flink)
-                        }
-                        else {
-                            if((pList.currentIndex+1) == pModel.count)
-                                pList.currentIndex = 0
-                            else
-                                pList.currentIndex += 1
-                        }
-                    }
-                    else {
-                        changeSource(pModel.get(pList.currentIndex).flink)
-                    }
+                    fnSkipNext();
                 }
                 onSkipPrevious: {
-                    if(pModel.count > 1) {
-                        if(controls.plstState === "three" ) {
-                            var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
-                            pList.currentIndex = curIndex;
-                            changeSource(pModel.get(curIndex).fLink)
-                        } else if(controls.plstState === "two") {
-                            changeSource(pModel.get(pList.currentIndex).flink)
-                        }
-                        else {
-                            if(pList.currentIndex <= 0)
-                                pList.currentIndex = pModel.count-1
-                            else
-                                pList.currentIndex -= 1
-                        }
-                    }
-                    else {
-                        changeSource(pModel.get(pList.currentIndex).flink)
-                    }
+                    fnSkipPrevious();
                 }
                 onVolumeChanged: {
                     kioo.volume = vValue
                 }
                 onPlstChanged: {
-                    console.log(plstState);
+                   // console.log(plstState);
                     if(plstState === "three"){
                         plstState = "one"
                     }
@@ -464,11 +481,11 @@ ApplicationWindow {
                 break
             case Qt.Key_Plus:
                 kioo.playbackRate += 0.1
-                console.log("Playback rate is: "+kioo.playbackRate)
+               // console.log("Playback rate is: "+kioo.playbackRate)
                 break;
             case Qt.Key_Minus:
                 kioo.playbackRate -= 0.1
-                console.log("Playback rate is: "+kioo.playbackRate)
+               // console.log("Playback rate is: "+kioo.playbackRate)
                 break;
             case Qt.Key_Up:
                 kioo.volume = Math.min(2, kioo.volume+0.05)
@@ -681,8 +698,7 @@ ApplicationWindow {
                         Layout.alignment: Qt.AlignRight
                         onPressed: {
                             pModel.clear();
-                            kioo.stop();
-                            kioo.source = "";
+                            fileName = "";
                             clearPlaylist.checked = true
                         }
                     }
@@ -696,12 +712,12 @@ ApplicationWindow {
                    // console.log("current index: "+pList.currentIndex)
                 }
                 catch(err) {   }
-
             }
 
             onVisibleChanged: {
-                if(kioo.playbackState != MediaPlayer.PlayingState || kioo.playbackRate != MediaPlayer.PausedState)
-                    currentIndex = appOption.lastPlayed
+                if(kioo.playbackState === MediaPlayer.StoppedState) {
+                    currentIndex = appOption.lastPlayed;
+                }
             }
 
             delegate: ItemDelegate {
@@ -1065,7 +1081,7 @@ ApplicationWindow {
                                 }
                                 else {
                                     osd.error("No Media Loaded");
-                                    console.log("No media is loaded");
+                                   // console.log("No media is loaded");
                                 }
                             }
                         }
@@ -1169,7 +1185,7 @@ ApplicationWindow {
                             }                            
 
                             onActivated: {
-                                console.log("Current index is: "+index);
+                               // console.log("Current index is: "+index);
                             }
                         }
                     }
@@ -1241,7 +1257,7 @@ ApplicationWindow {
             for(var i=0; i < kioo.internalSubtitleTracks.length; i++){
                 var a = "#"+kioo.internalSubtitleTracks[i].id +" "+kioo.internalSubtitleTracks[i].codec +" "+kioo.internalSubtitleTracks[i].language;
                 sTrackModel.append({title: a, link: "internal"})
-                console.log("value triggered" + a);
+               // console.log("value triggered" + a);
             }
             sTrackModel.append({title: "External Sub", link: subtitle.file })
             caudio.currentIndex = ai;
@@ -1354,5 +1370,24 @@ ApplicationWindow {
         db.transaction( function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS data');
         });
+    }
+
+    ThumbnailToolBar {
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_previous.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipPrevious();
+        }
+        ThumbnailToolButton {
+            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+        }
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_next.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipNext();
+        }
+       // ThumbnailToolButton { interactive: false; flat: true }
     }
 }
