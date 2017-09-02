@@ -77,3 +77,14 @@ function getSingleFile(path) {
 function scale(x) {
     return x*screen.devicePixelRatio
 }
+
+function request(url, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = (function(myxhr) {
+            return function() {
+                callback(myxhr);
+            }
+        })(xhr);
+        xhr.open('GET', url, true);
+        xhr.send('');
+}

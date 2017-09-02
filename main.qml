@@ -24,7 +24,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo Media Player v1.9 [RC] - August, 2017"
+    property  var version: "Kioo v1.9 [BETA] - (http://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -172,7 +172,7 @@ ApplicationWindow {
             }
             else if(!(topbar.visible && timer1.running)) {
                 // topbar.visible = true
-                topbar.visible = root.visibility == Window.FullScreen ? true : false
+                topbar.visible = root.visibility === Window.FullScreen ? true : false
                 bottombar.visible = true
                 mouse1.cursorShape = Qt.ArrowCursor
             }
@@ -240,7 +240,7 @@ ApplicationWindow {
 
     VideoOutput2 {
         id: vidOut
-        //    opengl: true
+        opengl: true
         visible: appOption.alVideoEnable
         fillMode: VideoOutput.PreserveAspectFit
         anchors.fill: parent
@@ -416,10 +416,10 @@ ApplicationWindow {
                 Keys.forwardTo: canvas
 
                 onTogglePlayback: {
-                    kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+                    kioo.playbackState === MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
                 }
                 onToggleFullScreen: {
-                    root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
+                    root.visibility === Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
                 }
                 onStop: {
                     kioo.stop()
@@ -429,10 +429,10 @@ ApplicationWindow {
                     fileDialog.open()
                 }
                 onOpenPlaylist: {
-                    drawer.visible == true ? drawer.close() : drawer.open()
+                    drawer.visible === true ? drawer.close() : drawer.open()
                 }
                 onOpenSettings: {
-                    sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
+                    sDrawer.visible === true ? sDrawer.close() : sDrawer.open()
                 }
 
                 onSkipNext: {
@@ -467,17 +467,17 @@ ApplicationWindow {
 
       //  Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Space)
 
-        Keys.onSpacePressed: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+        Keys.onSpacePressed: kioo.playbackState === MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
         Keys.onPressed: {            
             switch(event.key) {
             case Qt.Key_F:
-                root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
+                root.visibility === Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
                 break
             case Qt.Key_Escape:
-                root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
+                root.visibility === Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
                 break
             case Qt.Key_P:
-                kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+                kioo.playbackState === MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
                 break
             case Qt.Key_Plus:
                 kioo.playbackRate += 0.1
@@ -516,10 +516,10 @@ ApplicationWindow {
                 videoOut.orientation -= 90
                 break;
             case Qt.Key_L:
-                drawer.visible == true ? drawer.close() : drawer.open()
+                drawer.visible === true ? drawer.close() : drawer.open()
                 break;
             case Qt.Key_S:
-                sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
+                sDrawer.visible === true ? sDrawer.close() : sDrawer.open()
                 break;
             case Qt.Key_C:
                 kioo.videoCapture.capture()

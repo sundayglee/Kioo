@@ -170,6 +170,7 @@ RowLayout {
                 opacity: 0.8
             }
             onClicked: {
+                focus = false
                 toggleFullScreen()
             }
         }
