@@ -32,7 +32,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-LIBS += -lz
+LIBS += -lzlib  # For MSCV 2017 64 bit -> Disable also in addon.h
+#LIBS += -lz
+
 
 DISTFILES += \
     changelog.log

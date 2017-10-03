@@ -15,8 +15,8 @@ import "Utils.js" as Utils
 ApplicationWindow {
     id: root
     visible: true
-    width: 720
-    height: 480
+    width: Utils.scale(720)
+    height: Utils.scale(480)
     color: "black"
     title: Utils.fileName(fileName)
     // visibility: Window.FullScreen
@@ -24,7 +24,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.9 [BETA] - (http://www.kiooplayer.com)"
+    property  var version: "Kioo v1.10 [BETA] - (http://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -255,20 +255,19 @@ ApplicationWindow {
             source: subtitle
             anchors.fill: parent
         }
-        Label {
+        Text {
             id: subtitleLabel
             rotation: -vidOut.orientation
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
-            //  font: PlayerConfig.subtitleFont
-            style: Text.Raised //PlayerConfig.subtitleOutline ? Text.Outline : Text.Normal
-            styleColor: "black" // PlayerConfig.subtitleOutlineColor
-            color: "white"//PlayerConfig.subtitleColor
+            style: Text.Raised
+            styleColor: "black"
+            color: "white"
             opacity: 0.8
-            font.pixelSize: Math.max(root.width, root.height) / 28
-
-            anchors.fill: parent
-            anchors.bottomMargin: 24 //PlayerConfig.subtitleBottomMargin
+            font.pixelSize: Math.max(root.width, root.height) / 35
+            width: vidOut.width
+            anchors.fill: vidOut
+            anchors.bottomMargin: Math.max(root.width, root.height) / 35
         }
     }
 
@@ -325,22 +324,18 @@ ApplicationWindow {
         id: subtitle
         player: kioo
         enabled: appOption.alSubtitleEnable
-        autoLoad: true //PlayerConfig.subtitleAutoLoad
-        engines: "FFmpeg" //PlayerConfig.subtitleEngines
-        delay: 0 //PlayerConfig.subtitleDelay
-        // fontFile: //PlayerConfig.assFontFile
-        // fontFileForced: // PlayerConfig.assFontFileForced
-        // fontsDir: //PlayerConfig.assFontsDir
+        autoLoad: true
+        engines: ["FFmpeg"]
+        delay: 0
 
         onContentChanged: { //already enabled
             if (!canRender || !subtitleItem.visible)
                 subtitleLabel.text = text
         }
-
-        //    onEngineChanged: { // assume a engine canRender is only used as a renderer
-        //        subtitleItem.visible = canRender
-        //        subtitleLabel.visible = !canRender
-        //    }
+        onEngineChanged: {
+            subtitleItem.visible = canRender
+            subtitleLabel.visible = !canRender
+        }
         onEnabledChanged: {
             subtitleItem.visible = enabled
             subtitleLabel.visible = enabled
@@ -555,7 +550,7 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignHCenter
         color: "white"
-        font.pixelSize: Math.max(root.width, root.height) / 30
+        font.pixelSize: Math.max(root.width, root.height) / 40
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -588,7 +583,7 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignLeft
         color: "white"
-        font.pixelSize: Math.max(root.width, root.height) / 30
+        font.pixelSize: Math.max(root.width, root.height) / 40
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -622,7 +617,7 @@ ApplicationWindow {
         id: osd_right
         horizontalAlignment: Text.AlignRight
         color: "white"
-        font.pixelSize: Math.max(root.width, root.height) / 30
+        font.pixelSize: Math.max(root.width, root.height) / 40
         opacity: 0.8
         anchors.top: root.top
         width: root.width

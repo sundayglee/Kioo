@@ -45,14 +45,14 @@ int main(int argc, char *argv[])
     QString tmpDir = QDir::tempPath();
     QLockFile lockFile(tmpDir + "/KiooMediaPlayer");
 
-    if(!lockFile.tryLock(100)) {
+    if(!lockFile.tryLock(10)) {
        // qDebug() << "Already running....";
         ipcInterface.ipcPayload = "AlphaBetaKing";
         QStringList cmdLine = QCoreApplication::arguments();
 
         if(cmdLine[1].isEmpty()) {
            // qDebug() << "Empty payload";
-            return -1;
+          //  return -1;
         }
         ipcInterface.ipcPayload = cmdLine[1];
         ipcInterface.ipcPayload.replace(QLatin1String("\\"), QLatin1String("/"));
