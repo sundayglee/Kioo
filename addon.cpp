@@ -30,13 +30,14 @@ void AddOn::downloadSub(const QString &url,const QString &fileName, const QStrin
     QNetworkRequest request;
     request.setUrl(QUrl(url));
 
+    // qDebug() << "The url is:"+url;
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(onSubComplete(QNetworkReply *)));
 
     manager->get(request);
 }
 
 void AddOn::setSubFile(QString ufile) {
-    qDebug() << "Full path is: " +ufile;
+    // qDebug() << "Full path is: " +ufile;
     QStringList list = ufile.split("|");
     downloadSub(list[0],list[1],list[2]);
 }
@@ -47,7 +48,7 @@ void AddOn::setSourceUrl(const QString &a) {
     if(ab.startsWith("///")) {
         ab.replace("///","");
     }
-    qDebug() << "The path is: "+ab;
+    // qDebug() << "The path is: "+ab;
     QByteArray ba = ab.toLatin1();
     const char *ch = ba.data();
 
@@ -76,7 +77,7 @@ QString AddOn::subFile() const {
 }
 
 void AddOn::onSubComplete(QNetworkReply *reply) {
-    qDebug() << "...download complete";
+    // qDebug() << "...download complete";
     if (!m_file->isWritable()) {
         m_isReady = true;
         return; // TODO: error check

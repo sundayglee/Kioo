@@ -88,3 +88,12 @@ function request(url, callback) {
         xhr.open('GET', url, true);
         xhr.send('');
 }
+
+function checkUrl(val) {
+    var resp = "";
+    if(val.startsWith("http"))
+        resp = val;
+    else
+        resp = rpc.get(subList.currentIndex).sublink2;
+    return resp;
+}

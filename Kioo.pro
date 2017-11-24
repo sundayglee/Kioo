@@ -1,6 +1,6 @@
-QT +=  quick qml network xml xmlpatterns av
+QT +=  av quick qml network xml xmlpatterns
 
-CONFIG += c++11 opengl dynamic
+CONFIG += c++11
 
 SOURCES += main.cpp \
     addon.cpp \
@@ -32,8 +32,8 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-LIBS += -lzlib  # For MSCV 2017 64 bit -> Disable also in addon.h
-#LIBS += -lz
+#LIBS += -lzlib  # For MSCV 2017 64 bit -> Disable also in addon.h
+LIBS += -lz
 
 
 DISTFILES += \

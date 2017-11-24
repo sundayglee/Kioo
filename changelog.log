@@ -1,8 +1,10 @@
-Kioo Media Player v1.10 [RC] - 3rd October, 2017
+Kioo Media Player v1.10 - 24th November, 2017
 -------------------------------------------------
 * Reduced size of the font and and bottom margin of the subtitles
 * Added 64 bit variaty of the player
-
+* Removed the orientation property on the subtitle
+* Added bold to subtitles
+* Dirty Fix for downloading subtitles in opesubtitles.org
 
 Kioo Media Player v1.9 [RC] - 27th August, 2017
 -------------------------------------------------

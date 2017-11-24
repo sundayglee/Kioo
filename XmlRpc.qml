@@ -14,7 +14,9 @@ XmlListModel {
 
     XmlRole { name: "matchedby";        query: "member[1]/name/string()"; }
     XmlRole { name: "subfile";          query: "member[7]/value/string/string()" }
-    XmlRole { name: "sublink";          query: "member[50]/value/string/string()" }
+    XmlRole { name: "sublink1";          query: "member[50]/value/string/string()" } //  Dirty Fix for index
+    XmlRole { name: "sublink2";          query: "member[51]/value/string/string()" } //  Same as above
+
 
     function rpcRequest(request,handler) {
         var http = new XMLHttpRequest()

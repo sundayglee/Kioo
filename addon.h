@@ -12,8 +12,8 @@
 #include <QUrl>
 #include <QFile>
 #include <QBytearray>
-#include <C:/Qt/zlib-1.2.11/zlib.h> //Zlib for MSCV 2017 64 bit
-//#include <zlib.h>
+//#include <C:/Qt/zlib-1.2.11/zlib.h> //Zlib for MSCV 2017 64 bit
+#include <zlib.h>
 #include <QQuickItem>
 
 #include <iostream>

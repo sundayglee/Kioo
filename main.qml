@@ -7,7 +7,7 @@ import QtQuick.LocalStorage 2.0
 import QtQuick.XmlListModel 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.1
-import QtAV 1.5
+import QtAV 1.7
 import QtWinExtras 1.0
 
 import "Utils.js" as Utils
@@ -24,7 +24,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.10 [BETA] - (http://www.kiooplayer.com)"
+    property  var version: "Kioo v1.10 - (http://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -76,6 +76,30 @@ ApplicationWindow {
             changeSource(pModel.get(pList.currentIndex).flink)
         }
     }
+
+//    Rectangle {
+//        id: sOverlay
+//        height: parent.height
+//        width: parent.width
+//        z: 1
+//        anchors.centerIn: vidOut
+//        color: "teal"
+//        opacity: 50
+//    }
+
+//    ToolBar {
+//        id: sHeader
+
+//        z: 1
+//        width: parent.width
+//        parent: window.overlay
+
+//        Label {
+//            id: label
+//            anchors.centerIn: parent
+//            text: "Qt Quick Controls 2"
+//        }
+//    }
 
     Settings {
         id: appOption
@@ -250,24 +274,54 @@ ApplicationWindow {
 
         SubtitleItem {
             id: subtitleItem
-            fillMode: vidOut.fillMode
-            rotation: -vidOut.orientation
+          //  rotation: -vidOut.orientation
             source: subtitle
-            anchors.fill: parent
+            anchors.fill: root
+            fillMode: VideoOutput.PreserveAspectFit
+
         }
+
         Text {
             id: subtitleLabel
-            rotation: -vidOut.orientation
+        //    rotation: -vidOut.orientation
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
+            width: root.width
+            wrapMode: Text.Wrap
             style: Text.Raised
             styleColor: "black"
             color: "white"
             opacity: 0.8
-            font.pixelSize: Math.max(root.width, root.height) / 35
-            width: vidOut.width
-            anchors.fill: vidOut
-            anchors.bottomMargin: Math.max(root.width, root.height) / 35
+            font.pixelSize: Math.max(root.width, root.height) / 32
+            anchors.fill: parent
+            anchors.bottomMargin: Math.max(root.width, root.height) / 32
+        }
+    }
+
+    Subtitle {
+        id: subtitle
+        player: kioo
+        enabled: appOption.alSubtitleEnable
+       // autoLoad: true
+        delay: 0
+        engines: ["FFmpeg"]
+
+        onContentChanged: { //already enabled
+            if (!canRender || !subtitleItem.visible)
+                subtitleLabel.text = text
+        }
+
+        onEngineChanged: { // assume a engine canRender is only used as a renderer
+            subtitleItem.visible = canRender
+            subtitleLabel.visible = !canRender
+        }
+
+        onEnabledChanged: {
+            subtitleItem.visible = true
+            subtitleLabel.visible = true
+        }
+        onLoaded: {
+            csub.currentIndex = 0;
         }
     }
 
@@ -278,9 +332,11 @@ ApplicationWindow {
         objectName: "kioo"
         autoPlay: true
 
+
         onPositionChanged: {
             slider.setProgress(position/duration)
         }
+
         onPlaybackStateChanged: {
             if(kioo.playbackState == MediaPlayer.PlayingState)
                 osd_left.info("Play")
@@ -320,30 +376,6 @@ ApplicationWindow {
         }
     }
 
-    Subtitle {
-        id: subtitle
-        player: kioo
-        enabled: appOption.alSubtitleEnable
-        autoLoad: true
-        engines: ["FFmpeg"]
-        delay: 0
-
-        onContentChanged: { //already enabled
-            if (!canRender || !subtitleItem.visible)
-                subtitleLabel.text = text
-        }
-        onEngineChanged: {
-            subtitleItem.visible = canRender
-            subtitleLabel.visible = !canRender
-        }
-        onEnabledChanged: {
-            subtitleItem.visible = enabled
-            subtitleLabel.visible = enabled
-        }
-        onLoaded: {
-            csub.currentIndex = 0;
-        }
-    }
 
     footer: ToolBar {
         id: bottombar
@@ -367,6 +399,7 @@ ApplicationWindow {
                 }
                 onPressedChanged: {
                     focus = true
+                    kioo.fastSeek = true
                     kioo.seek(slider.value*kioo.duration)
                     osd_left.info("Seeking")
                     osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
@@ -540,7 +573,10 @@ ApplicationWindow {
                 break;
             case Qt.Key_Q:
                 Qt.quit()
-                break
+                break;
+            case Qt.Key_E:
+                sOverlay.visible === true ? sOverlay.close() : sOverlay.open()
+                break;
             }
         }
     }
@@ -550,7 +586,7 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignHCenter
         color: "white"
-        font.pixelSize: Math.max(root.width, root.height) / 40
+        font.pixelSize: Math.max(root.width, root.height) / 32
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -583,7 +619,7 @@ ApplicationWindow {
         objectName: "osd"
         horizontalAlignment: Text.AlignLeft
         color: "white"
-        font.pixelSize: Math.max(root.width, root.height) / 40
+        font.pixelSize: Math.max(root.width, root.height) / 32
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -617,7 +653,7 @@ ApplicationWindow {
         id: osd_right
         horizontalAlignment: Text.AlignRight
         color: "white"
-        font.pixelSize: Math.max(root.width, root.height) / 40
+        font.pixelSize: Math.max(root.width, root.height) / 32
         opacity: 0.8
         anchors.top: root.top
         width: root.width
@@ -646,6 +682,60 @@ ApplicationWindow {
             text = value
         }
     }
+
+//    Drawer {
+//        id: sOverlay
+//        width: root.width
+//        height: root.height
+//        edge: Qt.TopEdge
+
+//        TabBar {
+//            id: bar
+//            width: parent.width
+
+//            background: Rectangle {
+//                Rectangle {
+//                    anchors.fill: parent
+//                    color: "#a98274"
+//                }
+//            }
+
+//            TabButton {
+//                text: qsTr("Audio")
+//                font.bold: true
+//            }
+//            TabButton {
+//                text: qsTr("Video")
+//                font.bold: true
+//            }
+//            TabButton {
+//                text: qsTr("Subtitle")
+//                font.bold: true
+//            }
+//            TabButton {
+//                text: qsTr("System")
+//                font.bold: true
+//            }
+//        }
+
+//        StackLayout {
+//            width: parent.width
+//            currentIndex: bar.currentIndex
+
+//            Item {
+//                id: sAudio
+//            }
+//            Item {
+//                id: sVideo
+//            }
+//            Item {
+//                id: sSubtitle
+//            }
+//            Item {
+//                id: sSystem
+//            }
+//        }
+//    }
 
     Drawer {
         id: drawer
@@ -1034,7 +1124,16 @@ ApplicationWindow {
                             }
 
                             onActivated: {
-                                kioo.internalSubtitleTrack = currentIndex;
+                                if(sTrackModel.get(currentIndex).link.includes("internal")) {
+                                    kioo.internalSubtitleTrack = currentIndex
+                                    subtitle.file = ""
+                                }
+
+                                for(var k=0; k < sTrackModel.count; k++ ) {
+                                    if(sTrackModel.get(k).title.includes(currentText)) {
+                                        currentIndex = k
+                                    }
+                                }
                             }
                         }
                     }
@@ -1045,8 +1144,8 @@ ApplicationWindow {
 
                         Label {
                             Layout.preferredWidth: sDrawer.width/2
-                            text: "Search Opensubtitles:"
-                            font.pointSize: 12
+                            text: "Opensubtitles:"
+                            font.pixelSize: 16
                             color: "white"
                             opacity: 0.8
                         }
@@ -1085,7 +1184,7 @@ ApplicationWindow {
                             id: subDownBtn
 
                             contentItem: Text {
-                                text: qsTr("DOWNLOAD")
+                                text: qsTr("LOAD")
                                 font.pointSize: 10
                                 color: "white"
                                 opacity: 0.8
@@ -1098,14 +1197,14 @@ ApplicationWindow {
                                 visible: subDownBtn.down || (subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted))
                             }
                             onClicked: {
-                                addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
+                                addon.subFile = Utils.checkUrl(rpc.get(subList.currentIndex).sublink1)+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
                             }
 
                             Connections {
                                 target: addon
                                 onSubFileChanged: {
+                                    console.log("changedasdfafsfasfsdfsd")
                                     subtitle.file = addon.subFile;
-                                    var file = subtitle.file;
                                     sTrackModel.append({title: "External Sub", link: subtitle.file })
                                     sDrawer.close();
                                     osd.info("Subtitle Loaded");
@@ -1241,23 +1340,42 @@ ApplicationWindow {
             }
         }
         onVisibleChanged: {
-            var ai = caudio.currentIndex
+            var ai = caudio.currentIndex            
             var si = csub.currentIndex
             aTrackModel.clear();
             sTrackModel.clear();
+           // sTrackModel.append({title: "--Subtitle tracks---"})
             for(var i=0; i < kioo.internalAudioTracks.length; i++){
-                var a = "#"+kioo.internalAudioTracks[i].id +" "+kioo.internalAudioTracks[i].codec +" "+kioo.internalAudioTracks[i].language;
-                aTrackModel.append({title: a})
+                var a = kioo.internalAudioTracks[i].id +" - "+kioo.internalAudioTracks[i].codec +" ("+kioo.internalAudioTracks[i].language+")";
+                aTrackModel.append({title: a})               
             }
-            for(var i=0; i < kioo.internalSubtitleTracks.length; i++){
-                var a = "#"+kioo.internalSubtitleTracks[i].id +" "+kioo.internalSubtitleTracks[i].codec +" "+kioo.internalSubtitleTracks[i].language;
-                sTrackModel.append({title: a, link: "internal"})
-               // console.log("value triggered" + a);
+
+            var v = 0;
+
+            for(var j=0; j < kioo.internalSubtitleTracks.length; j++){
+                var b = kioo.internalSubtitleTracks[j].id +" - "+kioo.internalSubtitleTracks[j].codec +" ("+kioo.internalSubtitleTracks[j].language+")";
+                sTrackModel.append({title: b, link: "internal"})
+                v = j;
             }
-            sTrackModel.append({title: "External Sub", link: subtitle.file })
+
+            if(subtitle.file !== "") {
+                sTrackModel.append({title: j+ " - external subs", link: subtitle.file })
+
+                for(var k=0; k < sTrackModel.count; k++ ) {
+                    if(sTrackModel.get(k).title.includes("external")) {
+                       csub.currentIndex = k;
+                    }
+                }
+            }
+
+            else {
+                csub.currentIndex = kioo.internalSubtitleTrack;
+            }
+
+          //  sTrackModel.append({title: "External Sub", link: subs.file })
+
             caudio.currentIndex = ai;
-            csub.currentIndex = si;
-            //  subList.currentIndex = 0;
+          //  csub.currentIndex = si;
         }
     }
 
@@ -1266,8 +1384,10 @@ ApplicationWindow {
 
         onCountChanged: {
             subList.currentIndex = 0;
-            addon.subFile = rpc.get(subList.currentIndex).sublink+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
+            addon.subFile = Utils.checkUrl(rpc.get(subList.currentIndex).sublink1)+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
         }
+
+
 
         //        onItemFound: {
         //            subList.currentIndex = 0;
