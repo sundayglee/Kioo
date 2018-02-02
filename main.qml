@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
@@ -6,9 +6,9 @@ import QtQuick.Layouts 1.3
 import QtQuick.LocalStorage 2.0
 import QtQuick.XmlListModel 2.0
 import Qt.labs.settings 1.0
-import QtQuick.Dialogs 1.1
-import QtAV 1.7
+import QtQuick.Dialogs 1.2
 import QtWinExtras 1.0
+import QtAV 1.7
 
 import "Utils.js" as Utils
 

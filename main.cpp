@@ -12,6 +12,7 @@
 #include <QLockFile>
 #include <QDir>
 #include <QString>
+#include <QtAV>
 
 #include "ipcinterface.h"
 
@@ -19,6 +20,7 @@ int main(int argc, char *argv[])
 {    
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // Must be the first line
     QGuiApplication app(argc, argv);
+    QtAV::setLogLevel(QtAV::LogAll);
 
 
 #if defined(Q_OS_ANDROID)
