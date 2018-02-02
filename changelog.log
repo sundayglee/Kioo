@@ -1,3 +1,8 @@
+Kioo Media Player v1.11 - 2nd February, 2018
+-------------------------------------------------
+* Turn back to opengl=true
+* Set codec mode to ZeroCopy
+
 Kioo Media Player v1.10 - 24th November, 2017
 -------------------------------------------------
 * Reduced size of the font and and bottom margin of the subtitles

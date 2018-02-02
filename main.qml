@@ -24,7 +24,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.10 - (http://www.kiooplayer.com)"
+    property  var version: "Kioo v1.11 - (http://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
