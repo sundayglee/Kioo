@@ -11,7 +11,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QFile>
-#include <QBytearray>
+#include <QByteArray>
 //#include <C:/Qt/zlib-1.2.11/zlib.h> //Zlib for MSCV 2017 64 bit
 #include <zlib.h>
 #include <QQuickItem>
@@ -19,7 +19,6 @@
 #include <iostream>
 #include <fstream>
 
-typedef unsigned __int64 uint64_t;
 #define GZIP_WINDOWS_BIT 15 + 16
 #define GZIP_CHUNK_SIZE 32 * 1024
 using namespace std;

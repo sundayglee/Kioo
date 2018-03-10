@@ -7,21 +7,21 @@
 #include <QDebug>
 #include <QObject>
 #include <QFile>
-#include <windows.h>
-#include <addon.h>
+//#include <windows.h>
+#include "addon.h"
 #include <QLockFile>
 #include <QDir>
 #include <QString>
 #include <QtAV>
-
 #include "ipcinterface.h"
 
 int main(int argc, char *argv[])
 {    
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // Must be the first line
+    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
     QGuiApplication app(argc, argv);
     QtAV::setLogLevel(QtAV::LogAll);
-
+    app.setWindowIcon(QIcon("icon.ico"));
 
 #if defined(Q_OS_ANDROID)
 
@@ -57,7 +57,9 @@ int main(int argc, char *argv[])
           //  return -1;
         }
         ipcInterface.ipcPayload = cmdLine[1];
+#ifdef Q_OS_WIN
         ipcInterface.ipcPayload.replace(QLatin1String("\\"), QLatin1String("/"));
+#endif
         ipcInterface.clientConnect();
         while(!ipcInterface.dataSent) { }
         return -1;

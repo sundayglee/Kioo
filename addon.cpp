@@ -13,7 +13,7 @@ void AddOn::downloadSub(const QString &url,const QString &fileName, const QStrin
     QString rFilePath = filePath;
     rFilePath = rFilePath.left(rFilePath.lastIndexOf("/")).replace("file:","");
     if(rFilePath.startsWith("///")) {
-        rFilePath.replace("///","");
+        rFilePath.replace("//","");
     }
     theSubFile = rFilePath +"/"+ fileName; // your filePath should end with a forward slash "/"
     m_file = new QFile();
@@ -46,9 +46,9 @@ void AddOn::setSourceUrl(const QString &a) {
     QString ab = a;
     ab.replace("file:","");
     if(ab.startsWith("///")) {
-        ab.replace("///","");
+        ab.replace("//","");
     }
-    // qDebug() << "The path is: "+ab;
+     qDebug() << "The path is: "+ab;
     QByteArray ba = ab.toLatin1();
     const char *ch = ba.data();
 

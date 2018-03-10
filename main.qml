@@ -7,7 +7,6 @@ import QtQuick.LocalStorage 2.0
 import QtQuick.XmlListModel 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
-import QtWinExtras 1.0
 import QtAV 1.7
 
 import "Utils.js" as Utils
@@ -124,18 +123,19 @@ ApplicationWindow {
         anchors.fill: parent
         enabled: true
         onEntered: {
-            if (!drag.hasUrls)
-                return;
-            var subs
-            for (var i = 0; i < drag.urls.length; ++i) {
-                var s = drag.urls[i].toString()
-                if (s.endsWith(".srt") || s.endsWith(".ass") || s.endsWith(".ssa") || s.endsWith(".sub")
-                        || s.endsWith(".idx") || s.endsWith(".mpl2") || s.endsWith(".smi") || s.endsWith(".sami")
-                        || s.endsWith(".sup") || s.endsWith(".txt"))
-                    subs = drag.urls[i]
+            var urls = drag.urls;
+            var subs;
+            for (var i = 0; i < urls.length; i++) {
+                var sk = "";
+                sk = urls[i];
+                console.log(Utils.fileName(sk));
+                if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
+                        || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
+                        || sk.endsWith(".sup") || sk.endsWith(".txt"))
+                    subs = sk;
                 else {
-                    pModel.append({ fTitle: Utils.fileName(drag.urls[i]), fLink: drag.urls[i]})
-                    changeSource(drag.urls[0])
+                    pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                    changeSource(sk);
                 }
             }
             if (subs) {
@@ -1487,22 +1487,22 @@ ApplicationWindow {
         });
     }
 
-    ThumbnailToolBar {
-        ThumbnailToolButton {
-            iconSource: "/icon/skip_previous.svg";
-            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-            onClicked: fnSkipPrevious();
-        }
-        ThumbnailToolButton {
-            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
-            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-        }
-        ThumbnailToolButton {
-            iconSource: "/icon/skip_next.svg";
-            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-            onClicked: fnSkipNext();
-        }
-       // ThumbnailToolButton { interactive: false; flat: true }
-    }
+//    ThumbnailToolBar {
+//        ThumbnailToolButton {
+//            iconSource: "/icon/skip_previous.svg";
+//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+//            onClicked: fnSkipPrevious();
+//        }
+//        ThumbnailToolButton {
+//            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
+//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+//            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+//        }
+//        ThumbnailToolButton {
+//            iconSource: "/icon/skip_next.svg";
+//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+//            onClicked: fnSkipNext();
+//        }
+//       // ThumbnailToolButton { interactive: false; flat: true }
+//    }
 }
