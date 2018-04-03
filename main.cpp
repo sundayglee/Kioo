@@ -14,11 +14,13 @@
 #include <QString>
 #include <QtAV>
 #include "ipcinterface.h"
+#include <QDBusInterface>
 
 int main(int argc, char *argv[])
 {    
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // Must be the first line
-    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+   // QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+   // QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     QGuiApplication app(argc, argv);
     QtAV::setLogLevel(QtAV::LogAll);
     app.setWindowIcon(QIcon("icon.ico"));
@@ -34,6 +36,21 @@ int main(int argc, char *argv[])
 #elif defined(Q_OS_WIN)
     SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_CONTINUOUS);
 #elif defined(Q_OS_LINUX)
+    // KDE(>= 4) and GNOME(>= 3.10) ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.freedesktop.ScreenSaver"), QLatin1String("/ScreenSaver"),
+                    QLatin1String("org.freedesktop.ScreenSaver")).call(QDBus::NoBlock,QLatin1String("Inhibit"));
+
+    // KDE(< 4.0) and GNOME (<= 2.6) ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.freedesktop.PowerManagement"), QLatin1String("/org/freedesktop/PowerManagement"),
+                    QLatin1String("org.freedesktop.PowerManagement")).call(QDBus::NoBlock,QLatin1String("Inhibit"));
+
+    // GNOME(>= 2.26) ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.gnome.SessionManger"), QLatin1String("/org/gnome/SessionManager"),
+                    QLatin1String("org.gnome.SessionManager")).call(QDBus::NoBlock, QLatin1String("Inhibit"));
+
+    // MATE - ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.mate.SessionManager"), QLatin1String("/org/mate/SessionManager"),
+                    QLatin1String("org.mate.SessionManager")).call(QDBus::NoBlock, QLatin1String("Inhibit"));
 
 #elif defined(Q_OS_UNIX)
 

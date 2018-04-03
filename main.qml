@@ -154,25 +154,28 @@ ApplicationWindow {
         selectMultiple: true
 
         onAccepted: {
-            var subs
-            for (var i = 0; i < fileUrls.length; ++i) {
-                var s = fileUrls[i].toString()
-                if (s.endsWith(".srt") || s.endsWith(".ass") || s.endsWith(".ssa") || s.endsWith(".sub")
-                        || s.endsWith(".idx") || s.endsWith(".mpl2") || s.endsWith(".smi") || s.endsWith(".sami")
-                        || s.endsWith(".sup") || s.endsWith(".txt"))
-                    subs = fileUrls[i]
+            var urls = drag.urls;
+            var subs;
+            for (var i = 0; i < urls.length; i++) {
+                var sk = "";
+                sk = urls[i];
+                console.log(Utils.fileName(sk));
+                if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
+                        || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
+                        || sk.endsWith(".sup") || sk.endsWith(".txt"))
+                    subs = sk;
                 else {
-                    pModel.append({ fTitle: Utils.fileName(fileUrls[i]), fLink: fileUrls[i] })
-                    changeSource(fileUrls[0])
+                    pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                    changeSource(sk);
                 }
             }
             if (subs) {
+               // console.log("the subs are:"+subs)
                 subtitle.autoLoad = true
                 subtitle.file = subs
             } else {
                 subtitle.file = ""
             }
-
         }
         onRejected: {
            // console.log("Canceled")

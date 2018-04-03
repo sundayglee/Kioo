@@ -1,4 +1,4 @@
-QT +=  av quick qml network xml xmlpatterns
+QT +=  av quick qml network xml xmlpatterns dbus
 
 CONFIG += c++11
 
@@ -8,7 +8,7 @@ SOURCES += main.cpp \
 
 RESOURCES += qml.qrc
 
-RC_ICONS += icon.ico
+RC_ICON += icon.ico
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
