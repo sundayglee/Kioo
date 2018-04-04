@@ -29,7 +29,6 @@
         <file>icon/down.svg</file>
         <file>icon/up.svg</file>
         <file>CustomCombo.qml</file>
-        <file>XmlRpc.qml</file>
         <file>icon.ico</file>
     </qresource>
 </RCC>

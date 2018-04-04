@@ -84,7 +84,8 @@ int main(int argc, char *argv[])
 
     app.setOrganizationName("Kioo Media");
     app.setOrganizationDomain("kioomedia.com");
-    app.setApplicationName("Kioo Media Player");
+    app.setApplicationName("Kioo Media");
+    app.setApplicationVersion("v1.0");
 
     QQmlApplicationEngine engine;
     //   engine.rootContext()->setContextProperty("mrr",&mrr);

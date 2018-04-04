@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.3
 import QtQuick.Window 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.LocalStorage 2.0
-import QtQuick.XmlListModel 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
 import QtAV 1.7
@@ -1174,12 +1173,33 @@ ApplicationWindow {
                             onClicked: {
                                 if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
                                     addon.sourceUrl = kioo.source
-                                    rpc.search([subLangList.get(subLang.currentIndex).value,addon.sourceUrl,kioo.metaData.size]);
+                                    request('https://rest.opensubtitles.org/search/moviebytesize-'+kioo.metaData.size+'/moviehash-'+addon.sourceUrl+'/sublanguageid-eng', function (v) {
+                                        var resObj = JSON.parse(v.responseText);
+                                        for (var i=0;i < resObj.length; i++) {
+                                            subOssModel.append({ fTitle: resObj[i].SubFileName, fLink: resObj[i].SubDownloadLink});
+                                        }
+                                        subList.currentIndex = 0;
+                                        addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
+                                    });
+
                                 }
                                 else {
                                     osd.error("No Media Loaded");
                                    // console.log("No media is loaded");
                                 }
+                            }
+                            function request(url, callback) {
+                                var xhr = new XMLHttpRequest();
+                                xhr.onreadystatechange = (function(res) {
+                                    return function() {
+                                       if(xhr.readyState == 4 && xhr.status == 200) {
+                                            callback(res);
+                                        }
+                                    }
+                                })(xhr);
+                                xhr.open('GET', url, true);
+                                xhr.setRequestHeader('X-Dummy', 'Dummy-Header\r\nUser-Agent: Kioo Media v1.0');
+                                xhr.send('');
                             }
                         }
                         ToolButton {
@@ -1200,7 +1220,7 @@ ApplicationWindow {
                                 visible: subDownBtn.down || (subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted))
                             }
                             onClicked: {
-                                addon.subFile = Utils.checkUrl(rpc.get(subList.currentIndex).sublink1)+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
+                                addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
                             }
 
                             Connections {
@@ -1266,12 +1286,15 @@ ApplicationWindow {
                             Layout.preferredWidth: sDrawer.width/1.5
                             Layout.preferredHeight: 30
                             currentIndex: index
-                            textRole: "subfile"
-                            model: rpc
+                            textRole: "fTitle"
+                            model: ListModel {
+                                id: subOssModel
+                                //  ListElement { title: ""; source: "" }
+                            }
                             delegate: ItemDelegate {
                                 width: subList.width
                                 contentItem: Text {
-                                    text: subfile
+                                    text: fTitle
                                     color: "white"
                                     opacity: 0.8
                                     font: subList.font
@@ -1380,23 +1403,6 @@ ApplicationWindow {
             caudio.currentIndex = ai;
           //  csub.currentIndex = si;
         }
-    }
-
-    XmlRpc {
-        id: rpc
-
-        onCountChanged: {
-            subList.currentIndex = 0;
-            addon.subFile = Utils.checkUrl(rpc.get(subList.currentIndex).sublink1)+"|"+rpc.get(subList.currentIndex).subfile+"|"+kioo.source;
-        }
-
-
-
-        //        onItemFound: {
-        //            subList.currentIndex = 0;
-        //            console.log("an item was found");
-        //            console.log(name)
-        //        }
     }
 
     Component.onCompleted: {

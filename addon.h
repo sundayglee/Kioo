@@ -59,6 +59,7 @@ signals:
 
 public slots:
     void onSubComplete(QNetworkReply *reply);
+    void onSslError(QNetworkReply *reply, const QList<QSslError> &errors);
 };
 
 #endif // ADDON_H

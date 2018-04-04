@@ -13,7 +13,7 @@ void AddOn::downloadSub(const QString &url,const QString &fileName, const QStrin
     QString rFilePath = filePath;
     rFilePath = rFilePath.left(rFilePath.lastIndexOf("/")).replace("file:","");
     if(rFilePath.startsWith("///")) {
-        rFilePath.replace("//","");
+        rFilePath.replace("///","");
     }
     theSubFile = rFilePath +"/"+ fileName; // your filePath should end with a forward slash "/"
     m_file = new QFile();
@@ -29,9 +29,13 @@ void AddOn::downloadSub(const QString &url,const QString &fileName, const QStrin
 
     QNetworkRequest request;
     request.setUrl(QUrl(url));
+    QSslConfiguration configSsl = QSslConfiguration::defaultConfiguration();
+    configSsl.setProtocol(QSsl::AnyProtocol);
+    request.setSslConfiguration(configSsl);
 
     // qDebug() << "The url is:"+url;
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(onSubComplete(QNetworkReply *)));
+    connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),this, SLOT(onSslError(QNetworkReply*,QList<QSslError>)));
 
     manager->get(request);
 }
@@ -46,9 +50,9 @@ void AddOn::setSourceUrl(const QString &a) {
     QString ab = a;
     ab.replace("file:","");
     if(ab.startsWith("///")) {
-        ab.replace("//","");
+        ab.replace("///","");
     }
-     qDebug() << "The path is: "+ab;
+    // qDebug() << "The path is: "+ab;
     QByteArray ba = ab.toLatin1();
     const char *ch = ba.data();
 
@@ -76,8 +80,12 @@ QString AddOn::subFile() const {
     return theSubFile;
 }
 
+void AddOn::onSslError(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+    reply->ignoreSslErrors();
+}
+
 void AddOn::onSubComplete(QNetworkReply *reply) {
-    // qDebug() << "...download complete";
     if (!m_file->isWritable()) {
         m_isReady = true;
         return; // TODO: error check
@@ -98,6 +106,7 @@ bool AddOn::gzipDecompress(QByteArray input, QByteArray &output)
 {
     // Prepare output
     output.clear();
+    qDebug() << "The lenght of the data is:"+input.length();
 
     // Is there something to do?
     if(input.length() > 0)
