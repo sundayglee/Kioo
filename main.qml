@@ -7,8 +7,8 @@ import QtQuick.LocalStorage 2.0
 import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
 import QtAV 1.7
-
 import "Utils.js" as Utils
+import QtWinExtras 1.0 // Thumbnail For Windows
 
 ApplicationWindow {
     id: root
@@ -585,6 +585,7 @@ ApplicationWindow {
 
     Label {
         id: osd
+        z: 10
         objectName: "osd"
         horizontalAlignment: Text.AlignHCenter
         color: "white"
@@ -607,7 +608,7 @@ ApplicationWindow {
             onTriggered: osd.visible = false
         }
         function error(value) {
-            osd.color = "brown"
+            osd.color = "#ffff00"
             text = value
         }
         function info(value) {
@@ -640,12 +641,12 @@ ApplicationWindow {
             onTriggered: osd_left.visible = false
         }
         function error(value) {
-            color = "brown"
+            osd_left.color = "#ffff00"
             opacity = 0.8
             text = value
         }
         function info(value) {
-            color = "white"
+            osd_left.color = "white"
             opacity = 0.8
             text = value
         }
@@ -1174,12 +1175,23 @@ ApplicationWindow {
                                 if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
                                     addon.sourceUrl = kioo.source
                                     request('https://rest.opensubtitles.org/search/moviebytesize-'+kioo.metaData.size+'/moviehash-'+addon.sourceUrl+'/sublanguageid-eng', function (v) {
-                                        var resObj = JSON.parse(v.responseText);
-                                        for (var i=0;i < resObj.length; i++) {
-                                            subOssModel.append({ fTitle: resObj[i].SubFileName, fLink: resObj[i].SubDownloadLink});
+                                        try {
+                                            var resObj = JSON.parse(v.responseText);
+                                            if(resObj.length > 0) {
+                                                for (var i=0;i < resObj.length; i++) {
+                                                    subOssModel.append({ fTitle: resObj[i].SubFileName, fLink: resObj[i].SubDownloadLink});
+                                                }
+                                                subList.currentIndex = 0;
+                                                addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
+                                            }
+                                            else {
+                                                osd.info('Subtitle Not Found');
+                                            }
                                         }
-                                        subList.currentIndex = 0;
-                                        addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
+                                        catch(e) {
+                                           // console.log('Search not working');
+                                            osd.error('Subtitle Search Not Working');
+                                        }
                                     });
 
                                 }
@@ -1309,7 +1321,6 @@ ApplicationWindow {
                             }
                         }
                     }
-
                 }
 
                 ColumnLayout {
@@ -1496,22 +1507,22 @@ ApplicationWindow {
         });
     }
 
-//    ThumbnailToolBar {
-//        ThumbnailToolButton {
-//            iconSource: "/icon/skip_previous.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: fnSkipPrevious();
-//        }
-//        ThumbnailToolButton {
-//            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-//        }
-//        ThumbnailToolButton {
-//            iconSource: "/icon/skip_next.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: fnSkipNext();
-//        }
-//       // ThumbnailToolButton { interactive: false; flat: true }
-//    }
+    ThumbnailToolBar {
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_previous.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipPrevious();
+        }
+        ThumbnailToolButton {
+            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+        }
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_next.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipNext();
+        }
+       // ThumbnailToolButton { interactive: false; flat: true }
+    }
 }

@@ -20,7 +20,7 @@ void AddOn::downloadSub(const QString &url,const QString &fileName, const QStrin
     m_file->setFileName(theSubFile);
     m_file->open(QIODevice::WriteOnly);
     if (!m_file->isOpen()) {
-        qDebug() << "Failed to open device";
+        // qDebug() << "Failed to open device";
         m_isReady = true;
         return; // TODO: permission check?
     }
@@ -106,8 +106,7 @@ bool AddOn::gzipDecompress(QByteArray input, QByteArray &output)
 {
     // Prepare output
     output.clear();
-    qDebug() << "The lenght of the data is:"+input.length();
-
+   
     // Is there something to do?
     if(input.length() > 0)
     {

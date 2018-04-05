@@ -95,23 +95,6 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty())
         return -1;
 
-//    addon.sendToShared("Valueeeeeee");
-//    qDebug() << "Received file is: " << addon.getFromShared();
-
-
-    //    QObject *object = engine.rootObjects()[0];
-
-    //   QObject *object = engine.rootObjects()[0];
-
-    //    QObject *kioo = object->findChild<QObject*>("kioo");
-
-    //    if (kioo && !file.isEmpty()) {
-    //        if (!file.startsWith(QLatin1String("file:")) && QFile(file).exists())
-    //            file.prepend(QLatin1String("file:")); //qml use url and will add qrc: if no scheme
-    //        file.replace(QLatin1String("\\"), QLatin1String("/"));
-    //        kioo->setProperty("source", file);
-    //    }
-
     return app.exec();
 }
 
