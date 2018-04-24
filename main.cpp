@@ -87,6 +87,8 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kioo Media");
     app.setApplicationVersion("v1.0");
 
+    qDebug() << "RR" + QSslSocket::sslLibraryBuildVersionString();
+
     QQmlApplicationEngine engine;
     //   engine.rootContext()->setContextProperty("mrr",&mrr);
     engine.rootContext()->setContextProperty("addon", &addon);

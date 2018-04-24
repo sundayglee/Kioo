@@ -35,6 +35,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 #LIBS += -lzlib  # For MSCV 2017 64 bit -> Disable also in addon.h
 LIBS += -lz
 
+OPENSSL_LIBS='-L/usr/lib/openssl -lssl -lcrypto'
 
 DISTFILES += \
     changelog.log
