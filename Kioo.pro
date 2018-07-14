@@ -1,4 +1,4 @@
-QT +=  av quick qml network xml xmlpatterns dbus
+QT +=  av quick qml network dbus
 
 CONFIG += c++11
 
@@ -8,7 +8,7 @@ SOURCES += main.cpp \
 
 RESOURCES += qml.qrc
 
-RC_ICON += icon.ico
+RC_ICONS += icon.ico
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -38,7 +38,7 @@ LIBS += -lz
 OPENSSL_LIBS='-L/usr/lib/openssl -lssl -lcrypto'
 
 DISTFILES += \
-    changelog.log
+    Changelog
 
 HEADERS += \
     addon.h \

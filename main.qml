@@ -8,7 +8,7 @@ import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
 import QtAV 1.7
 import "Utils.js" as Utils
-//import QtWinExtras 1.0 // Thumbnail For Windows
+import QtWinExtras 1.0 // Thumbnail For Windows
 
 ApplicationWindow {
     id: root
@@ -22,7 +22,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.12 - (http://www.kiooplayer.com)"
+    property  var version: "Kioo v1.13 - (https://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -30,6 +30,7 @@ ApplicationWindow {
     function changeSource(url){
         kioo.stop()
         fileName = url
+        subOssModel.clear(); // Clear Subtitle
         kioo.play()
     }
 
@@ -107,6 +108,7 @@ ApplicationWindow {
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
+        property alias alVolumeValue: kioo.volume
         //property alias alRepeatOne: repeatOne
         // property alias alRepeatAll: repeatAll
     }
@@ -127,22 +129,23 @@ ApplicationWindow {
             for (var i = 0; i < urls.length; i++) {
                 var sk = "";
                 sk = urls[i];
-                console.log(Utils.fileName(sk));
+               // console.log(Utils.fileName(sk));
                 if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
                         || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
                         || sk.endsWith(".sup") || sk.endsWith(".txt"))
                     subs = sk;
                 else {
                     pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
-                    changeSource(sk);
                 }
             }
             if (subs) {
                // console.log("the subs are:"+subs)
+                subtitle.file = ""
                 subtitle.autoLoad = true
                 subtitle.file = subs
             } else {
                 subtitle.file = ""
+                changeSource(sk);
             }
         }
     }
@@ -158,22 +161,24 @@ ApplicationWindow {
             for (var i = 0; i < urls.length; i++) {
                 var sk = "";
                 sk = urls[i];
-                console.log(Utils.fileName(sk));
+               // console.log(Utils.fileName(sk));
                 if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
                         || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
                         || sk.endsWith(".sup") || sk.endsWith(".txt"))
                     subs = sk;
                 else {
                     pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
-                    changeSource(sk);
+
                 }
             }
             if (subs) {
                // console.log("the subs are:"+subs)
+                subtitle.file = ""
                 subtitle.autoLoad = true
                 subtitle.file = subs
             } else {
                 subtitle.file = ""
+                changeSource(sk);
             }
         }
         onRejected: {
@@ -185,6 +190,7 @@ ApplicationWindow {
         id: mouse1
         anchors.fill: parent
         hoverEnabled: true
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPositionChanged: {
             // console.log("mouse is moving.....")
@@ -206,11 +212,11 @@ ApplicationWindow {
 
         onDoubleClicked: {
             root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
-        }
+        }        
 
         onClicked: {
-            kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-            //console.log(Math.max(root.width, root.height) / 30)
+            if (mouse.button === Qt.LeftButton)
+                kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
         }
 
         //        onRightChanged: {
@@ -266,7 +272,8 @@ ApplicationWindow {
 
     VideoOutput2 {
         id: vidOut
-        opengl: true
+        opengl: true;
+        antialiasing: true;
         visible: appOption.alVideoEnable
         fillMode: VideoOutput.PreserveAspectFit
         anchors.fill: parent
@@ -276,16 +283,18 @@ ApplicationWindow {
 
         SubtitleItem {
             id: subtitleItem
-          //  rotation: -vidOut.orientation
+            antialiasing: true;
+            layer.enabled: false
+            rotation: -vidOut.orientation
             source: subtitle
-            anchors.fill: root
+            anchors.fill: parent
             fillMode: VideoOutput.PreserveAspectFit
 
         }
 
         Text {
             id: subtitleLabel
-        //    rotation: -vidOut.orientation
+            rotation: -vidOut.orientation
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignBottom
             width: root.width
@@ -304,13 +313,12 @@ ApplicationWindow {
         id: subtitle
         player: kioo
         enabled: appOption.alSubtitleEnable
-       // autoLoad: true
+        autoLoad: true
         delay: 0
         engines: ["FFmpeg"]
 
         onContentChanged: { //already enabled
-            if (!canRender || !subtitleItem.visible)
-                subtitleLabel.text = text
+            subtitleLabel.text = text;
         }
 
         onEngineChanged: { // assume a engine canRender is only used as a renderer
@@ -333,7 +341,7 @@ ApplicationWindow {
         muted: !appOption.alAudioEnable
         objectName: "kioo"
         autoPlay: true
-
+        bufferSize: 1024
 
         onPositionChanged: {
             slider.setProgress(position/duration)
@@ -438,7 +446,8 @@ ApplicationWindow {
             CustomControls {
                 id: controls
                 Layout.topMargin: 0
-                Layout.preferredWidth: root.width
+                Layout.alignment: Qt.AlignTop
+                Layout.preferredWidth: parent.width
                 playState: kioo.playbackState == MediaPlayer.PlayingState ? "playing" : "paused"
                 winState: root.visibility == Window.FullScreen ? "fullscreen" : "windowed"
                 volumeValue: kioo.volume
@@ -492,7 +501,7 @@ ApplicationWindow {
 
     Item {
         id: canvas
-        anchors.fill: kioo
+        anchors.fill: parent
         focus: true
 
       //  Keys.onShortcutOverride: event.accepted = (event.key === Qt.Key_Space)
@@ -821,8 +830,8 @@ ApplicationWindow {
 
                 contentItem: RowLayout {
                     Text {
-                        anchors.left: parent.left
-                        anchors.right: u.left
+                       // anchors.left: parent.left
+                      //  anchors.right: u.left
                         rightPadding: pDel.spacing
                         text: pDel.text
                         font: pDel.font
@@ -834,7 +843,7 @@ ApplicationWindow {
                     }
                     Rectangle {
                         id: u
-                        anchors.right: d.left
+                     //   anchors.right: d.left
                         height: 30
                         width: 30
                         color: "transparent"
@@ -853,7 +862,7 @@ ApplicationWindow {
                     }
                     Rectangle {
                         id: d
-                        anchors.right: r.left
+                     //   anchors.right: r.left
                         height: 30
                         width: 30
                         color: "transparent"
@@ -872,7 +881,7 @@ ApplicationWindow {
                     }
                     Rectangle {
                         id: r
-                        anchors.right: parent.right
+                       // anchors.right: parent.right
                         height: 30
                         width: 30
                         color: "transparent"
@@ -1108,7 +1117,7 @@ ApplicationWindow {
                             Layout.alignment: Qt.AlignLeft
                             Layout.preferredWidth: sDrawer.width/2.5
                             Layout.preferredHeight: 30
-                            currentIndex: index
+                            currentIndex: sTrackModel.count > 0 ? index : 0
                             textRole: "title"
                             delegate: ItemDelegate {
                                 width: csub.width
@@ -1186,18 +1195,24 @@ ApplicationWindow {
                                                 addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
                                             }
                                             else {
-                                                osd.info('Subtitle Not Found');
+                                                subOssModel.clear();
+                                                subOssModel.append({fTitle: 'No Matching Subtitle', fLink: ''});
+                                                subList.currentIndex = 0;
                                             }
                                         }
                                         catch(e) {
                                            // console.log('Search not working');
-                                            osd.error('Subtitle Search Not Working');
+                                            subOssModel.clear();
+                                            subOssModel.append({fTitle: 'Subtitle Search Not Working', fLink: ''});
+                                            subList.currentIndex = 0;
                                         }
                                     });
 
                                 }
                                 else {
-                                    osd.error("No Media Loaded");
+                                    subOssModel.clear();
+                                    subOssModel.append({fTitle: 'Error - No Media Loaded', fLink: ''});
+                                    subList.currentIndex = 0;
                                    // console.log("No media is loaded");
                                 }
                             }
@@ -1239,7 +1254,6 @@ ApplicationWindow {
                             Connections {
                                 target: addon
                                 onSubFileChanged: {
-                                    console.log("changedasdfafsfasfsdfsd")
                                     subtitle.file = addon.subFile;
                                     sTrackModel.append({title: "External Sub", link: subtitle.file })
                                     sDrawer.close();
@@ -1298,7 +1312,7 @@ ApplicationWindow {
                             id: subList
                             Layout.preferredWidth: sDrawer.width/1.5
                             Layout.preferredHeight: 30
-                            currentIndex: index
+                            currentIndex: subList.count > 0 ? index : 0
                             textRole: "fTitle"
                             model: ListModel {
                                 id: subOssModel
@@ -1508,22 +1522,22 @@ ApplicationWindow {
         });
     }
 
-//    ThumbnailToolBar {
-//        ThumbnailToolButton {
-//            iconSource: "/icon/skip_previous.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: fnSkipPrevious();
-//        }
-//        ThumbnailToolButton {
-//            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-//        }
-//        ThumbnailToolButton {
-//            iconSource: "/icon/skip_next.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: fnSkipNext();
-//        }
-//       // ThumbnailToolButton { interactive: false; flat: true }
-//    }
+    ThumbnailToolBar {
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_previous.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipPrevious();
+        }
+        ThumbnailToolButton {
+            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+        }
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_next.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipNext();
+        }
+       // ThumbnailToolButton { interactive: false; flat: true }
+    }
 }

@@ -8,7 +8,7 @@ RowLayout {
     property string playState : "playing"
     property string plstState: "one"    // All -> one, One-> two, Shuffle -> three
     property string winState: "windowed"
-    property var volumeValue: -1
+    property int volumeValue: -1
 
     signal stop
     signal togglePlayback
@@ -22,9 +22,9 @@ RowLayout {
     signal openSettings
     signal volumeChanged(var vValue)
 
-    anchors.right: parent.right
-    anchors.left: parent.left
-    anchors.bottom: parent.bottom
+//    anchors.right: parent.right
+//    anchors.left: parent.left
+//    anchors.bottom: parent.bottom
 
     spacing: 0
 

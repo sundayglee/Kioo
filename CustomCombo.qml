@@ -36,17 +36,7 @@ ComboBox {
             onPressedChanged: canvas.requestPaint()
         }
         
-        onPaint: {
-            context.reset();
-            context.moveTo(0, 0);
-            context.lineTo(width, 0);
-            context.lineTo(width / 2, height);
-            context.closePath();
-            context.fillStyle = "#52c7b8"
-            //  context.fillStyle = control.pressed ? "#17a81a" : "#21be2b";
-            context.fill();
-        }
-    }
+     }
     
     contentItem: Text {
         leftPadding: 4

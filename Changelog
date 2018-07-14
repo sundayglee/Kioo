@@ -1,0 +1,93 @@
+Kioo Media Player v1.13 - 9th July, 2018
+-------------------------------------------------
+* Enabled antialising by default in VideoOutput2
+* Disabled layer.enabled in VideoOutput2
+* Various performance improvement
+
+Kioo Media Player v1.12 - 28th April, 2018
+-------------------------------------------------
+* Added Linux ScreenSaver Inhibit Code
+* Initial Binary for Linux
+* Implimented the new OpenSubtitles REST API, no more xml
+* Various performance improvements
+* Pause on Right Mouse Button instead of Left Mouse Button
+
+Kioo Media Player v1.11 - 2nd February, 2018
+-------------------------------------------------
+* Turn back to opengl=true
+* Set codec mode to ZeroCopy
+
+Kioo Media Player v1.10 - 24th November, 2017
+-------------------------------------------------
+* Reduced size of the font and and bottom margin of the subtitles
+* Added 64 bit variaty of the player
+* Removed the orientation property on the subtitle
+* Added bold to subtitles
+* Dirty Fix for downloading subtitles in opesubtitles.org
+
+Kioo Media Player v1.9 [RC] - 27th August, 2017
+-------------------------------------------------
+* Fixe a bug when on play
+
+Kioo Media Player v1.9 [BETA] - 25th August, 2017
+-------------------------------------------------
+* Added capability of selecting multiple item and play
+* Added TaskBar thumbnail controls
+* Limit only single process per user
+* Volume range from 0.0 to 2.0
+
+Kioo Media Player v1.8 [BETA] - 24th August, 2017
+-------------------------------------------------
+* Fixed an issue where on one item on playlist it would stop and not repeat itself
+* Prevent controls buttons from gaining focus on mouse click
+* On playlist clear, clear source, and stop playing media
+* Added OSD for seeking
+* Now all key shortcuts working as required
+
+Kioo Media Player v1.7 [BETA] - 15th August, 2017
+-------------------------------------------------
+* Fixed scaling issue in different DPI
+* More bugs fixes
+
+
+Kioo Media Player v1.6 [ALPHA] - 15th August, 2017
+-------------------------------------------------
+* Added Repeat One, Repeat All and Shuffle logic to the player
+* Started fixing dpi changes in large screen
+* Added a clear playlist button
+* Entering BETA in next version
+
+
+Kioo Media Player v1.5 [ALPHA] - 14th August, 2017
+-------------------------------------------------
+* Fixed subtitle toggle crash from previous
+* Added subtitle dowload feature("Still In BETA")
+* Multiple other bug fixes
+
+
+Bug(v1.4 Alpha) - Fixed in v1.5 [ALPHA]
+----------------------------------------
+Player crashes on multiple toggle subtitles
+
+
+Kioo Media Player v1.4 [ALPHA] - 9th August, 2017
+-------------------------------------------------
+* Added remember last index in the player
+* Attempt to fix crash on media end.
+* Added Track selection for Audio and changed previous
+  track selection name to channel
+* Added track selection for subtitles
+* Trying to fix flicking subtitles issue - Hopeful its fixed
+
+
+Kioo Media Player v1.3 [ALPHA] - 5th August, 2017
+-------------------------------------------------
+* Added ScrollView() to Options menu for easy navigation
+* Added prevent sleeping in windows
+* Changed videoCodecOptions to ZeroCopy
+
+
+Kioo Media Player v1.2 [ALPHA] - 30th July, 2017
+------------------------------------------------
+* Fixed sound issues
+* Added mouse scroll to increase volume

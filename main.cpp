@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
    // QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
    // QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     QGuiApplication app(argc, argv);
-    QtAV::setLogLevel(QtAV::LogAll);
-    app.setWindowIcon(QIcon("icon.ico"));
+    QtAV::setLogLevel(QtAV::LogOff);
+    app.setWindowIcon(QIcon(":/icon.ico"));
 
 #if defined(Q_OS_ANDROID)
 
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
 #elif defined(Q_OS_WIN)
     SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED | ES_CONTINUOUS);
-#elif defined(Q_OS_LINUX)
+#elif defined(Q_OS_UNIX)
     // KDE(>= 4) and GNOME(>= 3.10) ScreenSaver Inhibit
     QDBusInterface(QLatin1String("org.freedesktop.ScreenSaver"), QLatin1String("/ScreenSaver"),
                     QLatin1String("org.freedesktop.ScreenSaver")).call(QDBus::NoBlock,QLatin1String("Inhibit"));
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     QDBusInterface(QLatin1String("org.mate.SessionManager"), QLatin1String("/org/mate/SessionManager"),
                     QLatin1String("org.mate.SessionManager")).call(QDBus::NoBlock, QLatin1String("Inhibit"));
 
-#elif defined(Q_OS_UNIX)
+#elif defined(Q_OS_LINUX)
 
 #else
 
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kioo Media");
     app.setApplicationVersion("v1.0");
 
-    qDebug() << "RR" + QSslSocket::sslLibraryBuildVersionString();
+  //  qDebug() << "RR" + QSslSocket::sslLibraryBuildVersionString();
 
     QQmlApplicationEngine engine;
     //   engine.rootContext()->setContextProperty("mrr",&mrr);
