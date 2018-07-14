@@ -136,6 +136,7 @@ ApplicationWindow {
                     subs = sk;
                 else {
                     pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                    pList.currentIndex = pModel.count-1;
                 }
             }
             if (subs) {
@@ -168,7 +169,6 @@ ApplicationWindow {
                     subs = sk;
                 else {
                     pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
-
                 }
             }
             if (subs) {
@@ -1456,9 +1456,9 @@ ApplicationWindow {
     }
     Component.onDestruction: {
         if(enableHistory.checked)
-            storeData()
+            storeData();
         else
-            pModel.clear()
+            pModel.clear();
     }
 
     function initDatabase() {
@@ -1491,6 +1491,7 @@ ApplicationWindow {
                 //  print('... playlist does not exists, create it')
                 result = tx.executeSql('INSERT INTO data VALUES (?,?)', ['playlist', JSON.stringify(obj)]);
             }
+            return;
         });
 
     }

@@ -11,6 +11,9 @@ IPCInterface::IPCInterface(QObject *parent) : QObject(parent)
 
 IPCInterface::~IPCInterface()
 {
+    delete tcpClient;
+    delete tcpServer;
+    delete tcpServerConnection;
 }
 
 void IPCInterface::clientConnect()
