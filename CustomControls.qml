@@ -8,7 +8,7 @@ RowLayout {
     property string playState : "playing"
     property string plstState: "one"    // All -> one, One-> two, Shuffle -> three
     property string winState: "windowed"
-    property int volumeValue: -1
+    property var volumeValue: -1.0
 
     signal stop
     signal togglePlayback
@@ -178,11 +178,11 @@ RowLayout {
         Slider {
             id: volumeSlider
             implicitWidth: 80
-            value: volumeValue/2
+            value: volumeValue/2.0
 
             onValueChanged: {
                 focus = false
-                volumeChanged(volumeSlider.value*2)
+                volumeChanged(volumeSlider.value*2.0)
             }
         }
     }

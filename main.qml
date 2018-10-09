@@ -22,7 +22,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.13 - (https://www.kiooplayer.com)"
+    property  var version: "Kioo v1.14 - (https://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -31,6 +31,7 @@ ApplicationWindow {
         kioo.stop()
         fileName = url
         subOssModel.clear(); // Clear Subtitle
+        subtitle.file = "";
         kioo.play()
     }
 
@@ -108,7 +109,7 @@ ApplicationWindow {
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
-        property alias alVolumeValue: kioo.volume
+      // property alias alVolumeValue: controls.volumeValue
         //property alias alRepeatOne: repeatOne
         // property alias alRepeatAll: repeatAll
     }
@@ -125,28 +126,31 @@ ApplicationWindow {
         enabled: true
         onEntered: {
             var urls = drag.urls;
-            var subs;
+            var fileUrls = [];
+            var subUrls = [];
             for (var i = 0; i < urls.length; i++) {
                 var sk = "";
                 sk = urls[i];
-               // console.log(Utils.fileName(sk));
                 if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
                         || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                        || sk.endsWith(".sup") || sk.endsWith(".txt"))
-                    subs = sk;
+                        || sk.endsWith(".sup") || sk.endsWith(".txt")) {
+                    subUrls.push(sk);
+                }
                 else {
+                    fileUrls.push(sk);
                     pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
-                    pList.currentIndex = pModel.count-1;
                 }
             }
-            if (subs) {
-               // console.log("the subs are:"+subs)
-                subtitle.file = ""
-                subtitle.autoLoad = true
-                subtitle.file = subs
+            if (subUrls.length > 0) {
+                subtitle.autoLoad = false
+                subtitle.file = subUrls[0];
             } else {
-                subtitle.file = ""
-                changeSource(sk);
+                subtitle.autoLoad = appOption.alSubtitleEnable;
+              //  subtitle.file = ""
+            }
+            if (fileUrls.length > 0) {
+                console.log(pModel.count +" "+ fileUrls.length);
+                pList.currentIndex = pModel.count - fileUrls.length;
             }
         }
     }
@@ -157,32 +161,33 @@ ApplicationWindow {
         selectMultiple: true
 
         onAccepted: {
-            var urls = drag.urls;
-            var subs;
+            var urls = fileUrls;
+            var fileURL = [];
+            var subUrls = [];
             for (var i = 0; i < urls.length; i++) {
                 var sk = "";
                 sk = urls[i];
-               // console.log(Utils.fileName(sk));
                 if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
                         || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                        || sk.endsWith(".sup") || sk.endsWith(".txt"))
-                    subs = sk;
+                        || sk.endsWith(".sup") || sk.endsWith(".txt")) {
+                    subUrls.push(sk);
+                }
                 else {
+                    fileURL.push(sk);
                     pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
                 }
             }
-            if (subs) {
-               // console.log("the subs are:"+subs)
-                subtitle.file = ""
-                subtitle.autoLoad = true
-                subtitle.file = subs
+            if (subUrls.length > 0) {
+                subtitle.autoLoad = false
+                subtitle.file = subUrls[0];
             } else {
-                subtitle.file = ""
-                changeSource(sk);
+                subtitle.autoLoad = appOption.alSubtitleEnable;
+              //  subtitle.file = ""
             }
-        }
-        onRejected: {
-           // console.log("Canceled")
+            if (fileURL.length > 0) {
+                console.log(fileURL[0]);
+                pList.currentIndex = pModel.count - fileURL.length;
+            }
         }
     }
 
@@ -327,8 +332,13 @@ ApplicationWindow {
         }
 
         onEnabledChanged: {
-            subtitleItem.visible = true
-            subtitleLabel.visible = true
+            if(subtitle.enabled) {
+                subtitleItem.visible = true
+                subtitleLabel.visible = true
+            } else {
+                subtitleItem.visible = false
+                subtitleLabel.visible = false
+            }
         }
         onLoaded: {
             csub.currentIndex = 0;
@@ -409,7 +419,7 @@ ApplicationWindow {
                 }
                 onPressedChanged: {
                     focus = true
-                    kioo.fastSeek = true
+                  //  kioo.fastSeek = true
                     kioo.seek(slider.value*kioo.duration)
                     osd_left.info("Seeking")
                     osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
@@ -1452,6 +1462,7 @@ ApplicationWindow {
         opt["copyMode"] = "ZeroCopy"
         //  }
         kioo.videoCodecOptions = opt
+        root.title = version;
         Utils.getFile(Qt.application.arguments);
     }
     Component.onDestruction: {
