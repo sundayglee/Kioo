@@ -38,6 +38,7 @@ function getFile(path) {
             subs = k
         else {
             pModel.append({ fTitle: Utils.fileName(k), fLink: k})
+            pList.currentIndex = pModel.count-1;
             if(i==1)
                 changeSource(k)
         }
@@ -62,7 +63,8 @@ function getSingleFile(path) {
         subs = k
     else {
         pModel.append({ fTitle: Utils.fileName(k), fLink: k})
-        changeSource(k)
+        pList.currentIndex = pModel.count - 1;
+       // changeSource(k)
     }
 
     if (subs) {

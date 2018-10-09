@@ -1,7 +1,13 @@
-Kioo Media Player v1.13 - 9th July, 2018
+Kioo Media Player v1.13 - 10th October, 2018
 -------------------------------------------------
-* Enabled antialising by default in VideoOutput2
-* Disabled layer.enabled in VideoOutput2
+* Fix playlist problem on drop after player started
+* Fixed Volume Slider issue, was flipping between 1 and 0 on mouse wheel
+
+Kioo Media Player v1.13 - 15th July, 2018
+-------------------------------------------------
+* Enabled antialising in video output
+* Improved multiple files handling capability for the player
+* Fixed subtitle lines repetition bugs in embeded subs.
 * Various performance improvement
 
 Kioo Media Player v1.12 - 28th April, 2018
