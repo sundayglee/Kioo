@@ -4,6 +4,11 @@ Kioo Media Player v1.14 - 10th October, 2018
 * Fixed Volume Slider issue, was flipping between 1 and 0 on mouse wheel
 * Subtitles enabled and disabled now working perfectly
 
+Kioo Media Player v1.13 - 10th October, 2018
+-------------------------------------------------
+* Fix playlist problem on drop after player started
+* Fixed Volume Slider issue, was flipping between 1 and 0 on mouse wheel
+
 Kioo Media Player v1.13 - 15th July, 2018
 -------------------------------------------------
 * Enabled antialising in video output
