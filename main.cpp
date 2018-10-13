@@ -38,23 +38,40 @@ int main(int argc, char *argv[])
 #elif defined(Q_OS_UNIX)
     // KDE(>= 4) and GNOME(>= 3.10) ScreenSaver Inhibit
     QDBusInterface(QLatin1String("org.freedesktop.ScreenSaver"), QLatin1String("/ScreenSaver"),
-                    QLatin1String("org.freedesktop.ScreenSaver")).call(QDBus::NoBlock,QLatin1String("Inhibit"));
+                    QLatin1String("org.freedesktop.ScreenSaver")).call(QDBus::AutoDetect,QLatin1String("Inhibit"));
 
     // KDE(< 4.0) and GNOME (<= 2.6) ScreenSaver Inhibit
     QDBusInterface(QLatin1String("org.freedesktop.PowerManagement"), QLatin1String("/org/freedesktop/PowerManagement"),
-                    QLatin1String("org.freedesktop.PowerManagement")).call(QDBus::NoBlock,QLatin1String("Inhibit"));
+                    QLatin1String("org.freedesktop.PowerManagement")).call(QDBus::AutoDetect,QLatin1String("Inhibit"));
 
     // GNOME(>= 2.26) ScreenSaver Inhibit
     QDBusInterface(QLatin1String("org.gnome.SessionManger"), QLatin1String("/org/gnome/SessionManager"),
-                    QLatin1String("org.gnome.SessionManager")).call(QDBus::NoBlock, QLatin1String("Inhibit"));
+                    QLatin1String("org.gnome.SessionManager")).call(QDBus::AutoDetect, QLatin1String("Inhibit"));
 
     // MATE - ScreenSaver Inhibit
     QDBusInterface(QLatin1String("org.mate.SessionManager"), QLatin1String("/org/mate/SessionManager"),
-                    QLatin1String("org.mate.SessionManager")).call(QDBus::NoBlock, QLatin1String("Inhibit"));
+                    QLatin1String("org.mate.SessionManager")).call(QDBus::AutoDetect, QLatin1String("Inhibit"));
 
-#elif defined(Q_OS_LINUX)
+    QDBusInterface("org.freedesktop.ScreenSaver","/ScreenSaver","org.freedesktop.ScreenSaver",QDBusConnection::sessionBus()).call("Inhibit",0,2,2);
 
-#else
+#elif defined(Q_OS_LINUX)    
+    // KDE(>= 4) and GNOME(>= 3.10) ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.freedesktop.ScreenSaver"), QLatin1String("/ScreenSaver"),
+                    QLatin1String("org.freedesktop.ScreenSaver")).call(QDBus::AutoDetect,QLatin1String("Inhibit"));
+
+    // KDE(< 4.0) and GNOME (<= 2.6) ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.freedesktop.PowerManagement"), QLatin1String("/org/freedesktop/PowerManagement"),
+                    QLatin1String("org.freedesktop.PowerManagement")).call(QDBus::AutoDetect,QLatin1String("Inhibit"));
+
+    // GNOME(>= 2.26) ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.gnome.SessionManger"), QLatin1String("/org/gnome/SessionManager"),
+                    QLatin1String("org.gnome.SessionManager")).call(QDBus::AutoDetect, QLatin1String("Inhibit"));
+
+    // MATE - ScreenSaver Inhibit
+    QDBusInterface(QLatin1String("org.mate.SessionManager"), QLatin1String("/org/mate/SessionManager"),
+                    QLatin1String("org.mate.SessionManager")).call(QDBus::AutoDetect, QLatin1String("Inhibit"));
+
+   // QDBusInterface("org.freedesktop.ScreenSaver","/ScreenSaver","org.freedesktop.ScreenSaver",QDBusConnection::sessionBus()).call("Inhibit",0,2,2);
 
 #endif
 
@@ -81,6 +98,16 @@ int main(int argc, char *argv[])
         while(!ipcInterface.dataSent) { }
         return -1;
     }
+
+#ifdef Q_OS_LINUX
+    QDBusInterface kdeSessionManager("org.freedesktop.ScreenSaver","/ScreenSaver","org.freedesktop.ScreenSaver",QDBusConnection::sessionBus());
+    QDBusMessage response = kdeSessionManager.call("Inhibit","kioo","Playing Movie");
+    if (response.type() == QDBusMessage::ErrorMessage) {
+        qDebug() << "ScreenSaver::ScreenSaver: error:" << response.errorName() << ":" << response.errorMessage();
+    } else {
+        qDebug() << "ScreenSaver Inhibit Successfully";
+    }
+#endif
 
     app.setOrganizationName("Kioo Media");
     app.setOrganizationDomain("kioomedia.com");

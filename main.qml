@@ -8,7 +8,7 @@ import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
 import QtAV 1.7
 import "Utils.js" as Utils
-import QtWinExtras 1.0 // Thumbnail For Windows
+// import QtWinExtras 1.0 // Thumbnail For Windows
 
 ApplicationWindow {
     id: root
@@ -124,34 +124,39 @@ ApplicationWindow {
     DropArea {
         anchors.fill: parent
         enabled: true
+
         onEntered: {
             var urls = drag.urls;
             var fileUrls = [];
             var subUrls = [];
-            for (var i = 0; i < urls.length; i++) {
-                var sk = "";
-                sk = urls[i];
-                if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
-                        || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                        || sk.endsWith(".sup") || sk.endsWith(".txt")) {
-                    subUrls.push(sk);
+            if(urls !== "") {
+                for (var i = 0; i < urls.length; i++) {
+                    var sk = "";
+                    sk = urls[i];
+                    if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
+                            || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
+                            || sk.endsWith(".sup") || sk.endsWith(".txt")) {
+                        subUrls.push(sk);
+                    }
+                    else {
+                        fileUrls.push(sk);
+                        pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                    }
                 }
-                else {
-                    fileUrls.push(sk);
-                    pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+
+                if (fileUrls.length > 0) {
+                    pList.currentIndex = pModel.count - fileUrls.length;
+                }
+
+                if (subUrls.length > 0) {
+                    subtitle.autoLoad = false
+                    subtitle.file = subUrls[0];
+                } else {
+                    subtitle.autoLoad = appOption.alSubtitleEnable;
+                  //  subtitle.file = ""
                 }
             }
-            if (subUrls.length > 0) {
-                subtitle.autoLoad = false
-                subtitle.file = subUrls[0];
-            } else {
-                subtitle.autoLoad = appOption.alSubtitleEnable;
-              //  subtitle.file = ""
-            }
-            if (fileUrls.length > 0) {
-                console.log(pModel.count +" "+ fileUrls.length);
-                pList.currentIndex = pModel.count - fileUrls.length;
-            }
+
         }
     }
 
@@ -374,23 +379,25 @@ ApplicationWindow {
                 // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
             }
             if(kioo.status == 7) {
-                if(pModel.count > 1) {
-                    if(controls.plstState === "three" ) {
-                        var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
-                        pList.currentIndex = curIndex;
-                        changeSource(pModel.get(curIndex).fLink)
-                    } else if(controls.plstState === "two") {
-                        changeSource(pModel.get(pList.currentIndex).flink)
+                if(kioo.playbackState == 1) {
+                    if(pModel.count > 1) {
+                        if(controls.plstState === "three" ) {
+                            var curIndex = Math.floor((Math.random()*pModel.count+1)-1);
+                            pList.currentIndex = curIndex;
+                            changeSource(pModel.get(curIndex).fLink)
+                        } else if(controls.plstState === "two") {
+                            changeSource(pModel.get(pList.currentIndex).flink)
+                        }
+                        else {
+                            if((pList.currentIndex+1) == pModel.count)
+                                pList.currentIndex = 0
+                            else
+                                pList.currentIndex += 1
+                        }
                     }
                     else {
-                        if((pList.currentIndex+1) == pModel.count)
-                            pList.currentIndex = 0
-                        else
-                            pList.currentIndex += 1
+                        changeSource(pModel.get(pList.currentIndex).flink)
                     }
-                }
-                else {
-                    changeSource(pModel.get(pList.currentIndex).flink)
                 }
             }
         }
@@ -1534,22 +1541,22 @@ ApplicationWindow {
         });
     }
 
-    ThumbnailToolBar {
-        ThumbnailToolButton {
-            iconSource: "/icon/skip_previous.svg";
-            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-            onClicked: fnSkipPrevious();
-        }
-        ThumbnailToolButton {
-            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
-            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-        }
-        ThumbnailToolButton {
-            iconSource: "/icon/skip_next.svg";
-            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-            onClicked: fnSkipNext();
-        }
-       // ThumbnailToolButton { interactive: false; flat: true }
-    }
+//    ThumbnailToolBar {
+//        ThumbnailToolButton {
+//            iconSource: "/icon/skip_previous.svg";
+//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+//            onClicked: fnSkipPrevious();
+//        }
+//        ThumbnailToolButton {
+//            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
+//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+//            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+//        }
+//        ThumbnailToolButton {
+//            iconSource: "/icon/skip_next.svg";
+//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+//            onClicked: fnSkipNext();
+//        }
+//       // ThumbnailToolButton { interactive: false; flat: true }
+//    }
 }
