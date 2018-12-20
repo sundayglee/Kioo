@@ -8,7 +8,7 @@ import Qt.labs.settings 1.0
 import QtQuick.Dialogs 1.2
 import QtAV 1.7
 import "Utils.js" as Utils
-// import QtWinExtras 1.0 // Thumbnail For Windows
+import QtWinExtras 1.0 // Thumbnail For Windows
 
 ApplicationWindow {
     id: root
@@ -1551,22 +1551,22 @@ ApplicationWindow {
         });
     }
 
-//    ThumbnailToolBar {
-//        ThumbnailToolButton {
-//            iconSource: "/icon/skip_previous.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: fnSkipPrevious();
-//        }
-//        ThumbnailToolButton {
-//            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
-//        }
-//        ThumbnailToolButton {
-//            iconSource: "/icon/skip_next.svg";
-//            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
-//            onClicked: fnSkipNext();
-//        }
-//       // ThumbnailToolButton { interactive: false; flat: true }
-//    }
+    ThumbnailToolBar {
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_previous.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipPrevious();
+        }
+        ThumbnailToolButton {
+            iconSource: kioo.playbackState == MediaPlayer.PlayingState ? "/icon/pause.svg" : "/icon/play.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+        }
+        ThumbnailToolButton {
+            iconSource: "/icon/skip_next.svg";
+            tooltip: kioo.playbackState == MediaPlayer.PlayingState ? "Pause" : "Play";
+            onClicked: fnSkipNext();
+        }
+       // ThumbnailToolButton { interactive: false; flat: true }
+    }
 }
