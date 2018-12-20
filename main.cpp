@@ -19,6 +19,7 @@
 int main(int argc, char *argv[])
 {    
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling); // Must be the first line
+    QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
    // QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
    // QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     QGuiApplication app(argc, argv);

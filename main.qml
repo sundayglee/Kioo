@@ -22,7 +22,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.14 - (https://www.kiooplayer.com)"
+    property  var version: "Kioo v1.14.1 - (https://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -133,14 +133,18 @@ ApplicationWindow {
                 for (var i = 0; i < urls.length; i++) {
                     var sk = "";
                     sk = urls[i];
-                    if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
-                            || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                            || sk.endsWith(".sup") || sk.endsWith(".txt")) {
-                        subUrls.push(sk);
-                    }
-                    else {
-                        fileUrls.push(sk);
-                        pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                    if(sk) {
+                        if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
+                                || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
+                                || sk.endsWith(".sup") || sk.endsWith(".txt")) {
+                            subUrls.push(sk);
+                        }
+                        else {
+                            fileUrls.push(sk);
+                            pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                        }
+                    } else {
+                        osd.info('Loading Failed, Try Again');
                     }
                 }
 
@@ -151,6 +155,7 @@ ApplicationWindow {
                 if (subUrls.length > 0) {
                     subtitle.autoLoad = false
                     subtitle.file = subUrls[0];
+                    osd.info('Subtitle Loaded.');
                 } else {
                     subtitle.autoLoad = appOption.alSubtitleEnable;
                   //  subtitle.file = ""
@@ -172,25 +177,30 @@ ApplicationWindow {
             for (var i = 0; i < urls.length; i++) {
                 var sk = "";
                 sk = urls[i];
-                if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
-                        || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                        || sk.endsWith(".sup") || sk.endsWith(".txt")) {
-                    subUrls.push(sk);
-                }
-                else {
-                    fileURL.push(sk);
-                    pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                if(sk) {
+                    if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
+                            || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
+                            || sk.endsWith(".sup") || sk.endsWith(".txt")) {
+                        subUrls.push(sk);
+                    }
+                    else {
+                        fileUrls.push(sk);
+                        pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                    }
+                } else {
+                    osd_left.info('Loading Failed, Try Again');
                 }
             }
             if (subUrls.length > 0) {
                 subtitle.autoLoad = false
                 subtitle.file = subUrls[0];
+                osd.info('Subtitle Loaded.');
             } else {
                 subtitle.autoLoad = appOption.alSubtitleEnable;
               //  subtitle.file = ""
             }
             if (fileURL.length > 0) {
-                console.log(fileURL[0]);
+               // console.log(fileURL[0]);
                 pList.currentIndex = pModel.count - fileURL.length;
             }
         }
@@ -1007,7 +1017,7 @@ ApplicationWindow {
                     CustomCombo {
                         Layout.alignment: Qt.AlignLeft
                         Layout.preferredWidth: sDrawer.width/2.5
-                        Layout.preferredHeight: 30
+                        Layout.preferredHeight: 48
                         textRole: "text"
                         model: ListModel {
                             ListElement { text: "Stereo" }
@@ -1047,7 +1057,7 @@ ApplicationWindow {
                         id: caudio
                         Layout.alignment: Qt.AlignLeft
                         Layout.preferredWidth: sDrawer.width/2.5
-                        Layout.preferredHeight: 30
+                        Layout.preferredHeight: 48
                         currentIndex: 0
                         model: ListModel {
                             id: aTrackModel
@@ -1133,7 +1143,7 @@ ApplicationWindow {
                             id: csub
                             Layout.alignment: Qt.AlignLeft
                             Layout.preferredWidth: sDrawer.width/2.5
-                            Layout.preferredHeight: 30
+                            Layout.preferredHeight: 48
                             currentIndex: sTrackModel.count > 0 ? index : 0
                             textRole: "title"
                             delegate: ItemDelegate {
@@ -1287,7 +1297,7 @@ ApplicationWindow {
                         CustomCombo {
                             id: subLang
                             Layout.preferredWidth: sDrawer.width/4
-                            Layout.preferredHeight: 30
+                            Layout.preferredHeight: 48
                             textRole: "name"
 
                             // model: ["English","French","Spanish"]
@@ -1328,8 +1338,8 @@ ApplicationWindow {
                         CustomCombo {
                             id: subList
                             Layout.preferredWidth: sDrawer.width/1.5
-                            Layout.preferredHeight: 30
-                            currentIndex: subList.count > 0 ? index : 0
+                            Layout.preferredHeight: 48
+                            currentIndex: (subList.count > 0) ? index : 0
                             textRole: "fTitle"
                             model: ListModel {
                                 id: subOssModel
