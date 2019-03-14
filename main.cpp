@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
    // QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
    // QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     QGuiApplication app(argc, argv);
-    QtAV::setLogLevel(QtAV::LogOff);
     app.setWindowIcon(QIcon(":/icon.ico"));
 
 #if defined(Q_OS_ANDROID)
@@ -115,7 +114,7 @@ int main(int argc, char *argv[])
     app.setApplicationName("Kioo Media");
     app.setApplicationVersion("v1.0");
 
-  //  qDebug() << "RR" + QSslSocket::sslLibraryBuildVersionString();
+    // qDebug() << "SSL Version: " + QSslSocket::sslLibraryBuildVersionString();
 
     QQmlApplicationEngine engine;
     //   engine.rootContext()->setContextProperty("mrr",&mrr);

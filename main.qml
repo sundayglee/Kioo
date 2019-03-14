@@ -1,11 +1,10 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.3
-import QtQuick.Window 2.3
-import QtQuick.Layouts 1.3
-import QtQuick.LocalStorage 2.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
+import QtQuick.Window 2.12
+import QtQuick.LocalStorage 2.12
 import Qt.labs.settings 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 1.3
 import QtAV 1.7
 import "Utils.js" as Utils
 import QtWinExtras 1.0 // Thumbnail For Windows
@@ -22,7 +21,7 @@ ApplicationWindow {
 
     property var fileName: ""
     property var db : ""
-    property  var version: "Kioo v1.14.1 - (https://www.kiooplayer.com)"
+    property  var version: "Kioo v1.15 - (https://www.kiooplayer.com)"
 
     signal requestFullScreen
     signal requestNormalSize
@@ -77,30 +76,6 @@ ApplicationWindow {
         }
     }
 
-//    Rectangle {
-//        id: sOverlay
-//        height: parent.height
-//        width: parent.width
-//        z: 1
-//        anchors.centerIn: vidOut
-//        color: "teal"
-//        opacity: 50
-//    }
-
-//    ToolBar {
-//        id: sHeader
-
-//        z: 1
-//        width: parent.width
-//        parent: window.overlay
-
-//        Label {
-//            id: label
-//            anchors.centerIn: parent
-//            text: "Qt Quick Controls 2"
-//        }
-//    }
-
     Settings {
         id: appOption
 
@@ -109,9 +84,6 @@ ApplicationWindow {
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
-      // property alias alVolumeValue: controls.volumeValue
-        //property alias alRepeatOne: repeatOne
-        // property alias alRepeatAll: repeatAll
     }
 
     Connections {
@@ -312,7 +284,7 @@ ApplicationWindow {
 
         }
 
-        Text {
+        Label {
             id: subtitleLabel
             rotation: -vidOut.orientation
             horizontalAlignment: Text.AlignHCenter
@@ -1144,7 +1116,7 @@ ApplicationWindow {
                             Layout.alignment: Qt.AlignLeft
                             Layout.preferredWidth: sDrawer.width/2.5
                             Layout.preferredHeight: 48
-                            currentIndex: sTrackModel.count > 0 ? index : 0
+                            currentIndex: 0
                             textRole: "title"
                             delegate: ItemDelegate {
                                 width: csub.width
@@ -1165,7 +1137,7 @@ ApplicationWindow {
                             onActivated: {
                                 if(sTrackModel.get(currentIndex).link.includes("internal")) {
                                     kioo.internalSubtitleTrack = currentIndex
-                                    subtitle.file = ""
+                                 //   subtitle.file = ""
                                 }
 
                                 for(var k=0; k < sTrackModel.count; k++ ) {
@@ -1339,7 +1311,7 @@ ApplicationWindow {
                             id: subList
                             Layout.preferredWidth: sDrawer.width/1.5
                             Layout.preferredHeight: 48
-                            currentIndex: (subList.count > 0) ? index : 0
+                            currentIndex: 0
                             textRole: "fTitle"
                             model: ListModel {
                                 id: subOssModel
