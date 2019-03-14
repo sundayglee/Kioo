@@ -407,7 +407,6 @@ ApplicationWindow {
         }
 
         ColumnLayout {
-            anchors.fill: parent
             spacing: 4
 
             Label {
@@ -423,6 +422,7 @@ ApplicationWindow {
             Label {
                 text: "Enter URL location for the stream:"
                 font.pointSize: 10
+                Layout.preferredWidth: (urlPopup.width) - 16
                 opacity: 0.8
                 color: "white"
             }
@@ -433,7 +433,6 @@ ApplicationWindow {
                 color: "white"
                 cursorVisible: true;
                 font.pointSize: 10
-                opacity: 0.95
                 Layout.preferredWidth: (urlPopup.width) - 16
                 Layout.preferredHeight: 48
                 focus: true
@@ -463,6 +462,15 @@ ApplicationWindow {
                     changeSource(oUrlLink.text)
                     urlPopup.close();
                 }
+            }
+
+            Label {
+                text: "Tip:  Stream anything which can be downloaded as a file or any live stream. Remember, the link must be the URL to the actual file or stream and not otherwise."
+                font.pointSize: 10
+                opacity: 0.8
+                Layout.preferredWidth: (urlPopup.width) - 16
+                wrapMode: Label.WordWrap
+                color: "white"
             }
 
             // Dummy Item to Fill Remaining Height
