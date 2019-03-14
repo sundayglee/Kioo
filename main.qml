@@ -398,7 +398,7 @@ ApplicationWindow {
     Popup {
         id: urlPopup
         anchors.centerIn: parent
-        width: Utils.scale(parent.width/2)
+        width: Utils.scale(root.width/2)
         background: Rectangle {
             Rectangle {
                 anchors.fill: parent
@@ -407,7 +407,7 @@ ApplicationWindow {
         }
 
         ColumnLayout {
-            anchors.fill: urlPopup
+            anchors.fill: parent
             spacing: 4
 
             Label {
@@ -434,8 +434,8 @@ ApplicationWindow {
                 cursorVisible: true;
                 font.pointSize: 10
                 opacity: 0.95
-                wrapMode: TextInput.WrapAnywhere
                 Layout.preferredWidth: (urlPopup.width) - 16
+                Layout.preferredHeight: 48
                 focus: true
             }
 
@@ -879,6 +879,7 @@ ApplicationWindow {
                         elide: Text.ElideRight
                         visible: pDel.text
                         Layout.alignment: Qt.AlignLeft
+                        Layout.preferredWidth: drawer.width - 120
                     }
                     Rectangle {
                         id: u
