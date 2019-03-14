@@ -16,6 +16,7 @@ RowLayout {
     signal plstChanged
     signal shufflePlaylist
     signal fileOpen
+    signal urlOpen
     signal skipNext
     signal skipPrevious
     signal openPlaylist
@@ -73,6 +74,19 @@ RowLayout {
             onClicked: {
                 focus = false
                 fileOpen()
+            }
+        }
+
+        ToolButton {
+            implicitHeight: 40
+            implicitWidth: 40
+            contentItem:  Image {
+                source: "/icon/online.svg"
+                opacity: 0.8
+            }
+            onClicked: {
+                focus = false
+                urlOpen()
             }
         }
     }

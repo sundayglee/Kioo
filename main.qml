@@ -354,6 +354,16 @@ ApplicationWindow {
             controls.volumeValue = kioo.volume
             osd_right.info(kioo.volume.toPrecision(2));
         }
+        onError: {
+            if(error > 0) {
+                osd.error('An Error Has Occured. Try Again.')
+            }
+        }
+
+        onBufferProgressChanged: {
+            osd_left.info('Buffering');
+        }
+
         onStatusChanged: {
             if(kioo.status == 3) {
                 fileName = kioo.source
@@ -383,6 +393,82 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    Popup {
+        id: urlPopup
+        anchors.centerIn: parent
+        width: Utils.scale(parent.width/2)
+        background: Rectangle {
+            Rectangle {
+                anchors.fill: parent
+                color: "#a98274"
+            }
+        }
+
+        ColumnLayout {
+            anchors.fill: urlPopup
+            spacing: 4
+
+            Label {
+                width: Layout.width
+                Layout.alignment: Qt.AlignCenter
+                opacity: 0.8
+                font.bold: true;
+                text: "OPEN NETWORK STREAM"
+                font.pointSize: 10
+                color: "white"
+            }
+
+            Label {
+                text: "Enter URL location for the stream:"
+                font.pointSize: 10
+                opacity: 0.8
+                color: "white"
+            }
+
+            TextField {
+                id: oUrlLink
+                text: "https://example.com"
+                color: "white"
+                cursorVisible: true;
+                font.pointSize: 10
+                opacity: 0.95
+                wrapMode: TextInput.WrapAnywhere
+                Layout.preferredWidth: (urlPopup.width) - 16
+                focus: true
+            }
+
+            Button {
+                id: oUrlBtn
+                text: "Open"
+                font.pointSize: 10
+                contentItem: Text {
+                    text: qsTr("PLAY")
+                    font.pointSize: 10
+                    color: "white"
+                    opacity: 0.8
+                }
+
+                background: Rectangle {
+                    Rectangle {
+                        anchors.fill: parent
+                        color: oUrlBtn.pressed ? "#dbb2a3" : "#795548"
+                    }
+                }
+
+                onClicked: {
+                    pModel.append({ fTitle: oUrlLink.text, fLink: oUrlLink.text});
+                    kioo.stop()
+                    changeSource(oUrlLink.text)
+                    urlPopup.close();
+                }
+            }
+
+            // Dummy Item to Fill Remaining Height
+            Item { Layout.fillHeight: true }
+        }
+
     }
 
 
@@ -466,6 +552,10 @@ ApplicationWindow {
                 onFileOpen: {
                     fileDialog.open()
                 }
+                onUrlOpen: {
+                    urlPopup.visible === true ? urlPopup.close() : urlPopup.open()
+                }
+
                 onOpenPlaylist: {
                     drawer.visible === true ? drawer.close() : drawer.open()
                 }
@@ -556,6 +646,9 @@ ApplicationWindow {
             case Qt.Key_L:
                 drawer.visible === true ? drawer.close() : drawer.open()
                 break;
+            case Qt.Key_U:
+                urlPopup.visible === true ? urlPopup.close() : urlPopup.open()
+                break;
             case Qt.Key_S:
                 sDrawer.visible === true ? sDrawer.close() : sDrawer.open()
                 break;
@@ -612,7 +705,7 @@ ApplicationWindow {
         }
         Timer {
             id: osd_timer
-            interval: 2000
+            interval: 4000
             onTriggered: osd.visible = false
         }
         function error(value) {
@@ -694,59 +787,6 @@ ApplicationWindow {
         }
     }
 
-//    Drawer {
-//        id: sOverlay
-//        width: root.width
-//        height: root.height
-//        edge: Qt.TopEdge
-
-//        TabBar {
-//            id: bar
-//            width: parent.width
-
-//            background: Rectangle {
-//                Rectangle {
-//                    anchors.fill: parent
-//                    color: "#a98274"
-//                }
-//            }
-
-//            TabButton {
-//                text: qsTr("Audio")
-//                font.bold: true
-//            }
-//            TabButton {
-//                text: qsTr("Video")
-//                font.bold: true
-//            }
-//            TabButton {
-//                text: qsTr("Subtitle")
-//                font.bold: true
-//            }
-//            TabButton {
-//                text: qsTr("System")
-//                font.bold: true
-//            }
-//        }
-
-//        StackLayout {
-//            width: parent.width
-//            currentIndex: bar.currentIndex
-
-//            Item {
-//                id: sAudio
-//            }
-//            Item {
-//                id: sVideo
-//            }
-//            Item {
-//                id: sSubtitle
-//            }
-//            Item {
-//                id: sSystem
-//            }
-//        }
-//    }
 
     Drawer {
         id: drawer

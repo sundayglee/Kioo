@@ -30,5 +30,6 @@
         <file>icon/up.svg</file>
         <file>CustomCombo.qml</file>
         <file>icon.ico</file>
+        <file>icon/online.svg</file>
     </qresource>
 </RCC>
