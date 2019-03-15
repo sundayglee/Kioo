@@ -1,10 +1,11 @@
-Kioo Media Player v1.15 - 14th March, 2019
+Kioo Media Player v1.15 - 15th March, 2019
 -------------------------------------------------
+* Added Network Live Streaming Playback Option
 * Upgraded FFMPEG
 * Bug fixes in underlaying engine
 * Subtitles now support colors
-* Added Live Streaming Playback Option
-* Fixed Playlist Elide Problem
+* Fixed Playlist alignement problem
+* Bug fixes on Opening file and dropping file
 
 Kioo Media Player v1.14 - 10th October, 2018
 -------------------------------------------------

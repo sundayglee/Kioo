@@ -64,6 +64,7 @@ RowLayout {
     // Media and Eject Block
     Row {
         Layout.alignment: Qt.AlignLeft
+
         ToolButton {
             implicitHeight: 40
             implicitWidth: 40
@@ -167,12 +168,15 @@ RowLayout {
 
     }
 
-    
+
     // Window Buttons
     Row {
-        Layout.alignment: Qt.AlignLeft
+        Layout.alignment: Qt.AlignRight
+        Item {
+            Layout.fillWidth: true;
+        }
     }
-    
+
     Row {
         Layout.alignment: Qt.AlignRight
 
@@ -188,6 +192,12 @@ RowLayout {
                 toggleFullScreen()
             }
         }
+
+        ToolButton {
+            implicitHeight: 40
+            implicitWidth: 40
+        }
+
 
         Slider {
             id: volumeSlider

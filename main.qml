@@ -15,11 +15,12 @@ ApplicationWindow {
     width: Utils.scale(720)
     height: Utils.scale(480)
     color: "black"
-    title: Utils.fileName(fileName)
+    title: fileName
     // visibility: Window.FullScreen
     // flags: Qt.Window | Qt.FramelessWindowHint
 
     property var fileName: ""
+    property var fileURL: ""
     property var db : ""
     property  var version: "Kioo v1.15 - (https://www.kiooplayer.com)"
 
@@ -28,7 +29,9 @@ ApplicationWindow {
 
     function changeSource(url){
         kioo.stop()
-        fileName = url
+        fileURL = url
+        fileName = pModel.get(pList.currentIndex).fTitle
+        root.title = fileName
         subOssModel.clear(); // Clear Subtitle
         subtitle.file = "";
         kioo.play()
@@ -113,7 +116,9 @@ ApplicationWindow {
                         }
                         else {
                             fileUrls.push(sk);
-                            pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                            fileName = Utils.fileName(sk)
+                            fileURL = sk
+                            pModel.append({ fTitle: fileName, fLink: fileURL});
                         }
                     } else {
                         osd.info('Loading Failed, Try Again');
@@ -144,7 +149,7 @@ ApplicationWindow {
 
         onAccepted: {
             var urls = fileUrls;
-            var fileURL = [];
+            var fileUrlsLocal = [];
             var subUrls = [];
             for (var i = 0; i < urls.length; i++) {
                 var sk = "";
@@ -156,8 +161,12 @@ ApplicationWindow {
                         subUrls.push(sk);
                     }
                     else {
-                        fileUrls.push(sk);
-                        pModel.append({ fTitle: Utils.fileName(sk), fLink: sk});
+                        fileUrlsLocal.push(sk);
+                        console.log("")
+                        console.log(sk);
+                        fileName = Utils.fileName(sk)
+                        fileURL = sk
+                        pModel.append({ fTitle: fileName, fLink: fileURL});
                     }
                 } else {
                     osd_left.info('Loading Failed, Try Again');
@@ -171,9 +180,8 @@ ApplicationWindow {
                 subtitle.autoLoad = appOption.alSubtitleEnable;
               //  subtitle.file = ""
             }
-            if (fileURL.length > 0) {
-               // console.log(fileURL[0]);
-                pList.currentIndex = pModel.count - fileURL.length;
+            if (fileUrlsLocal.length > 0) {
+                pList.currentIndex = pModel.count - fileUrlsLocal.length;
             }
         }
     }
@@ -252,7 +260,7 @@ ApplicationWindow {
             anchors.fill: parent
             Label {
                 id: tLabel
-                text: Utils.fileName(fileName)
+                text: fileName
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
                 Layout.fillWidth: true
@@ -334,7 +342,7 @@ ApplicationWindow {
 
     MediaPlayer {
         id: kioo
-        source: fileName
+        source: fileURL
         muted: !appOption.alAudioEnable
         objectName: "kioo"
         autoPlay: true
@@ -366,8 +374,7 @@ ApplicationWindow {
 
         onStatusChanged: {
             if(kioo.status == 3) {
-                fileName = kioo.source
-                root.title = Utils.fileName(fileName)
+                // root.title = fileName
                 // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
             }
             if(kioo.status == 7) {
@@ -420,8 +427,29 @@ ApplicationWindow {
             }
 
             Label {
-                text: "Enter URL location for the stream:"
+                text: "Stream Name: "
                 font.pointSize: 10
+                font.bold: true
+                Layout.preferredWidth: (urlPopup.width) - 16
+                opacity: 0.8
+                color: "white"
+            }
+
+            TextField {
+                id: oUrlName
+                text: "Stream 1"
+                color: "white"
+                selectByMouse: true
+                cursorVisible: true;
+                font.pointSize: 10
+                Layout.preferredWidth: (urlPopup.width) - 16
+                Layout.preferredHeight: 48
+            }
+
+            Label {
+                text: "Stream Link: "
+                font.pointSize: 10
+                font.bold: true
                 Layout.preferredWidth: (urlPopup.width) - 16
                 opacity: 0.8
                 color: "white"
@@ -431,17 +459,18 @@ ApplicationWindow {
                 id: oUrlLink
                 text: "https://example.com"
                 color: "white"
+                selectByMouse: true
                 cursorVisible: true;
                 font.pointSize: 10
                 Layout.preferredWidth: (urlPopup.width) - 16
-                Layout.preferredHeight: 48
-                focus: true
+                Layout.preferredHeight: 48                
             }
 
             Button {
                 id: oUrlBtn
                 text: "Open"
                 font.pointSize: 10
+                focus: true
                 contentItem: Text {
                     text: qsTr("PLAY")
                     font.pointSize: 10
@@ -454,14 +483,16 @@ ApplicationWindow {
                         anchors.fill: parent
                         color: oUrlBtn.pressed ? "#dbb2a3" : "#795548"
                     }
-                }
+                }                
 
                 onClicked: {
-                    pModel.append({ fTitle: oUrlLink.text, fLink: oUrlLink.text});
+                    pModel.append({ fTitle: oUrlName.text, fLink: oUrlLink.text});
+                    pList.currentIndex = pModel.count - 1
                     kioo.stop()
                     changeSource(oUrlLink.text)
                     urlPopup.close();
                 }
+
             }
 
             Label {
@@ -843,6 +874,7 @@ ApplicationWindow {
                         onPressed: {
                             pModel.clear();
                             fileName = "";
+                            fileURL = "";
                             clearPlaylist.checked = true
                         }
                     }
@@ -1501,6 +1533,7 @@ ApplicationWindow {
         //  }
         kioo.videoCodecOptions = opt
         root.title = version;
+        fileName = version;
         Utils.getFile(Qt.application.arguments);
     }
     Component.onDestruction: {
