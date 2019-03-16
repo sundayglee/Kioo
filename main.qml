@@ -358,7 +358,7 @@ ApplicationWindow {
         muted: !appOption.alAudioEnable
         objectName: "kioo"
         autoPlay: true
-        bufferSize: 1024
+      //  bufferSize: 1024
 
         onPositionChanged: {
             timer3.restart()

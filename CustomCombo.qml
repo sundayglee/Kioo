@@ -30,10 +30,20 @@ ComboBox {
         width: 12
         height: 8
         contextType: "2d"
-        
+
         Connections {
             target: control
             onPressedChanged: canvas.requestPaint()
+        }
+
+        onPaint: {
+            //context.reset();
+            context.moveTo(0, 0);
+            context.lineTo(width, 0);
+            context.lineTo(width / 2, height);
+            context.closePath();
+            context.fillStyle = control.pressed ? "#009688" : "#52c7b8";
+            context.fill();
         }
         
      }
@@ -54,8 +64,8 @@ ComboBox {
     background: Rectangle {
         implicitWidth: 120
         implicitHeight: 40
-        //border.color: control.pressed ? "#17a81a" : "#21be2b"
-        border.color: "transparent"
+        border.color: control.pressed ? "#009688" : "#52c7b8";
+      //  border.color: "transparent"
         border.width: control.visualFocus ? 2 : 1
         color: "#795548"
         radius: 2
@@ -76,7 +86,7 @@ ComboBox {
         }
 
         background: Rectangle {
-            // border.color: "#21be2b"
+            border.color: "#52c7b8"
             color: "#795548"
             radius: 2
         }
