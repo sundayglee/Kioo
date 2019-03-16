@@ -340,6 +340,17 @@ ApplicationWindow {
         }
     }
 
+    Timer {
+        id: timer3
+        interval: 1000
+        running: true;
+        repeat: true
+        onTriggered: {
+            // console.log("timer1 still runnign")
+            slider.setProgress(kioo.position/kioo.duration)
+        }
+    }
+
     MediaPlayer {
         id: kioo
         source: fileURL
@@ -349,8 +360,8 @@ ApplicationWindow {
         bufferSize: 1024
 
         onPositionChanged: {
-            slider.setProgress(position/duration)
-        }
+            timer3.restart()
+        }       
 
         onPlaybackStateChanged: {
             if(kioo.playbackState == MediaPlayer.PlayingState)
@@ -533,7 +544,7 @@ ApplicationWindow {
                 }
                 onPressedChanged: {
                     focus = true
-                  //  kioo.fastSeek = true
+                    kioo.fastSeek = true
                     kioo.seek(slider.value*kioo.duration)
                     osd_left.info("Seeking")
                     osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
@@ -664,13 +675,13 @@ ApplicationWindow {
                 kioo.mute = !kioo.mute
                 break
             case Qt.Key_Right:
-                kioo.fastSeek = event.isAutoRepeat
+                kioo.fastSeek = true
                 kioo.seek(kioo.position + 5000)
                 osd_left.info("Seeking")
                 osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
                 break
             case Qt.Key_Left:
-                kioo.fastSeek = event.isAutoRepeat
+                kioo.fastSeek = true
                 kioo.seek(kioo.position - 5000)
                 osd_left.info("Seeking")
                 osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
