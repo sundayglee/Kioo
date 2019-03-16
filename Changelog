@@ -6,7 +6,8 @@ Kioo Media Player v1.15 - 15th March, 2019
 * Subtitles now support colors
 * Fixed Playlist alignement problem
 * Bug fixes on Opening file and dropping file
-* Fixed slider jumping to and from fast when seeking
+* Fixed slider jumping to and from when seeking
+* Added more languages and fixed subtitle language selection
 
 Kioo Media Player v1.14 - 10th October, 2018
 -------------------------------------------------

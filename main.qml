@@ -87,6 +87,7 @@ ApplicationWindow {
         property alias alAudioEnable : audioEnable.checked
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
+        property alias subLanguage: subLang.currentIndex
     }
 
     Connections {
@@ -1274,7 +1275,7 @@ ApplicationWindow {
                             onClicked: {
                                 if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
                                     addon.sourceUrl = kioo.source
-                                    request('https://rest.opensubtitles.org/search/moviebytesize-'+kioo.metaData.size+'/moviehash-'+addon.sourceUrl+'/sublanguageid-eng', function (v) {
+                                    request('https://rest.opensubtitles.org/search/moviebytesize-'+kioo.metaData.size+'/moviehash-'+addon.sourceUrl+'/sublanguageid-'+ subLangList.get(subLang.currentIndex).value, function (v) {
                                         try {
                                             var resObj = JSON.parse(v.responseText);
                                             if(resObj.length > 0) {
@@ -1367,18 +1368,22 @@ ApplicationWindow {
                             // model: ["English","French","Spanish"]
                             model: ListModel {
                                 id: subLangList
-                                ListElement {
-                                    name: "English"
-                                    value: "eng"
-                                }
-                                ListElement {
-                                    name: "French"
-                                    value: "fre"
-                                }
-                                ListElement {
-                                    name: "Spanish"
-                                    value: "spa"
-                                }
+                                ListElement { name: "English"; value: "eng" }
+                                ListElement { name: "French"; value: "fre" }
+                                ListElement { name: "Germany"; value: "ger" }
+                                ListElement { name: "Spanish"; value: "spa" }
+                                ListElement { name: "Russian"; value: "rus" }
+                                ListElement { name: "Finnish"; value: "fin" }
+                                ListElement { name: "Japanese"; value: "jpn" }
+                                ListElement { name: "Korean"; value: "kor" }
+                                ListElement { name: "Finnish"; value: "fin" }
+                                ListElement { name: "Portuguese"; value: "por" }
+                                ListElement { name: "Dutch"; value: "dut" }
+                                ListElement { name: "Chinese"; value: "chi" }
+                                ListElement { name: "Swahili"; value: "swa" }
+                                ListElement { name: "Indonesian"; value: "ind" }
+
+
                             }
                             delegate: ItemDelegate {
                                 width: subLang.width
