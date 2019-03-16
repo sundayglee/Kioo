@@ -284,13 +284,10 @@ ApplicationWindow {
 
         SubtitleItem {
             id: subtitleItem
-            antialiasing: true;
-            layer.enabled: false
             rotation: -vidOut.orientation
             source: subtitle
             anchors.fill: parent
             fillMode: VideoOutput.PreserveAspectFit
-
         }
 
         Label {
