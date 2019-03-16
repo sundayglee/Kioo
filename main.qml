@@ -338,14 +338,15 @@ ApplicationWindow {
         }
     }
 
+    // This time is important for displaying progress on the ProgressBar
     Timer {
         id: timer3
         interval: 1000
         running: true;
         repeat: true
         onTriggered: {
-            // console.log("timer1 still runnign")
             slider.setProgress(kioo.position/kioo.duration)
+
         }
     }
 
@@ -357,9 +358,6 @@ ApplicationWindow {
         autoPlay: true
       //  bufferSize: 1024
 
-        onPositionChanged: {
-            timer3.restart()
-        }       
 
         onPlaybackStateChanged: {
             if(kioo.playbackState == MediaPlayer.PlayingState)
