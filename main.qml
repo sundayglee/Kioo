@@ -1264,12 +1264,12 @@ ApplicationWindow {
                                 color: "white"
                                 opacity: 0.8
                             }
+
                             background: Rectangle {
-                                anchors.fill: parent
-                                // color: "#795548"
-                                opacity: enabled ? 1 : 0.3
-                                color: Qt.darker("#795548", subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted) ? 1.5 : 1.0)
-                                visible: subSearchBtn.down || (subSearchBtn.enabled && (subSearchBtn.checked || subSearchBtn.highlighted))
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: subSearchBtn.pressed ? "#dbb2a3" : "#795548"
+                                }
                             }
 
                             onClicked: {
@@ -1332,13 +1332,14 @@ ApplicationWindow {
                                 color: "white"
                                 opacity: 0.8
                             }
+
                             background: Rectangle {
-                                anchors.fill: parent
-                                // color: "#795548"
-                                opacity: enabled ? 1 : 0.3
-                                color: Qt.darker("#795548", subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted) ? 1.5 : 1.0)
-                                visible: subDownBtn.down || (subDownBtn.enabled && (subDownBtn.checked || subDownBtn.highlighted))
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: subDownBtn.pressed ? "#dbb2a3" : "#795548"
+                                }
                             }
+
                             onClicked: {
                                 addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
                             }
