@@ -34,7 +34,7 @@ ApplicationWindow {
         fileName = pModel.get(pList.currentIndex).fTitle
         root.title = fileName
         subOssModel.clear(); // Clear Subtitle
-        subtitle.file = "";
+        alSubUrl = "";
         kioo.play()
     }
 
@@ -1311,8 +1311,8 @@ ApplicationWindow {
                             Connections {
                                 target: addon
                                 onSubFileChanged: {
-                                    subtitle.file = addon.subFile;
-                                    sTrackModel.append({title: "External Sub", link: subtitle.file })
+                                    alSubUrl = addon.subFile;
+                                    sTrackModel.append({title: "External Sub", link: addon.subFile })
                                     sDrawer.close();
                                     osd.info("Subtitle Loaded");
                                 }
@@ -1469,8 +1469,8 @@ ApplicationWindow {
                 v = j;
             }
 
-            if(subtitle.file !== "") {
-                sTrackModel.append({title: j+ " - external subs", link: subtitle.file })
+            if(alSubUrl !== "") {
+                sTrackModel.append({title: j+ " - external subs", link: alSubUrl })
 
                 for(var k=0; k < sTrackModel.count; k++ ) {
                     if(sTrackModel.get(k).title.includes("external")) {
