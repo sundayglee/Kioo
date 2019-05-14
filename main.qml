@@ -19,10 +19,11 @@ ApplicationWindow {
     // visibility: Window.FullScreen
     // flags: Qt.Window | Qt.FramelessWindowHint
 
-    property var fileName: ""
-    property var fileURL: ""
+    property string fileName: ""
+    property string fileURL: ""
     property var db : ""
-    property  var version: "Kioo v1.15 - (https://www.kiooplayer.com)"
+    property  string version: "Kioo v1.15.1 - (https://www.kiooplayer.com)"
+    property alias alSubUrl: subtitle.file
 
     signal requestFullScreen
     signal requestNormalSize
@@ -98,48 +99,35 @@ ApplicationWindow {
     }
 
     DropArea {
+        id: dropArea
         anchors.fill: parent
         enabled: true
 
         onEntered: {
-            var urls = drag.urls;
-            var fileUrls = [];
-            var subUrls = [];
-            if(urls !== "") {
-                for (var i = 0; i < urls.length; i++) {
-                    var sk = "";
-                    sk = urls[i];
-                    if(sk) {
-                        if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
-                                || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                                || sk.endsWith(".sup") || sk.endsWith(".txt")) {
-                            subUrls.push(sk);
-                        }
-                        else {
-                            fileUrls.push(sk);
-                            fileName = Utils.fileName(sk)
-                            fileURL = sk
-                            pModel.append({ fTitle: fileName, fLink: fileURL});
-                        }
+            if(drag.hasUrls) {
+                var subArray = [];
+                var avArray = [];
+                var urlArray = Object.values(drag.urls)
+                for(var i in urlArray) {
+                    if(urlArray[i].endsWith(".srt") || urlArray[i].endsWith(".ass") || urlArray[i].endsWith(".ssa") || urlArray[i].endsWith(".sub")
+                            || urlArray[i].endsWith(".idx") || urlArray[i].endsWith(".mpl2") || urlArray[i].endsWith(".smi") || urlArray[i].endsWith(".sami")
+                            || urlArray[i].endsWith(".sup") || urlArray[i].endsWith(".txt")) {
+                        subArray.push(urlArray[i])
+                    } else if(urlArray[i].endsWith(".jpg") || urlArray[i].endsWith(".png")) {
+                        continue;
                     } else {
-                        osd.info('Loading Failed, Try Again');
+                        avArray.push(urlArray[i]);
+                        pModel.append({ fTitle: Utils.fileName(urlArray[i]), fLink: urlArray[i]});
                     }
                 }
 
-                if (fileUrls.length > 0) {
-                    pList.currentIndex = pModel.count - fileUrls.length;
+                if (avArray.length > 0) {
+                    pList.currentIndex = pModel.count - avArray.length;
                 }
-
-                if (subUrls.length > 0) {
-                    subtitle.autoLoad = false
-                    subtitle.file = subUrls[0];
-                    osd.info('Subtitle Loaded.');
-                } else {
-                    subtitle.autoLoad = appOption.alSubtitleEnable;
-                  //  subtitle.file = ""
+                if(subArray.length > 0) {
+                    alSubUrl = subArray[0]
                 }
             }
-
         }
     }
 
@@ -149,40 +137,29 @@ ApplicationWindow {
         selectMultiple: true
 
         onAccepted: {
-            var urls = fileUrls;
-            var fileUrlsLocal = [];
-            var subUrls = [];
-            for (var i = 0; i < urls.length; i++) {
-                var sk = "";
-                sk = urls[i];
-                if(sk) {
-                    if (sk.endsWith(".srt") || sk.endsWith(".ass") || sk.endsWith(".ssa") || sk.endsWith(".sub")
-                            || sk.endsWith(".idx") || sk.endsWith(".mpl2") || sk.endsWith(".smi") || sk.endsWith(".sami")
-                            || sk.endsWith(".sup") || sk.endsWith(".txt")) {
-                        subUrls.push(sk);
+
+            if(fileUrls) {
+                var subArray = [];
+                var avArray = [];
+                var urlArray = Object.values(fileUrls)
+                for(var i in urlArray) {
+                    if(urlArray[i].endsWith(".srt") || urlArray[i].endsWith(".ass") || urlArray[i].endsWith(".ssa") || urlArray[i].endsWith(".sub")
+                            || urlArray[i].endsWith(".idx") || urlArray[i].endsWith(".mpl2") || urlArray[i].endsWith(".smi") || urlArray[i].endsWith(".sami")
+                            || urlArray[i].endsWith(".sup") || urlArray[i].endsWith(".txt")) {
+                        subArray.push(urlArray[i])
+                    } else if(urlArray[i].endsWith(".jpg") || urlArray[i].endsWith(".png")) {
+                        continue;
+                    } else {
+                        avArray.push(urlArray[i]);
+                        pModel.append({ fTitle: Utils.fileName(urlArray[i]), fLink: urlArray[i]});
                     }
-                    else {
-                        fileUrlsLocal.push(sk);
-                        console.log("")
-                        console.log(sk);
-                        fileName = Utils.fileName(sk)
-                        fileURL = sk
-                        pModel.append({ fTitle: fileName, fLink: fileURL});
-                    }
-                } else {
-                    osd_left.info('Loading Failed, Try Again');
                 }
-            }
-            if (subUrls.length > 0) {
-                subtitle.autoLoad = false
-                subtitle.file = subUrls[0];
-                osd.info('Subtitle Loaded.');
-            } else {
-                subtitle.autoLoad = appOption.alSubtitleEnable;
-              //  subtitle.file = ""
-            }
-            if (fileUrlsLocal.length > 0) {
-                pList.currentIndex = pModel.count - fileUrlsLocal.length;
+                if (avArray.length > 0) {
+                    pList.currentIndex = pModel.count - avArray.length;
+                }
+                if(subArray.length > 0) {
+                    alSubUrl = subArray[0]
+                }
             }
         }
     }
@@ -194,17 +171,14 @@ ApplicationWindow {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPositionChanged: {
-            // console.log("mouse is moving.....")
             if(topbar.visible){
                 timer1.start()
                 timer2.start()
             }
             else if(timer1.running || timer2.running) {
-                // console.log("stopping all timers")
                 timer2.stop()
             }
             else if(!(topbar.visible && timer1.running)) {
-                // topbar.visible = true
                 topbar.visible = root.visibility === Window.FullScreen ? true : false
                 bottombar.visible = true
                 mouse1.cursorShape = Qt.ArrowCursor
@@ -219,10 +193,6 @@ ApplicationWindow {
             if (mouse.button === Qt.LeftButton)
                 kioo.playbackState == MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
         }
-
-        //        onRightChanged: {
-        //            sDrawer.visible == true ? sDrawer.close() : sDrawer.open()
-        //        }
 
         onWheel: {
            // console.log(wheel.angleDelta.y)
@@ -346,7 +316,6 @@ ApplicationWindow {
         repeat: true
         onTriggered: {
             slider.setProgress(kioo.position/kioo.duration)
-
         }
     }
 
@@ -1378,8 +1347,6 @@ ApplicationWindow {
                                 ListElement { name: "Chinese"; value: "chi" }
                                 ListElement { name: "Swahili"; value: "swa" }
                                 ListElement { name: "Indonesian"; value: "ind" }
-
-
                             }
                             delegate: ItemDelegate {
                                 width: subLang.width

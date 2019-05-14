@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QString>
+#include <QStringList>
 
 class IPCInterface : public QObject
 {
@@ -19,6 +20,7 @@ public:
     QTcpSocket *tcpServerConnection = nullptr;
 
     QString ipcPayload = "NoData";
+    QStringList ipcPayLoadList = {};
     bool dataSent = false;
 
     void clientConnect();

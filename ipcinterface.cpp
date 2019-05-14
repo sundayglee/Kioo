@@ -24,7 +24,7 @@ void IPCInterface::clientConnect()
     tcpClient->connectToHost(QHostAddress::LocalHost,9898);
     if(!tcpClient->waitForConnected(3000)){
       //  qDebug() << "Failed to connected";
-        dataSent = true;
+        this->dataSent = true;
     }
     return;
 }
@@ -45,6 +45,7 @@ void IPCInterface::clientReadyWrite()
 {
     // qDebug() << "Connected to server, sending data..";
     tcpClient->write(ipcPayload.toUtf8());
-    tcpClient->waitForBytesWritten(2000);
+    tcpClient->waitForBytesWritten(3000);
     this->dataSent = true;
 }
+

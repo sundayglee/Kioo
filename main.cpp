@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
 
     QString tmpDir = QDir::tempPath();
     QLockFile lockFile(tmpDir + "/KiooMediaPlayer");
+    QStringList cmdLine = QCoreApplication::arguments();
 
     if(!lockFile.tryLock(10)) {
        // qDebug() << "Already running....";
@@ -88,7 +89,7 @@ int main(int argc, char *argv[])
 
         if(cmdLine[1].isEmpty()) {
            // qDebug() << "Empty payload";
-          //  return -1;
+            return 1;
         }
         ipcInterface.ipcPayload = cmdLine[1];
 #ifdef Q_OS_WIN
@@ -96,8 +97,9 @@ int main(int argc, char *argv[])
 #endif
         ipcInterface.clientConnect();
         while(!ipcInterface.dataSent) { }
-        return -1;
+        return 1;
     }
+
 
 #ifdef Q_OS_LINUX
     QDBusInterface kdeSessionManager("org.freedesktop.ScreenSaver","/ScreenSaver","org.freedesktop.ScreenSaver",QDBusConnection::sessionBus());

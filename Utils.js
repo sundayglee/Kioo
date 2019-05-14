@@ -60,13 +60,12 @@ function getSingleFile(path) {
     if (k.endsWith(".srt") || k.endsWith(".ass") || k.endsWith(".ssa") || k.endsWith(".sub")
             || k.endsWith(".idx") || k.endsWith(".mpl2") || k.endsWith(".smi") || k.endsWith(".sami")
             || k.endsWith(".sup") || k.endsWith(".txt")) {
+        subtitle.fuzzyMatch = true;
         subtitle.autoLoad = true;
-        subtitle.file = subs;
     }
     else {
         pModel.append({ fTitle: Utils.fileName(k), fLink: k});
         pList.currentIndex = pModel.count - 1;
-       // changeSource(k)
         subtitle.file = ""
     }
 }
@@ -77,13 +76,13 @@ function scale(x) {
 }
 
 function request(url, callback) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = (function(myxhr) {
-            return function() {
-                callback(myxhr);
-            }
-        })(xhr);
-        xhr.open('GET', url, true);
-        xhr.send('');
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = (function(myxhr) {
+        return function() {
+            callback(myxhr);
+        }
+    })(xhr);
+    xhr.open('GET', url, true);
+    xhr.send('');
 }
 
