@@ -87,11 +87,11 @@ int main(int argc, char *argv[])
         ipcInterface.ipcPayload = "AlphaBetaKing";
         QStringList cmdLine = QCoreApplication::arguments();
 
-        if(cmdLine[1].isEmpty()) {
+        if(cmdLine[1].trimmed().isEmpty()) {
            // qDebug() << "Empty payload";
             return 1;
         }
-        ipcInterface.ipcPayload = cmdLine[1];
+        ipcInterface.ipcPayload = cmdLine[1].trimmed();
 #ifdef Q_OS_WIN
         ipcInterface.ipcPayload.replace(QLatin1String("\\"), QLatin1String("/"));
 #endif

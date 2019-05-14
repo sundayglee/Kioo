@@ -64,9 +64,11 @@ function getSingleFile(path) {
         subtitle.autoLoad = true;
     }
     else {
-        pModel.append({ fTitle: Utils.fileName(k), fLink: k});
-        pList.currentIndex = pModel.count - 1;
-        subtitle.file = ""
+        if(!(fileName(k).length <= 6)) {
+            pModel.append({ fTitle: fileName(k), fLink: k});
+            pList.currentIndex = pModel.count - 1;
+            subtitle.file = ""
+        }
     }
 }
 

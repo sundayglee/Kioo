@@ -22,9 +22,9 @@ void IPCInterface::clientConnect()
     this->tcpClient = new QTcpSocket();
     connect(tcpClient,SIGNAL(connected()),this,SLOT(clientReadyWrite()));
     tcpClient->connectToHost(QHostAddress::LocalHost,9898);
-    if(!tcpClient->waitForConnected(3000)){
+    if(!tcpClient->waitForConnected(2000)){
       //  qDebug() << "Failed to connected";
-        this->dataSent = true;
+        // dataSent = true;
     }
     return;
 }
@@ -45,7 +45,7 @@ void IPCInterface::clientReadyWrite()
 {
     // qDebug() << "Connected to server, sending data..";
     tcpClient->write(ipcPayload.toUtf8());
-    tcpClient->waitForBytesWritten(3000);
+    tcpClient->waitForBytesWritten(2000);
     this->dataSent = true;
 }
 
