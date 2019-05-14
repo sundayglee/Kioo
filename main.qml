@@ -1311,9 +1311,10 @@ ApplicationWindow {
                             Connections {
                                 target: addon
                                 onSubFileChanged: {
-                                    alSubUrl = addon.subFile;
+                                    alSubUrl = "";
                                     sTrackModel.append({title: "External Sub", link: addon.subFile })
                                     sDrawer.close();
+                                    alSubUrl = addon.subFile;
                                     osd.info("Subtitle Loaded");
                                 }
                             }
