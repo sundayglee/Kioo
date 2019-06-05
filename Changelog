@@ -1,3 +1,8 @@
+Kioo Media Player v1.15.2 - 05th June, 2019
+-------------------------------------------------
+* Fixed subtitles not clearing after playing new video
+* Fixed crash on adding new subtitle file
+
 Kioo Media Player v1.15.1 - 14th May, 2019
 -------------------------------------------------
 * Fixed multiple file loading on drag and filedialog.

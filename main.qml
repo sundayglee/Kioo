@@ -22,19 +22,19 @@ ApplicationWindow {
     property string fileName: ""
     property string fileURL: ""
     property var db : ""
-    property  string version: "Kioo v1.15.1 - (https://www.kiooplayer.com)"
+    property  string version: "Kioo v1.15.2 - (https://www.kiooplayer.com)"
     property alias alSubUrl: subtitle.file
 
     signal requestFullScreen
     signal requestNormalSize
 
-    function changeSource(url){
+    function changeSource(url){        
         kioo.stop()
+        alSubUrl = "";
         fileURL = url
         fileName = pModel.get(pList.currentIndex).fTitle
         root.title = fileName
-        subOssModel.clear(); // Clear Subtitle
-        alSubUrl = "";
+        subOssModel.clear();
         kioo.play()
     }
 
@@ -1311,7 +1311,6 @@ ApplicationWindow {
                             Connections {
                                 target: addon
                                 onSubFileChanged: {
-                                    alSubUrl = "";
                                     sTrackModel.append({title: "External Sub", link: addon.subFile })
                                     sDrawer.close();
                                     alSubUrl = addon.subFile;
