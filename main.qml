@@ -22,7 +22,7 @@ ApplicationWindow {
     property string fileName: ""
     property string fileURL: ""
     property var db : ""
-    property  string version: "Kioo v1.15.2 - (https://www.kiooplayer.com)"
+    property  string version: "Kioo v1.16 - (https://www.kiooplayer.com)"
     property alias alSubUrl: subtitle.file
 
     signal requestFullScreen
@@ -489,10 +489,6 @@ ApplicationWindow {
             }
         }
 
-        onBufferProgressChanged: {
-            osd_left.info('Buffering');
-        }
-
         onStatusChanged: {
             if(kioo.status == 3) {
                 // root.title = fileName
@@ -536,6 +532,10 @@ ApplicationWindow {
             }
         }
 
+        onVisibleChanged: {
+            oUrlName.forceActiveFocus()
+        }
+
         ColumnLayout {
             spacing: 4
 
@@ -560,13 +560,18 @@ ApplicationWindow {
 
             TextField {
                 id: oUrlName
-                placeholderText: "Stream 1"
+                placeholderText: "Stream Name"
+                text: "Stream 1"
                 color: "white"
                 selectByMouse: true
                 cursorVisible: true;
                 font.pointSize: 10
                 Layout.preferredWidth: (urlPopup.width) - 16
                 Layout.preferredHeight: 48
+                focus: true
+
+                KeyNavigation.down:  oUrlLink
+
             }
 
             Label {
@@ -586,7 +591,17 @@ ApplicationWindow {
                 cursorVisible: true;
                 font.pointSize: 10
                 Layout.preferredWidth: (urlPopup.width) - 16
-                Layout.preferredHeight: 48                
+                Layout.preferredHeight: 48
+
+                KeyNavigation.up:  oUrlName
+                KeyNavigation.down:  oUrlBtn
+                Keys.onReturnPressed: {
+                    pModel.append({ fTitle: oUrlName.text, fLink: oUrlLink.text});
+                    pList.currentIndex = pModel.count - 1
+                    kioo.stop()
+                    changeSource(oUrlLink.text)
+                    urlPopup.close();
+                }
             }
 
             Button {
@@ -970,7 +985,10 @@ ApplicationWindow {
 
         background: Rectangle {
             color: '#a98274'
+        }
 
+        onVisibleChanged: {
+            username.forceActiveFocus()
         }
 
         ColumnLayout {
@@ -992,6 +1010,8 @@ ApplicationWindow {
                Layout.fillWidth: true
                placeholderText: "Username"
                enabled: true
+
+               KeyNavigation.down: password
             }
 
             TextField {
@@ -1000,10 +1020,17 @@ ApplicationWindow {
                placeholderText: "Password"
                echoMode: TextInput.PasswordEchoOnEdit
                enabled: true
+
+               KeyNavigation.up: username
+               KeyNavigation.down:  processButton
+
+               Keys.onReturnPressed: {
+                   ksp.login()
+               }
             }
 
             Button {
-               id: proccessButton
+               id: processButton
                Layout.fillWidth: true
 
                onClicked: {
@@ -1016,7 +1043,7 @@ ApplicationWindow {
                    name: "NotAuthenticated"
                    when: ksp.authStatus === 0
                    PropertyChanges {
-                       target: proccessButton
+                       target: processButton
                        text: "Login"
                    }
                },
@@ -1024,7 +1051,7 @@ ApplicationWindow {
                    name: "Authenticating"
                    when: ksp.authStatus === 1
                    PropertyChanges {
-                       target: proccessButton
+                       target: processButton
                        text: "Authenticating..."
                        enabled: false
                    }
@@ -1033,7 +1060,7 @@ ApplicationWindow {
                    name: "AuthenticationFailure"
                    when: ksp.authStatus === 2
                    PropertyChanges {
-                       target: proccessButton
+                       target: processButton
                        text: "Authentication failed, restart"
                    }
                },
@@ -1041,7 +1068,7 @@ ApplicationWindow {
                    name: "Authenticated"
                    when: ksp.authStatus === 3
                    PropertyChanges {
-                       target: proccessButton
+                       target: processButton
                        text: "Logout"
                    }
                }
@@ -1057,7 +1084,10 @@ ApplicationWindow {
 
         background: Rectangle {
             color: '#a98274'
+        }
 
+        onVisibleChanged: {
+            cContent.forceActiveFocus()
         }
 
         onOpened: {
@@ -1091,6 +1121,7 @@ ApplicationWindow {
                 Layout.preferredWidth: (urlPopup.width) - 16
                 opacity: 0.8
                 color: "white"
+
             }
 
             TextField {
@@ -1103,6 +1134,17 @@ ApplicationWindow {
                 font.pointSize: 10
                 Layout.preferredWidth: (commentPopup.width) - 16
                 Layout.preferredHeight: 48
+
+
+                KeyNavigation.down: postButton
+                KeyNavigation.tab: postButton
+
+                Keys.onReturnPressed: {
+                    if(postButton.enabled) {
+                        ksp.postComment()
+                    }
+                }
+
             }
 
            Button {
@@ -1111,6 +1153,10 @@ ApplicationWindow {
 
                onClicked: {
                   ksp.postComment();
+               }
+
+               Keys.onReturnPressed: {
+                   ksp.postComment()
                }
            }
 
@@ -1156,11 +1202,11 @@ ApplicationWindow {
         }
     }
 
-
-
     Item {
         id: c_view
         anchors.top: root.top
+        x : 10
+        y : 10
         width: 80; height: 80
         visible: alKSPEnable
         Rectangle {
