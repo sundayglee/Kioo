@@ -37,8 +37,9 @@ ApplicationWindow {
         subOssModel.clear();
         kioo.play()
 
+        ksp.comments = ""
         if(c_view.enabled === true) {
-            console.log('this is running?')
+
             // Comments related
             ksp.getComments()
             get_comment_timer.start()
