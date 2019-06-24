@@ -36,6 +36,17 @@ ApplicationWindow {
         root.title = fileName
         subOssModel.clear();
         kioo.play()
+
+        if(c_view.enabled === true) {
+            console.log('this is running?')
+            // Comments related
+            ksp.getComments()
+            get_comment_timer.start()
+            c_scan_timer.restart()
+        } else {
+            c_scan_timer.stop()
+            get_comment_timer.stop()
+        }
     }
 
     function fnSkipNext() {
@@ -89,6 +100,8 @@ ApplicationWindow {
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
         property alias subLanguage: subLang.currentIndex
+        property alias alKSPEnable: enableKSP.checked
+        property alias alApiToken: ksp.apiToken
     }
 
     Connections {
@@ -96,6 +109,138 @@ ApplicationWindow {
         onLinkReceived: {
             Utils.getSingleFile(data);
         }
+    }
+
+    Item {
+        id: ksp
+        property var authStatus: 0
+        property string apiToken: "0000"
+        property var postStatus: 0
+        property var comments: ""
+
+        onAuthStatusChanged: {
+            if(authStatus === 3) {
+                console.log('is i here')
+                urlPopup.close()
+                commentPopup.open()
+            }
+        }
+
+        function login() {
+            authStatus = 1
+            function request(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = (function(res) {
+                    return function() {
+                       if(xhr.readyState === 4 && xhr.status === 200) {
+                            callback(res);
+                        } else if(xhr.readyState === 4 && xhr.status === 400) {
+                           console.log('Login failed')
+                           ksp.authStatus = 2
+                       }
+                    }
+                })(xhr);
+                xhr.open('POST',url, true);
+                xhr.setRequestHeader('Content-type' , 'application/x-www-form-urlencoded');
+                xhr.send('username='+username.text+'&password='+password.text);
+            }
+
+            request('http://localhost:8000/users/login-api/', function (v) {
+                try {
+                    var resObj = JSON.parse(v.responseText);
+
+                    if(resObj.token) {
+                        ksp.authStatus = 3
+                        ksp.apiToken = resObj.token
+                    }  else {
+                        ksp.authStatus = 2
+                    }
+                }
+                catch(e) {
+                    console.log('Something went wrong');
+                }
+            });
+        }
+        function postComment() {
+            ksp.postStatus = 1
+            addon.sourceUrl = kioo.source
+            var movie_name = ""
+            if(fileName == version) {
+                movie_name = ""
+            } else {
+                movie_name = fileName
+            }
+
+            function request(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = (function(res) {
+                    return function() {
+                       if(xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 201)) {
+                            callback(res);
+                        } else if(xhr.readyState === 4 && xhr.status === 400) {
+                           console.log('Post failed')
+                           ksp.postStatus = 2
+                       }
+                    }
+                })(xhr);
+                xhr.open('POST',url, true);
+                xhr.setRequestHeader('Content-type' , 'application/json');
+                xhr.setRequestHeader('Authorization' , 'Token 2492ae7fa27322ce4c6789a84383e31552d2c308');
+                xhr.send(JSON.stringify({"movie": { "movie_name": movie_name, "movie_hash": addon.sourceUrl}, "content": cContent.text, "position": kioo.position}));
+            }
+
+            request('http://localhost:8000/social/post-comment/', function (v) {
+                try {
+                    ksp.postStatus = 3
+                    commentPopup.close()
+                    ksp.getComments()
+                    var resObj = JSON.parse(v.responseText);
+                    console.log(JSON.stringify(resObj))
+                    cContent.text = ""
+                }
+                catch(e) {
+                    ksp.postStatus = 2
+                    console.log('Something went wrong');
+                }
+            });
+        }
+
+        function getComments() {
+            addon.sourceUrl = kioo.source
+            function request(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = (function(res) {
+                    return function() {
+                       if(xhr.readyState === 4 && xhr.status === 200) {
+                            callback(res);
+                        } else if(xhr.readyState === 4 && xhr.status === 400) {
+                           console.log('400 Error Occured')
+                       }
+                    }
+                })(xhr);
+                xhr.open('POST',url, true);
+                xhr.setRequestHeader('Content-type' , 'application/json');
+                xhr.setRequestHeader('Authorization' , 'Token 2492ae7fa27322ce4c6789a84383e31552d2c308');
+                xhr.send(JSON.stringify({'movie_hash': addon.sourceUrl }));
+            }
+
+            request('http://localhost:8000/social/comments-list/', function (v) {
+                try {
+                    var resObj = JSON.parse(v.responseText);
+
+                    if(resObj.comments) {
+                        ksp.comments = resObj
+                        console.log('Token is:' + JSON.stringify(ksp.comments))
+                    }  else {
+                        console.log('Something went wrong')
+                    }
+                }
+                catch(e) {
+                    console.log('Something went wrong');
+                }
+            });
+        }
+
     }
 
     DropArea {
@@ -352,6 +497,8 @@ ApplicationWindow {
             if(kioo.status == 3) {
                 // root.title = fileName
                 // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
+
+
             }
             if(kioo.status == 7) {
                 if(kioo.playbackState == 1) {
@@ -413,7 +560,7 @@ ApplicationWindow {
 
             TextField {
                 id: oUrlName
-                text: "Stream 1"
+                placeholderText: "Stream 1"
                 color: "white"
                 selectByMouse: true
                 cursorVisible: true;
@@ -433,7 +580,7 @@ ApplicationWindow {
 
             TextField {
                 id: oUrlLink
-                text: "https://example.com"
+                placeholderText: "https://example.com"
                 color: "white"
                 selectByMouse: true
                 cursorVisible: true;
@@ -599,6 +746,19 @@ ApplicationWindow {
                         plstState = "three"
                     }
                 }
+                onPostKSP: {
+                    if(ksp.apiToken.length < 6) {
+                        loginPopup.open()
+                    } else if(kioo.playbackState === (MediaPlayer.PlayingState || MediaPlayer.PausedState)) {
+                        postButton.enabled = true
+                        commentPopup.open()
+                    } else {
+                        postButton.enabled = false
+                        commentPopup.open()
+                    }
+
+
+                }
             }
         }
     }
@@ -651,11 +811,11 @@ ApplicationWindow {
                 osd_left.info("Seeking")
                 osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
                 break
-            case Qt.Key_R:
+            case Qt.Key_R: // Not working
                 kioo.orientation += 90
                // drawer.open()
                 break;
-            case Qt.Key_T:
+            case Qt.Key_T: // Not working
                 videoOut.orientation -= 90
                 break;
             case Qt.Key_L:
@@ -667,11 +827,11 @@ ApplicationWindow {
             case Qt.Key_S:
                 sDrawer.visible === true ? sDrawer.close() : sDrawer.open()
                 break;
-            case Qt.Key_C:
+            case Qt.Key_C: // Not working
                 kioo.videoCapture.capture()
                 osd.info()
                 break
-            case Qt.Key_A:
+            case Qt.Key_A: // Not working
                 if (kioo.fillMode === VideoOutput.Stretch) {
                     kioo.fillMode = VideoOutput.PreserveAspectFit
                 } else if (kioo.fillMode === VideoOutput.PreserveAspectFit) {
@@ -683,16 +843,16 @@ ApplicationWindow {
             case Qt.Key_O:
                 fileDialog.open()
                 break;
-            case Qt.Key_N:
+            case Qt.Key_N: // Not working
                 kioo.stepForward()
                 break
-            case Qt.Key_B:
+            case Qt.Key_B: // Not working
                 kioo.stepBackward()
                 break;
-            case Qt.Key_Q:
+            case Qt.Key_Q: // Not working
                 Qt.quit()
                 break;
-            case Qt.Key_E:
+            case Qt.Key_E: // Not working
                 sOverlay.visible === true ? sOverlay.close() : sOverlay.open()
                 break;
             }
@@ -800,6 +960,283 @@ ApplicationWindow {
             opacity = 0.8
             text = value
         }
+    }
+
+    Popup {
+        id: loginPopup
+        anchors.centerIn: parent
+        width: Utils.scale(root.width/2)
+        contentHeight: loginLayout.implicitHeight
+
+        background: Rectangle {
+            color: '#a98274'
+
+        }
+
+        ColumnLayout {
+            id: loginLayout
+            anchors.fill: parent
+
+            Label {
+                width: Layout.width
+                Layout.alignment: Qt.AlignCenter
+                opacity: 0.8
+                font.bold: true;
+                text: "LOGIN"
+                font.pointSize: 10
+                color: "white"
+            }
+
+            TextField {
+               id: username
+               Layout.fillWidth: true
+               placeholderText: "Username"
+               enabled: true
+            }
+
+            TextField {
+               id: password
+               Layout.fillWidth: true
+               placeholderText: "Password"
+               echoMode: TextInput.PasswordEchoOnEdit
+               enabled: true
+            }
+
+            Button {
+               id: proccessButton
+               Layout.fillWidth: true
+
+               onClicked: {
+                   ksp.login();
+               }
+            }
+
+            states: [
+               State {
+                   name: "NotAuthenticated"
+                   when: ksp.authStatus === 0
+                   PropertyChanges {
+                       target: proccessButton
+                       text: "Login"
+                   }
+               },
+               State {
+                   name: "Authenticating"
+                   when: ksp.authStatus === 1
+                   PropertyChanges {
+                       target: proccessButton
+                       text: "Authenticating..."
+                       enabled: false
+                   }
+               },
+               State {
+                   name: "AuthenticationFailure"
+                   when: ksp.authStatus === 2
+                   PropertyChanges {
+                       target: proccessButton
+                       text: "Authentication failed, restart"
+                   }
+               },
+               State {
+                   name: "Authenticated"
+                   when: ksp.authStatus === 3
+                   PropertyChanges {
+                       target: proccessButton
+                       text: "Logout"
+                   }
+               }
+           ]
+        }
+    }
+
+    Popup {
+        id: commentPopup
+        anchors.centerIn: parent
+        width: Utils.scale(root.width/2)
+        contentHeight: commentLayout.implicitHeight
+
+        background: Rectangle {
+            color: '#a98274'
+
+        }
+
+        onOpened: {
+            kioo.pause()
+            postButton.text = "SUBMIT"
+        }
+
+        onClosed: {
+            kioo.play()
+            postButton.text = "SUBMIT"
+        }
+
+        ColumnLayout {
+            id: commentLayout
+
+            Label {
+                width: Layout.width
+                Layout.alignment: Qt.AlignCenter
+                opacity: 0.8
+                font.bold: true;
+                text: "NEW COMMENT"
+                font.pointSize: 10
+                color: "white"
+            }
+
+            Label {
+                id: comment
+                text: "Comment"
+                font.pointSize: 10
+                font.bold: true
+                Layout.preferredWidth: (urlPopup.width) - 16
+                opacity: 0.8
+                color: "white"
+            }
+
+            TextField {
+                id: cContent
+                placeholderText: "Type your comment here..."
+                color: "white"
+                text: ""
+                selectByMouse: true
+                cursorVisible: true;
+                font.pointSize: 10
+                Layout.preferredWidth: (commentPopup.width) - 16
+                Layout.preferredHeight: 48
+            }
+
+           Button {
+               id: postButton
+               Layout.fillWidth: true
+
+               onClicked: {
+                  ksp.postComment();
+               }
+           }
+
+           states: [
+               State {
+                   name: "NotSubmitted"
+                   when: ksp.postStatus === 0
+                   PropertyChanges {
+                       target: postButton
+                       text: "SUBMIT"
+                   }
+               },
+               State {
+                   name: "Submitting"
+                   when: ksp.postStatus === 1
+                   PropertyChanges {
+                       target: postButton
+                       text: "Submitting..."
+                       enabled: false
+                   }
+               },
+               State {
+                   name: "SubmitFailed"
+                   when: ksp.postStatus === 2
+                   PropertyChanges {
+                       target: postButton
+                       text: "Submit failed, resubmit"
+
+                       onClicked: {
+                           ksp.postComment()
+                       }
+                   }
+               },
+               State {
+                   name: "Submitted"
+                   when: ksp.postStatus === 3
+                   PropertyChanges {
+                       target: postButton
+                       text: "Submitted"
+                   }
+               }
+           ]
+        }
+    }
+
+
+
+    Item {
+        id: c_view
+        anchors.top: root.top
+        width: 80; height: 80
+        visible: alKSPEnable
+        Rectangle {
+            anchors.fill: cLayout
+            color: "black"
+            opacity: 0.5
+        }
+
+
+        ColumnLayout {
+            id: cLayout
+            spacing: 4
+            Label {
+                id: c_userid
+                Layout.alignment: Qt.AlignLeft
+                Layout.preferredHeight: 12
+                font.pixelSize: 14
+                color: "white"
+                opacity: 0.7
+                padding: 4
+                font.bold: true
+                width: root.width
+                text: ""
+            }
+
+            Label {
+                id: c_comment
+                Layout.alignment: Qt.AlignLeft
+                font.pixelSize: 16
+                color: "white"
+                opacity: 0.9
+                padding: 4
+                font.bold: true
+                Layout.preferredWidth: Math.max(root.width, root.height) / 2.5
+
+                text: ""
+                wrapMode: Text.Wrap
+            }
+        }
+
+        Timer {
+            id: c_scan_timer
+            interval: 500; repeat: true
+            onTriggered: {
+               // console.log('timer is running')
+                if(ksp.comments === "") {
+                    ksp.getComments()
+                } else {
+                    var obj = ksp.comments
+                    for (var i = 0; i < obj.comments.length; i++){
+                      if (parseInt(obj.comments[i].position) >= (kioo.position - 500)  && parseInt(obj.comments[i].position) <= (kioo.position + 500)) {
+                          c_userid.text = obj.comments[i].author
+                          c_comment.text = obj.comments[i].content
+                          c_view.visible = true
+                          c_timer.restart()
+                      }
+                    }
+                }
+            }
+        }
+
+        Timer {
+            id: c_timer
+            interval: 6000
+            onTriggered: c_view.visible = false
+        }
+
+        Timer {
+            id: get_comment_timer
+            interval: 300000
+            repeat: true
+            onTriggered: {
+                ksp.getComments()
+            }
+        }
+
     }
 
 
@@ -1218,23 +1655,10 @@ ApplicationWindow {
                             opacity: 0.8
                         }
 
-                        ToolButton {
+                        Button {
                             id: subSearchBtn
-                            Layout.preferredHeight: 30
+                            text: 'SEARCH'
 
-                            contentItem: Text {
-                                text: qsTr("SEARCH")
-                                font.pointSize: 10
-                                color: "white"
-                                opacity: 0.8
-                            }
-
-                            background: Rectangle {
-                                Rectangle {
-                                    anchors.fill: parent
-                                    color: subSearchBtn.pressed ? "#dbb2a3" : "#795548"
-                                }
-                            }
 
                             onClicked: {
                                 if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
@@ -1286,23 +1710,9 @@ ApplicationWindow {
                                 xhr.send('');
                             }
                         }
-                        ToolButton {
-                            Layout.preferredHeight: 30
+                        Button {
                             id: subDownBtn
-
-                            contentItem: Text {
-                                text: qsTr("LOAD")
-                                font.pointSize: 10
-                                color: "white"
-                                opacity: 0.8
-                            }
-
-                            background: Rectangle {
-                                Rectangle {
-                                    anchors.fill: parent
-                                    color: subDownBtn.pressed ? "#dbb2a3" : "#795548"
-                                }
-                            }
+                            text: 'LOAD'
 
                             onClicked: {
                                 addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
@@ -1369,7 +1779,7 @@ ApplicationWindow {
 
                         CustomCombo {
                             id: subList
-                            Layout.preferredWidth: sDrawer.width/1.5
+                            Layout.preferredWidth: sDrawer.width/1.53
                             Layout.preferredHeight: 48
                             currentIndex: 0
                             textRole: "fTitle"
@@ -1420,6 +1830,67 @@ ApplicationWindow {
                         Switch {
                             id: enableHistory
                             checked: true
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Label {
+                        leftPadding: 2
+                        text: "Kioo Social Platform"
+                        font.pixelSize: 25
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+
+                        Label {
+                            text: "Enable KSP:  "
+                            Layout.preferredWidth: sDrawer.width/2
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+                        Switch {
+                            id: enableKSP
+                            checked: true
+
+                            onCheckedChanged: {
+
+                                if(enableKSP.checked === true) {
+                                    c_view.enabled = true
+                                    c_scan_timer.restart()
+                                } else {
+                                    c_view.enabled = false
+                                    c_scan_timer.stop()
+                                }
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+                        Label {
+                            text: "Sign Out"
+                            Layout.preferredWidth: sDrawer.width/2
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+
+                        Button {
+                            id: logoutButton
+                            Layout.fillWidth: false
+                            Layout.alignment: Qt.AlignRight
+                            text: "LOGOUT"
+
+                            onClicked: {
+                                ksp.apiToken = "0000"
+                            }
                         }
                     }
                 }
@@ -1491,6 +1962,9 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
+        // Comment related
+        c_view.visible = false
+
         // pModel.append({ fTitle: Utils.fileName(fileName), fLink: fileName })
         initDatabase()
 

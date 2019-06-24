@@ -22,6 +22,7 @@ RowLayout {
     signal openPlaylist
     signal openSettings
     signal volumeChanged(var vValue)
+    signal postKSP
 
 //    anchors.right: parent.right
 //    anchors.left: parent.left
@@ -89,6 +90,10 @@ RowLayout {
                 focus = false
                 urlOpen()
             }
+        }
+        ToolButton {
+            implicitHeight: 40
+            implicitWidth: 40
         }
     }
     
@@ -171,9 +176,19 @@ RowLayout {
 
     // Window Buttons
     Row {
-        Layout.alignment: Qt.AlignRight
-        Item {
-            Layout.fillWidth: true;
+        Layout.alignment: Qt.AlignLeft
+
+        ToolButton {
+            implicitHeight: 40
+            implicitWidth: 40
+            contentItem: Image {
+                source: "/icon/comment.svg"
+                opacity: 0.8
+            }
+            onClicked: {
+                focus = false
+                postKSP()
+            }
         }
     }
 

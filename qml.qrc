@@ -31,5 +31,6 @@
         <file>CustomCombo.qml</file>
         <file>icon.ico</file>
         <file>icon/online.svg</file>
+        <file>icon/comment.svg</file>
     </qresource>
 </RCC>
