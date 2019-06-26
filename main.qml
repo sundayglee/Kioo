@@ -48,6 +48,24 @@ ApplicationWindow {
             c_scan_timer.stop()
             get_comment_timer.stop()
         }
+
+        console.log("The tick mark is: "+ kioo.duration +"  " + slider.width)
+    }
+
+    function tickComments() {
+        if(ksp.comments.comments) {
+            var obj = ksp.comments
+            var n = slider.width / 2 // This 2 is the width of the tickMark
+            var d = kioo.duration / n
+            for(var i = 0; i < n; i++) {
+                var m = i*d;
+                for(var j=0; j < obj.comments.length; j++) {
+                    if((m >= (parseInt(obj.comments[j].position) - d/2))  && (m <= (parseInt(obj.comments[j].position) + d/2))) {
+                        cRepeater.itemAt(i).opacity = 1;
+                     }
+                }
+            }
+        }
     }
 
     function fnSkipNext() {
@@ -231,7 +249,8 @@ ApplicationWindow {
 
                     if(resObj.comments) {
                         ksp.comments = resObj
-                        console.log('Token is:' + JSON.stringify(ksp.comments))
+                        // Show comment Position
+                        tickComments()
                     }  else {
                         console.log('Something went wrong')
                     }
@@ -329,6 +348,9 @@ ApplicationWindow {
                 bottombar.visible = true
                 mouse1.cursorShape = Qt.ArrowCursor
             }
+
+            // Show comment Position
+            tickComments()
         }
 
         onDoubleClicked: {
@@ -354,7 +376,7 @@ ApplicationWindow {
         interval: 6000
         onTriggered: {
             // console.log("timer1 still runnign")
-            mouse1.cursorShape = Qt.BlankCursor
+            mouse1.cursorShape = Qt.BlankCursor            
         }
     }
 
@@ -472,7 +494,6 @@ ApplicationWindow {
         objectName: "kioo"
         autoPlay: true
       //  bufferSize: 1024
-
 
         onPlaybackStateChanged: {
             if(kioo.playbackState == MediaPlayer.PlayingState)
@@ -652,17 +673,34 @@ ApplicationWindow {
 
     footer: ToolBar {
         id: bottombar
-        height: 70
+        height: 80
         Keys.forwardTo: canvas
 
         ColumnLayout{
             spacing: 0
             width: root.width
 
+            Row {
+                Repeater {
+                    id: cRepeater
+                    model: slider.width / 2
+                    anchors.fill: parent
+                    Rectangle {
+                        id: cTickMark
+                        y: -18
+                        width: 2; height: 20
+                        color: "#795548"
+                        opacity: 0
+                    }
+                }
+
+            }
+
             CustomSlider {
                 id: slider
                 Layout.preferredWidth: root.width
                 Keys.forwardTo: canvas
+                Layout.topMargin: -26
 
                 ToolTip {
                     parent: slider.handle
@@ -677,6 +715,12 @@ ApplicationWindow {
                     osd_left.info("Seeking")
                     osd_right.info(Utils.milliSecToString(kioo.position)+"/"+Utils.milliSecToString(kioo.duration))
                     focus = false
+                }
+
+                onWidthChanged: {
+                    console.log('width changed')
+                    // Show comment Position
+                    tickComments()
                 }
             }
 
@@ -772,7 +816,6 @@ ApplicationWindow {
                         postButton.enabled = false
                         commentPopup.open()
                     }
-
 
                 }
             }
@@ -2141,4 +2184,5 @@ ApplicationWindow {
         }
        // ThumbnailToolButton { interactive: false; flat: true }
     }
+
 }
