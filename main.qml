@@ -1039,6 +1039,23 @@ ApplicationWindow {
                }
             }
 
+            Label {
+                id: linkText
+                width: Layout.width
+                Layout.alignment: Qt.AlignCenter
+                font.pointSize: 10
+                text: '<a href="https://kiooplayer.com/social/" style="color: red"> Register Here (https://kiooplayer.com/social/)</a>'
+
+                onLinkActivated: {
+                    Qt.openUrlExternally('https://kiooplayer.com/social/')
+                }
+
+                MouseArea {
+                    anchors.fill: linkText
+                    cursorShape: Qt.PointingHandCursor
+                }
+            }
+
             states: [
                State {
                    name: "NotAuthenticated"
@@ -1127,9 +1144,10 @@ ApplicationWindow {
 
             TextField {
                 id: cContent
-                placeholderText: "Type your comment here..."
+                placeholderText: "Type your comment here(180 Character Max)"
                 color: "white"
                 text: ""
+                maximumLength: 180
                 selectByMouse: true
                 cursorVisible: true;
                 font.pointSize: 10
