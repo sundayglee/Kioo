@@ -238,7 +238,6 @@ ApplicationWindow {
                 })(xhr);
                 xhr.open('POST',url, true);
                 xhr.setRequestHeader('Content-type' , 'application/json');
-                xhr.setRequestHeader('Authorization' , 'Token '+ksp.apiToken);
                 xhr.send(JSON.stringify({'movie_hash': addon.sourceUrl }));
             }
 
