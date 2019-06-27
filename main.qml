@@ -48,8 +48,6 @@ ApplicationWindow {
             c_scan_timer.stop()
             get_comment_timer.stop()
         }
-
-        console.log("The tick mark is: "+ kioo.duration +"  " + slider.width)
     }
 
     function tickComments() {
@@ -119,8 +117,9 @@ ApplicationWindow {
         property alias alRememberPlaylist : enableHistory.checked
         property alias lastPlayed: pList.currentIndex
         property alias subLanguage: subLang.currentIndex
-        property alias alKSPEnable: enableKSP.checked
+        property alias alEnableKsp: kspEnable.checked
         property alias alApiToken: ksp.apiToken
+        property alias alOsdEnable: osdEnable.checked
     }
 
     Connections {
@@ -139,8 +138,7 @@ ApplicationWindow {
 
         onAuthStatusChanged: {
             if(authStatus === 3) {
-                console.log('is i here')
-                urlPopup.close()
+                loginPopup.close()
                 commentPopup.open()
             }
         }
@@ -154,7 +152,7 @@ ApplicationWindow {
                        if(xhr.readyState === 4 && xhr.status === 200) {
                             callback(res);
                         } else if(xhr.readyState === 4 && xhr.status === 400) {
-                           console.log('Login failed')
+                           // console.log('Login failed')
                            ksp.authStatus = 2
                        }
                     }
@@ -176,7 +174,8 @@ ApplicationWindow {
                     }
                 }
                 catch(e) {
-                    console.log('Something went wrong');
+                    // console.log('Something went wrong');
+                    ksp.authStatus = 2
                 }
             });
         }
@@ -197,14 +196,14 @@ ApplicationWindow {
                        if(xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 201)) {
                             callback(res);
                         } else if(xhr.readyState === 4 && xhr.status === 400) {
-                           console.log('Post failed')
+                           // console.log('Post failed')
                            ksp.postStatus = 2
                        }
                     }
                 })(xhr);
                 xhr.open('POST',url, true);
                 xhr.setRequestHeader('Content-type' , 'application/json');
-                xhr.setRequestHeader('Authorization' , 'Token 2492ae7fa27322ce4c6789a84383e31552d2c308');
+                xhr.setRequestHeader('Authorization' , 'Token '+ksp.apiToken);
                 xhr.send(JSON.stringify({"movie": { "movie_name": movie_name, "movie_hash": addon.sourceUrl}, "content": cContent.text, "position": kioo.position}));
             }
 
@@ -214,12 +213,12 @@ ApplicationWindow {
                     commentPopup.close()
                     ksp.getComments()
                     var resObj = JSON.parse(v.responseText);
-                    console.log(JSON.stringify(resObj))
+                    // console.log(JSON.stringify(resObj))
                     cContent.text = ""
                 }
                 catch(e) {
                     ksp.postStatus = 2
-                    console.log('Something went wrong');
+                    // console.log('Something went wrong');
                 }
             });
         }
@@ -233,13 +232,13 @@ ApplicationWindow {
                        if(xhr.readyState === 4 && xhr.status === 200) {
                             callback(res);
                         } else if(xhr.readyState === 4 && xhr.status === 400) {
-                           console.log('400 Error Occured')
+                           // console.log('400 Error Occured')
                        }
                     }
                 })(xhr);
                 xhr.open('POST',url, true);
                 xhr.setRequestHeader('Content-type' , 'application/json');
-                xhr.setRequestHeader('Authorization' , 'Token 2492ae7fa27322ce4c6789a84383e31552d2c308');
+                xhr.setRequestHeader('Authorization' , 'Token '+ksp.apiToken);
                 xhr.send(JSON.stringify({'movie_hash': addon.sourceUrl }));
             }
 
@@ -252,11 +251,46 @@ ApplicationWindow {
                         // Show comment Position
                         tickComments()
                     }  else {
-                        console.log('Something went wrong')
+                        // console.log('Something went wrong')
                     }
                 }
                 catch(e) {
-                    console.log('Something went wrong');
+                    // console.log('Something went wrong');
+                }
+            });
+        }
+
+        function getVersion() {
+            addon.sourceUrl = kioo.source
+            function request(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = (function(res) {
+                    return function() {
+                       if(xhr.readyState === 4 && xhr.status === 200) {
+                            callback(res);
+                        } else if(xhr.readyState === 4 && xhr.status === 400) {
+                           // console.log('400 Error Occured')
+                       }
+                    }
+                })(xhr);
+                xhr.open('GET',url, true);
+                xhr.setRequestHeader('Content-type' , 'application/json');
+                xhr.send('');
+            }
+
+            request('http://localhost:8000/home/kioo-version/', function (v) {
+                try {
+                    var resObj = JSON.parse(v.responseText);
+
+                    if(resObj.version !== version) {
+                        root.title = 'New Kioo Version Available at Kioo Website (https://kiooplayer.com)';
+                        fileName = 'New Kioo Version Available at Kioo Website (https://kiooplayer.com)';
+                    }  else {
+                        // console.log('Something went wrong')
+                    }
+                }
+                catch(e) {
+                    // console.log('Something went wrong');
                 }
             });
         }
@@ -495,6 +529,13 @@ ApplicationWindow {
         autoPlay: true
       //  bufferSize: 1024
 
+        videoCapture {
+            autoSave: true
+            onSaved: {
+                osd.info("Capture Saved At: " + path)
+            }
+        }
+
         onPlaybackStateChanged: {
             if(kioo.playbackState == MediaPlayer.PlayingState)
                 osd_left.info("Play")
@@ -718,7 +759,7 @@ ApplicationWindow {
                 }
 
                 onWidthChanged: {
-                    console.log('width changed')
+                    // console.log('width changed')
                     // Show comment Position
                     tickComments()
                 }
@@ -728,6 +769,7 @@ ApplicationWindow {
                 spacing: 0
                 Layout.alignment: Qt.AlignCenter
                 Layout.topMargin: -8
+
                 Label {
                     text: Utils.milliSecToString(kioo.position)
                     color: "white"
@@ -772,7 +814,8 @@ ApplicationWindow {
                     slider.value = 0;
                 }
                 onFileOpen: {
-                    fileDialog.open()
+                   // fileDialog.open()
+                    fileDialog.visible === true ? fileDialog.close() : fileDialog.open()
                 }
                 onUrlOpen: {
                     urlPopup.visible === true ? urlPopup.close() : urlPopup.open()
@@ -808,13 +851,14 @@ ApplicationWindow {
                 }
                 onPostKSP: {
                     if(ksp.apiToken.length < 6) {
-                        loginPopup.open()
+                        loginPopup.visible === true ? loginPopup.close() : loginPopup.open()
                     } else if(kioo.playbackState === (MediaPlayer.PlayingState || MediaPlayer.PausedState)) {
                         postButton.enabled = true
-                        commentPopup.open()
+                        commentPopup.visible === true ? commentPopup.close() : commentPopup.open()
                     } else {
                         postButton.enabled = false
-                        commentPopup.open()
+                        commentPopup.visible === true ? commentPopup.close() : commentPopup.open()
+
                     }
 
                 }
@@ -839,7 +883,7 @@ ApplicationWindow {
                 root.visibility === Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
                 break
             case Qt.Key_P:
-                kioo.playbackState === MediaPlayer.PlayingState ? kioo.pause() : kioo.play()
+                kioo.videoCapture.capture()
                 break
             case Qt.Key_Plus:
                 kioo.playbackRate += 0.1
@@ -887,8 +931,7 @@ ApplicationWindow {
                 sDrawer.visible === true ? sDrawer.close() : sDrawer.open()
                 break;
             case Qt.Key_C: // Not working
-                kioo.videoCapture.capture()
-                osd.info()
+                commentPopup.visible === true ? commentPopup.close() : commentPopup.open()
                 break
             case Qt.Key_A: // Not working
                 if (kioo.fillMode === VideoOutput.Stretch) {
@@ -944,11 +987,15 @@ ApplicationWindow {
         }
         function error(value) {
             osd.color = "#ffff00"
-            text = value
+            if(osdEnable.checked) {
+                text = value
+            }
         }
         function info(value) {
             osd.color = "white"
-            text = value
+            if(osdEnable.checked) {
+                text = value
+            }
         }
     }
 
@@ -978,12 +1025,16 @@ ApplicationWindow {
         function error(value) {
             osd_left.color = "#ffff00"
             opacity = 0.8
-            text = value
+            if(osdEnable.checked) {
+                text = value
+            }
         }
         function info(value) {
             osd_left.color = "white"
             opacity = 0.8
-            text = value
+            if(osdEnable.checked) {
+                text = value
+            }
         }
     }
 
@@ -1012,12 +1063,16 @@ ApplicationWindow {
         function error(value) {
             color = "brown"
             opacity = 0.8
-            text = value
+            if(osdEnable.checked) {
+                text = value
+            }
         }
         function info(value) {
             color = "white"
             opacity = 0.8
-            text = value
+            if(osdEnable.checked) {
+                text = value
+            }
         }
     }
 
@@ -1270,7 +1325,7 @@ ApplicationWindow {
         x : 10
         y : 10
         width: 80; height: 80
-        visible: alKSPEnable
+        visible: alEnableKsp
         Rectangle {
             anchors.fill: cLayout
             color: "black"
@@ -1963,12 +2018,12 @@ ApplicationWindow {
                             opacity: 0.8
                         }
                         Switch {
-                            id: enableKSP
+                            id: kspEnable
                             checked: true
 
                             onCheckedChanged: {
 
-                                if(enableKSP.checked === true) {
+                                if(kspEnable.checked === true) {
                                     c_view.enabled = true
                                     c_scan_timer.restart()
                                 } else {
@@ -1999,6 +2054,33 @@ ApplicationWindow {
                             onClicked: {
                                 ksp.apiToken = "0000"
                             }
+                        }
+                    }
+                }
+
+                ColumnLayout {
+                    Label {
+                        leftPadding: 2
+                        text: "OSD Settings"
+                        font.pixelSize: 25
+                        color: "white"
+                        opacity: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.topMargin: -16
+                        Layout.leftMargin: 4
+
+                        Label {
+                            text: "Enable OSD  "
+                            Layout.preferredWidth: sDrawer.width/2
+                            font.pixelSize: 16
+                            color: "white"
+                            opacity: 0.8
+                        }
+                        Switch {
+                            id: osdEnable
+                            checked: true
                         }
                     }
                 }
@@ -2095,7 +2177,9 @@ ApplicationWindow {
         kioo.videoCodecOptions = opt
         root.title = version;
         fileName = version;
+        ksp.getVersion();
         Utils.getFile(Qt.application.arguments);
+
     }
     Component.onDestruction: {
         if(enableHistory.checked)
