@@ -1366,10 +1366,18 @@ ApplicationWindow {
         Timer {
             id: c_scan_timer
             interval: 500; repeat: true
+            property var iteration : 0
             onTriggered: {
                // console.log('timer is running')
                 if(ksp.comments === "") {
-                    ksp.getComments()
+                    if(iteration === 10) {
+                        ksp.comments === {
+                            "comments": ""
+                        }
+                    } else {
+                        ksp.getComments()
+                        iteration  = iteration + 1
+                    }
                 } else {
                     var obj = ksp.comments
                     for (var i = 0; i < obj.comments.length; i++){
