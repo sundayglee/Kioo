@@ -204,7 +204,7 @@ ApplicationWindow {
                 xhr.open('POST',url, true);
                 xhr.setRequestHeader('Content-type' , 'application/json');
                 xhr.setRequestHeader('Authorization' , 'Token '+ksp.apiToken);
-                xhr.send(JSON.stringify({"movie": { "movie_name": movie_name, "movie_hash": addon.sourceUrl}, "content": cContent.text, "position": kioo.position}));
+                xhr.send(JSON.stringify({"movie": { "movie_name": movie_name, "movie_hash": addon.sourceUrl}, "content": cContent.text, "position": (kioo.position - 2000)}));
             }
 
             request('http://localhost:8000/social/post-comment/', function (v) {
@@ -668,22 +668,9 @@ ApplicationWindow {
 
             Button {
                 id: oUrlBtn
-                text: "Open"
+                text: "PLAY STREAM"
                 font.pointSize: 10
                 focus: true
-                contentItem: Text {
-                    text: qsTr("PLAY")
-                    font.pointSize: 10
-                    color: "white"
-                    opacity: 0.8
-                }
-
-                background: Rectangle {
-                    Rectangle {
-                        anchors.fill: parent
-                        color: oUrlBtn.pressed ? "#dbb2a3" : "#795548"
-                    }
-                }                
 
                 onClicked: {
                     pModel.append({ fTitle: oUrlName.text, fLink: oUrlLink.text});
@@ -713,7 +700,7 @@ ApplicationWindow {
 
     footer: ToolBar {
         id: bottombar
-        height: 80
+        height: 75
         Keys.forwardTo: canvas
 
         ColumnLayout{
@@ -767,7 +754,7 @@ ApplicationWindow {
             RowLayout {
                 spacing: 0
                 Layout.alignment: Qt.AlignCenter
-                Layout.topMargin: -8
+                Layout.topMargin: -12
 
                 Label {
                     text: Utils.milliSecToString(kioo.position)
@@ -793,7 +780,7 @@ ApplicationWindow {
 
             CustomControls {
                 id: controls
-                Layout.topMargin: 0
+                Layout.topMargin: -4
                 Layout.alignment: Qt.AlignTop
                 Layout.preferredWidth: parent.width
                 playState: kioo.playbackState == MediaPlayer.PlayingState ? "playing" : "paused"

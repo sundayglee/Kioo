@@ -217,6 +217,8 @@ RowLayout {
         Slider {
             id: volumeSlider
             implicitWidth: 80
+            implicitHeight: 40
+            Layout.alignment: Qt.AlignVCenter
             value: volumeValue/2.0
 
             onValueChanged: {
