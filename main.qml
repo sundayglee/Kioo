@@ -838,7 +838,7 @@ ApplicationWindow {
                 onPostKSP: {
                     if(ksp.apiToken.length < 6) {
                         loginPopup.visible === true ? loginPopup.close() : loginPopup.open()
-                    } else if(kioo.playbackState === (MediaPlayer.PlayingState || MediaPlayer.PausedState)) {
+                    } else if((kioo.playbackState === MediaPlayer.PlayingState) || (kioo.playbackState === MediaPlayer.PausedState)) {
                         postButton.enabled = true
                         commentPopup.visible === true ? commentPopup.close() : commentPopup.open()
                     } else {
