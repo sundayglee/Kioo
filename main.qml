@@ -14,7 +14,7 @@ ApplicationWindow {
     visible: true
     width: Utils.scale(720)
     height: Utils.scale(480)
-    color: "black"
+    color: "#4b2c20"
     title: fileName
     // visibility: Window.FullScreen
     // flags: Qt.Window | Qt.FramelessWindowHint

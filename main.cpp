@@ -119,14 +119,15 @@ int main(int argc, char *argv[])
     // qDebug() << "SSL Version: " + QSslSocket::sslLibraryBuildVersionString();
 
     QQmlApplicationEngine engine;
-    //   engine.rootContext()->setContextProperty("mrr",&mrr);
     engine.rootContext()->setContextProperty("addon", &addon);
     engine.rootContext()->setContextProperty("ipcInterface", &ipcInterface);
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
-    if (engine.rootObjects().isEmpty())
-        return -1;
-
-   // QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+    }, Qt::QueuedConnection);
+    engine.load(url);
 
     return app.exec();
 }
