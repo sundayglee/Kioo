@@ -135,6 +135,7 @@ ApplicationWindow {
         property string apiToken: "0000"
         property var postStatus: 0
         property var comments: ""
+        property var host: "https://kiooplayer.com"
 
         onAuthStatusChanged: {
             if(authStatus === 3) {
@@ -162,7 +163,7 @@ ApplicationWindow {
                 xhr.send('username='+username.text+'&password='+password.text);
             }
 
-            request('http://localhost:8000/users/login-api/', function (v) {
+            request(ksp.host+'/users/login-api/', function (v) {
                 try {
                     var resObj = JSON.parse(v.responseText);
 
@@ -207,7 +208,7 @@ ApplicationWindow {
                 xhr.send(JSON.stringify({"movie": { "movie_name": movie_name, "movie_hash": addon.sourceUrl}, "content": cContent.text, "position": (kioo.position - 2000)}));
             }
 
-            request('http://localhost:8000/social/post-comment/', function (v) {
+            request(ksp.host+'/social/post-comment/', function (v) {
                 try {
                     ksp.postStatus = 3
                     commentPopup.close()
@@ -241,7 +242,7 @@ ApplicationWindow {
                 xhr.send(JSON.stringify({'movie_hash': addon.sourceUrl }));
             }
 
-            request('http://localhost:8000/social/comments-list/', function (v) {
+            request(ksp.host+'/social/comments-list/', function (v) {
                 try {
                     var resObj = JSON.parse(v.responseText);
 
@@ -277,7 +278,7 @@ ApplicationWindow {
                 xhr.send('');
             }
 
-            request('http://localhost:8000/home/kioo-version/', function (v) {
+            request(ksp.host+'/home/kioo-version/', function (v) {
                 try {
                     var resObj = JSON.parse(v.responseText);
 
@@ -844,7 +845,6 @@ ApplicationWindow {
                     } else {
                         postButton.enabled = false
                         commentPopup.visible === true ? commentPopup.close() : commentPopup.open()
-
                     }
 
                 }
