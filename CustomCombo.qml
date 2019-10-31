@@ -15,7 +15,7 @@ ComboBox {
         contentItem: Text {
             text: modelData
             color: "white"
-            opacity: 0.8
+
             font: control.font
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
@@ -57,7 +57,7 @@ ComboBox {
         text: control.displayText
         font: control.font
         color: "white"
-        opacity: 0.8
+
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight

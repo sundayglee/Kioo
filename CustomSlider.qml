@@ -22,7 +22,7 @@ Slider {
         width: control.availableWidth
         height: implicitHeight
         color: "white"
-        opacity: 0.8
+
 
         Rectangle {
             width: control.visualPosition * parent.width

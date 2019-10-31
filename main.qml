@@ -22,7 +22,7 @@ ApplicationWindow {
     property string fileName: ""
     property string fileURL: ""
     property var db : ""
-    property  string version: "Kioo v1.16 - (https://www.kiooplayer.com)"
+    property  string version: "Kioo v1.17 - (https://www.kiooplayer.com)"
     property alias alSubUrl: subtitle.file
 
     signal requestFullScreen
@@ -36,6 +36,8 @@ ApplicationWindow {
         root.title = fileName
         subOssModel.clear();
         kioo.play()
+
+        refreshData()
 
         ksp.comments = ""
         if(c_view.enabled === true) {
@@ -438,7 +440,7 @@ ApplicationWindow {
                 verticalAlignment: Qt.AlignVCenter
                 Layout.fillWidth: true
                 color: "white"
-                opacity: 0.8
+
             }
         }
     }
@@ -472,7 +474,7 @@ ApplicationWindow {
             style: Text.Raised
             styleColor: "black"
             color: "white"
-            opacity: 0.8
+
             font.pixelSize: Math.max(root.width, root.height) / 32
             anchors.fill: parent
             anchors.bottomMargin: Math.max(root.width, root.height) / 32
@@ -527,7 +529,6 @@ ApplicationWindow {
         muted: !appOption.alAudioEnable
         objectName: "kioo"
         autoPlay: true
-      //  bufferSize: 1024
 
         videoCapture {
             autoSave: true
@@ -605,7 +606,7 @@ ApplicationWindow {
             Label {
                 width: Layout.width
                 Layout.alignment: Qt.AlignCenter
-                opacity: 0.8
+
                 font.bold: true;
                 text: "OPEN NETWORK STREAM"
                 font.pointSize: 10
@@ -617,7 +618,7 @@ ApplicationWindow {
                 font.pointSize: 10
                 font.bold: true
                 Layout.preferredWidth: (urlPopup.width) - 16
-                opacity: 0.8
+
                 color: "white"
             }
 
@@ -642,7 +643,7 @@ ApplicationWindow {
                 font.pointSize: 10
                 font.bold: true
                 Layout.preferredWidth: (urlPopup.width) - 16
-                opacity: 0.8
+
                 color: "white"
             }
 
@@ -686,7 +687,7 @@ ApplicationWindow {
             Label {
                 text: "Tip:  Stream anything which can be downloaded as a file or any live stream. Remember, the link must be the URL to the actual file or stream and not otherwise."
                 font.pointSize: 10
-                opacity: 0.8
+
                 Layout.preferredWidth: (urlPopup.width) - 16
                 wrapMode: Label.WordWrap
                 color: "white"
@@ -703,6 +704,31 @@ ApplicationWindow {
         id: bottombar
         height: 75
         Keys.forwardTo: canvas
+
+        MouseArea {
+            id: mouse4
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+            onPositionChanged: {
+                if(topbar.visible){
+                    timer1.start()
+                    timer2.start()
+                }
+                else if(timer1.running || timer2.running) {
+                    timer2.stop()
+                }
+                else if(!(topbar.visible && timer1.running)) {
+                    topbar.visible = root.visibility === Window.FullScreen ? true : false
+                    bottombar.visible = true
+                    mouse4.cursorShape = Qt.ArrowCursor
+                }
+
+                // Show comment Position
+                tickComments()
+            }
+        }
 
         ColumnLayout{
             spacing: 0
@@ -761,20 +787,20 @@ ApplicationWindow {
                     text: Utils.milliSecToString(kioo.position)
                     color: "white"
                     // font.pixelSize: 22
-                    opacity: 0.8
+
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
                     text: " / "
                     color: "white"
                     // font.pixelSize: 22
-                    opacity: 0.8
+
                     Layout.alignment: Qt.AlignHCenter
                 }
                 Label {
                     text: Utils.milliSecToString(kioo.duration)
                     color: "white"
-                    opacity: 0.8
+
                     Layout.alignment: Qt.AlignHCenter
                 }
             }
@@ -836,6 +862,34 @@ ApplicationWindow {
                         plstState = "three"
                     }
                 }
+                onPlbsChanged: {
+                    if(plbSpeed === "x0.25") {
+                        plbSpeed = "x0.5"
+                        kioo.playbackRate = 0.5
+                    } else if (plbSpeed === "x0.5") {
+                        plbSpeed = "x0.75"
+                        kioo.playbackRate = 0.75
+                    } else if (plbSpeed === "x0.75") {
+                        plbSpeed = "x1.0"
+                        kioo.playbackRate = 1.0
+                    } else if (plbSpeed === "x1.0") {
+                        plbSpeed = "x1.25"
+                        kioo.playbackRate = 1.25
+                    } else if (plbSpeed === "x1.25") {
+                        plbSpeed = "x1.75"
+                        kioo.playbackRate = 1.75
+                    } else if (plbSpeed === "x1.75") {
+                        plbSpeed = "x2.0"
+                        kioo.playbackRate = 2.0
+                    } else if (plbSpeed === "x2.0") {
+                        plbSpeed = "x0.25"
+                        kioo.playbackRate = 0.25
+                    }
+
+                    // Display that playback speed changed
+                    osd_left.info("Speed: "+plbSpeed)
+                }
+
                 onPostKSP: {
                     if(ksp.apiToken.length < 6) {
                         loginPopup.visible === true ? loginPopup.close() : loginPopup.open()
@@ -954,7 +1008,7 @@ ApplicationWindow {
         horizontalAlignment: Text.AlignHCenter
         color: "white"
         font.pixelSize: Math.max(root.width, root.height) / 32
-        opacity: 0.8
+
         anchors.top: root.top
         width: root.width
         height: root.height / 2
@@ -991,7 +1045,7 @@ ApplicationWindow {
         horizontalAlignment: Text.AlignLeft
         color: "white"
         font.pixelSize: Math.max(root.width, root.height) / 32
-        opacity: 0.8
+
         anchors.top: root.top
         width: root.width
         height: root.height
@@ -1010,14 +1064,14 @@ ApplicationWindow {
         }
         function error(value) {
             osd_left.color = "#ffff00"
-            opacity = 0.8
+
             if(osdEnable.checked) {
                 text = value
             }
         }
         function info(value) {
             osd_left.color = "white"
-            opacity = 0.8
+
             if(osdEnable.checked) {
                 text = value
             }
@@ -1029,7 +1083,7 @@ ApplicationWindow {
         horizontalAlignment: Text.AlignRight
         color: "white"
         font.pixelSize: Math.max(root.width, root.height) / 32
-        opacity: 0.8
+
         anchors.top: root.top
         width: root.width
         height: root.height
@@ -1048,14 +1102,14 @@ ApplicationWindow {
         }
         function error(value) {
             color = "brown"
-            opacity = 0.8
+
             if(osdEnable.checked) {
                 text = value
             }
         }
         function info(value) {
             color = "white"
-            opacity = 0.8
+
             if(osdEnable.checked) {
                 text = value
             }
@@ -1083,7 +1137,7 @@ ApplicationWindow {
             Label {
                 width: Layout.width
                 Layout.alignment: Qt.AlignCenter
-                opacity: 0.8
+
                 font.bold: true;
                 text: "LOGIN"
                 font.pointSize: 10
@@ -1208,7 +1262,7 @@ ApplicationWindow {
             Label {
                 width: Layout.width
                 Layout.alignment: Qt.AlignCenter
-                opacity: 0.8
+
                 font.bold: true;
                 text: "NEW COMMENT"
                 font.pointSize: 10
@@ -1221,7 +1275,7 @@ ApplicationWindow {
                 font.pointSize: 10
                 font.bold: true
                 Layout.preferredWidth: (urlPopup.width) - 16
-                opacity: 0.8
+
                 color: "white"
 
             }
@@ -1441,6 +1495,13 @@ ApplicationWindow {
                     Switch {
                         id: clearPlaylist
                         Layout.alignment: Qt.AlignRight
+
+                        hoverEnabled: true
+                        ToolTip.delay: 1000
+                        ToolTip.timeout: 5000
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Clear Current Playlist")
+
                         onPressed: {
                             pModel.clear();
                             fileName = "";
@@ -1485,7 +1546,7 @@ ApplicationWindow {
                         text: pDel.text
                         font: pDel.font
                         color: "white"
-                        opacity: 0.8
+
                         elide: Text.ElideRight
                         visible: pDel.text
                         Layout.alignment: Qt.AlignLeft
@@ -1501,12 +1562,20 @@ ApplicationWindow {
 
                         ToolButton {
                             anchors.fill: parent
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Move its position up")
+
                             contentItem:  Image {
                                 source: "/icon/up.svg"
-                                opacity: 0.8
+
                             }
                             onClicked: {
                                 pModel.move(index,(index-1),1)
+                                refreshData()
                             }
                         }
                     }
@@ -1518,14 +1587,22 @@ ApplicationWindow {
                         color: "transparent"
                         Layout.alignment: Qt.AlignRight
 
+
                         ToolButton {
                             anchors.fill: parent
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Move its position down")
                             contentItem:  Image {
                                 source: "/icon/down.svg"
-                                opacity: 0.8
+
                             }
                             onClicked: {
                                 pModel.move(index,(index+1),1)
+                                refreshData()
                             }
                         }
                     }
@@ -1539,12 +1616,20 @@ ApplicationWindow {
 
                         ToolButton {
                             anchors.fill: parent
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Remove from playlist")
+
                             contentItem:  Image {
                                 source: "/icon/close.svg"
-                                opacity: 0.8
+
                             }
                             onClicked: {
                                 pModel.remove(index)
+                                refreshData()
                             }
                         }
                     }
@@ -1603,7 +1688,7 @@ ApplicationWindow {
                     text: "Audio"
                     font.pixelSize: 25
                     color: "white"
-                    opacity: 0.8
+
                 }
 
                 RowLayout {
@@ -1616,12 +1701,19 @@ ApplicationWindow {
                         text: "Enable Audio "
                         font.pixelSize: 16
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     Switch {
                         id: audioEnable
                         checked: true
+
+                        hoverEnabled: true
+                        ToolTip.delay: 1000
+                        ToolTip.timeout: 5000
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Toggle Audio On/Off")
+
                     }
                 }
 
@@ -1634,7 +1726,7 @@ ApplicationWindow {
                         text: "Audio Channel"
                         font.pixelSize: 16
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     CustomCombo {
@@ -1642,6 +1734,13 @@ ApplicationWindow {
                         Layout.preferredWidth: sDrawer.width/2.5
                         Layout.preferredHeight: 48
                         textRole: "text"
+
+                        hoverEnabled: true
+                        ToolTip.delay: 1000
+                        ToolTip.timeout: 5000
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Change Audio Channel")
+
                         model: ListModel {
                             ListElement { text: "Stereo" }
                             ListElement { text: "Mono"  }
@@ -1673,7 +1772,7 @@ ApplicationWindow {
                         text: "Audio Track"
                         font.pixelSize: 16
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     CustomCombo {
@@ -1682,6 +1781,13 @@ ApplicationWindow {
                         Layout.preferredWidth: sDrawer.width/2.5
                         Layout.preferredHeight: 48
                         currentIndex: 0
+
+                        hoverEnabled: true
+                        ToolTip.delay: 1000
+                        ToolTip.timeout: 5000
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Change Audio Track")
+
                         model: ListModel {
                             id: aTrackModel
                         }
@@ -1700,7 +1806,7 @@ ApplicationWindow {
                         text: "Video"
                         font.pixelSize: 25
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     RowLayout {
@@ -1713,12 +1819,18 @@ ApplicationWindow {
                             text: "Enable Video "
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
 
                         Switch {
                             id: videoEnable
                             checked: true
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Toggle Video On/Off")
                         }
                     }
                 }
@@ -1730,7 +1842,7 @@ ApplicationWindow {
                         text: "Subtitle"
                         font.pixelSize: 25
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     RowLayout {
@@ -1742,11 +1854,17 @@ ApplicationWindow {
                             Layout.preferredWidth: sDrawer.width/2
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
                         Switch {
                             id: subtitleEnable
                             checked: true
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Toggle Subtitles On/Off")
                         }
                     }
 
@@ -1759,7 +1877,7 @@ ApplicationWindow {
                             text: "Subtitle Track"
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
 
                         CustomCombo {
@@ -1769,12 +1887,19 @@ ApplicationWindow {
                             Layout.preferredHeight: 48
                             currentIndex: 0
                             textRole: "title"
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Change Subtitle Track")
+
                             delegate: ItemDelegate {
                                 width: csub.width
                                 contentItem: Text {
                                     text: title
                                     color: "white"
-                                    opacity: 0.8
+
                                     font: csub.font
                                     elide: Text.ElideRight
                                     verticalAlignment: Text.AlignVCenter
@@ -1809,12 +1934,18 @@ ApplicationWindow {
                             text: "Opensubtitles:"
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
 
                         Button {
                             id: subSearchBtn
                             text: 'SEARCH'
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Search Online Subtitles")
 
 
                             onClicked: {
@@ -1871,6 +2002,12 @@ ApplicationWindow {
                             id: subDownBtn
                             text: 'LOAD'
 
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Download Selected Online")
+
                             onClicked: {
                                 addon.subFile = subOssModel.get(subList.currentIndex).fLink+"|"+subOssModel.get(subList.currentIndex).fTitle+"|"+kioo.source;
                             }
@@ -1897,6 +2034,12 @@ ApplicationWindow {
                             Layout.preferredHeight: 48
                             textRole: "name"
 
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Change Online Subtitle Language")
+
                             // model: ["English","French","Spanish"]
                             model: ListModel {
                                 id: subLangList
@@ -1920,7 +2063,7 @@ ApplicationWindow {
                                 contentItem: Text {
                                     text: name
                                     color: "white"
-                                    opacity: 0.8
+
                                     font: subLang.font
                                     elide: Text.ElideRight
                                     verticalAlignment: Text.AlignVCenter
@@ -1940,6 +2083,13 @@ ApplicationWindow {
                             Layout.preferredHeight: 48
                             currentIndex: 0
                             textRole: "fTitle"
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Selected/Change Online Subtitle")
+
                             model: ListModel {
                                 id: subOssModel
                                 //  ListElement { title: ""; source: "" }
@@ -1949,7 +2099,7 @@ ApplicationWindow {
                                 contentItem: Text {
                                     text: fTitle
                                     color: "white"
-                                    opacity: 0.8
+
                                     font: subList.font
                                     elide: Text.ElideRight
                                     verticalAlignment: Text.AlignVCenter
@@ -1970,7 +2120,7 @@ ApplicationWindow {
                         text: "Playlist"
                         font.pixelSize: 25
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     RowLayout {
@@ -1982,11 +2132,17 @@ ApplicationWindow {
                             Layout.preferredWidth: sDrawer.width/2
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
                         Switch {
                             id: enableHistory
                             checked: true
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Toggle Play Auto Save On/Off")
                         }
                     }
                 }
@@ -1997,7 +2153,7 @@ ApplicationWindow {
                         text: "Kioo Social Platform"
                         font.pixelSize: 25
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     RowLayout {
@@ -2009,11 +2165,17 @@ ApplicationWindow {
                             Layout.preferredWidth: sDrawer.width/2
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
                         Switch {
                             id: kspEnable
                             checked: true
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Toggle Kioo Social Platform On/Off")
 
                             onCheckedChanged: {
 
@@ -2036,7 +2198,7 @@ ApplicationWindow {
                             Layout.preferredWidth: sDrawer.width/2
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
 
                         Button {
@@ -2044,6 +2206,12 @@ ApplicationWindow {
                             Layout.fillWidth: false
                             Layout.alignment: Qt.AlignRight
                             text: "LOGOUT"
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Logout from KSP")
 
                             onClicked: {
                                 ksp.apiToken = "0000"
@@ -2058,7 +2226,7 @@ ApplicationWindow {
                         text: "OSD Settings"
                         font.pixelSize: 25
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     RowLayout {
@@ -2070,11 +2238,17 @@ ApplicationWindow {
                             Layout.preferredWidth: sDrawer.width/2
                             font.pixelSize: 16
                             color: "white"
-                            opacity: 0.8
+
                         }
                         Switch {
                             id: osdEnable
                             checked: true
+
+                            hoverEnabled: true
+                            ToolTip.delay: 1000
+                            ToolTip.timeout: 5000
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Toggle On Screen Display")
                         }
                     }
                 }
@@ -2085,7 +2259,7 @@ ApplicationWindow {
                         text: "About"
                         font.pixelSize: 25
                         color: "white"
-                        opacity: 0.8
+
                     }
 
                     RowLayout {
@@ -2099,7 +2273,7 @@ ApplicationWindow {
                             leftPadding: 4
                             text: version
                             color: "white"
-                            opacity: 0.8
+
                         }
                     }
                 }
@@ -2242,6 +2416,14 @@ ApplicationWindow {
         db.transaction( function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS data');
         });
+    }
+
+    function refreshData() {
+        if(enableHistory.checked) {
+            cleanData();
+            storeData();
+            readData();
+        }
     }
 
     ThumbnailToolBar {
