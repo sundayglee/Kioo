@@ -2351,7 +2351,7 @@ ApplicationWindow {
     }
     Component.onDestruction: {
         if(enableHistory.checked)
-            storeData();
+            refreshData();
         else
             pModel.clear();
     }
@@ -2363,7 +2363,9 @@ ApplicationWindow {
         });
     }
 
+
     function storeData() {
+        initDatabase();
         if(!db) { return; }
         db.transaction( function(tx) {
             var result = tx.executeSql('SELECT * from data where name = "playlist"');
@@ -2392,6 +2394,7 @@ ApplicationWindow {
     }
 
     function readData() {
+        db = LocalStorage.openDatabaseSync("Kioo", "1.0", "Kioo Media", 1000000);
         // print('readData()')
         if(!db) { return; }
         db.transaction( function(tx) {
@@ -2412,7 +2415,7 @@ ApplicationWindow {
     }
 
     function cleanData() {
-        db = LocalStorage.openDatabaseSync("Kioo", "1.0", "Kioo Media", 1000000);
+        initDatabase();
         db.transaction( function(tx) {
             tx.executeSql('DROP TABLE IF EXISTS data');
         });
@@ -2422,7 +2425,6 @@ ApplicationWindow {
         if(enableHistory.checked) {
             cleanData();
             storeData();
-            readData();
         }
     }
 
