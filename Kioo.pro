@@ -38,6 +38,7 @@ LIBS += -lz
 OPENSSL_LIBS='-L/usr/lib/openssl -lssl -lcrypto'
 
 DISTFILES += \
+    BSD-LICENSE \
     Changelog
 
 HEADERS += \

@@ -1,3 +1,14 @@
+/************************************************************************************************
+    Kioo Media Player: A Player With Clear Crystal Sound, Extra Sharp Video, with a Beautiful Design.
+    Copyright (C) 2017 - 2020 Kioo Media Player <support@kiooplayer.com>.
+    Homepage: https://www.kiooplayer.com
+    Developer: Godfrey E Laswai <sundayglee@gmail.com>
+    All rights reserved.
+
+    Use of this source code is governed by a BSD-3-Clause license that can be
+    found in the BSD-LICENSE file or see it here <https://opensource.org/licenses/BSD-3-Clause>.
+*************************************************************************************************/
+
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
@@ -900,7 +911,6 @@ ApplicationWindow {
                         postButton.enabled = false
                         commentPopup.visible === true ? commentPopup.close() : commentPopup.open()
                     }
-
                 }
             }
         }
@@ -1372,7 +1382,6 @@ ApplicationWindow {
             opacity: 0.5
         }
 
-
         ColumnLayout {
             id: cLayout
             spacing: 4
@@ -1685,10 +1694,58 @@ ApplicationWindow {
                 Label {
                     Layout.topMargin: -16
                     leftPadding: 2
+                    text: "Window"
+                    font.pixelSize: 25
+                    color: "white"
+                }
+
+                RowLayout {
+                    Layout.topMargin: -16
+                    Layout.leftMargin: 4
+
+                    Label {
+                        Layout.alignment: Qt.AlignLeft
+                        Layout.preferredWidth: sDrawer.width/2
+                        text: "Always On Top"
+                        font.pixelSize: 16
+                        color: "white"
+
+                    }
+
+                    Switch {
+                        id: onTopEnable
+                        checked: false
+                        // root.visibility == Window.FullScreen ? root.visibility=Window.Windowed : root.visibility=Window.FullScreen
+                        enabled: root.visibility == Window.FullScreen ? false : true
+
+                        hoverEnabled: true
+                        ToolTip.delay: 1000
+                        ToolTip.timeout: 5000
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Toggle Always on Top On/Off")
+
+                        onToggled: {
+                            if(root.visibility === Window.Windowed) {
+                                if(onTopEnable.checked) {
+                                    root.flags |= Qt.WindowTitleHint | Qt.WindowSystemMenuHint |
+                                            Qt.WindowStaysOnTopHint | Qt.CustomizeWindowHint |
+                                            Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint |
+                                            Qt.WindowCloseButtonHint
+
+                                } else {
+                                    root.flags ^= Qt.WindowStaysOnTopHint
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Label {
+                    Layout.topMargin: -16
+                    leftPadding: 2
                     text: "Audio"
                     font.pixelSize: 25
                     color: "white"
-
                 }
 
                 RowLayout {
@@ -1713,7 +1770,6 @@ ApplicationWindow {
                         ToolTip.timeout: 5000
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Toggle Audio On/Off")
-
                     }
                 }
 
@@ -1726,7 +1782,6 @@ ApplicationWindow {
                         text: "Audio Channel"
                         font.pixelSize: 16
                         color: "white"
-
                     }
 
                     CustomCombo {

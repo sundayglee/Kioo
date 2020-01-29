@@ -1,3 +1,14 @@
+/************************************************************************************************
+    Kioo Media Player: A Player With Clear Crystal Sound, Extra Sharp Video, with a Beautiful Design.
+    Copyright (C) 2017 - 2020 Kioo Media Player <support@kiooplayer.com>.
+    Homepage: https://www.kiooplayer.com
+    Developer: Godfrey E Laswai <sundayglee@gmail.com>
+    All rights reserved.
+
+    Use of this source code is governed by a BSD-3-Clause license that can be
+    found in the BSD-LICENSE file or see it here <https://opensource.org/licenses/BSD-3-Clause>.
+*************************************************************************************************/
+
 import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.3
